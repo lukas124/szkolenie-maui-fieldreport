@@ -4,15 +4,18 @@
 -->
 <ResourceDictionary xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
                     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-                    xmlns:pages="clr-namespace:FieldReport.App.Pages">
+                    xmlns:pages="clr-namespace:FieldReport.App.Pages"
+                    xmlns:nav="clr-namespace:FieldReport.Core.Navigation;assembly=FieldReport.Core">
 
     <!--
-      Szablon strony (ControlTemplate): nagłówek + treść strony (ContentPresenter). Każda BasePage dostaje go ze stylu w App.xaml.
+      Szablon strony (ControlTemplate): nagłówek + treść strony (ContentPresenter) + globalny wskaźnik ładowania
+      (widoczny, gdy ViewModel ma IsBusy = true). Każda BasePage dostaje go ze stylu w App.xaml.
       Nagłówek rysuje MAUI, więc wygląda tak samo na Androidzie i iOS (systemowy pasek nawigacji jest ukryty — Styles.xaml).
       Binding z Source={RelativeSource TemplatedParent} czyta właściwości strony, która używa szablonu (Title, CanNavigateBack…).
     -->
     <ControlTemplate x:Key="PageTemplate">
-        <Grid RowDefinitions="Auto,*" x:DataType="pages:BasePage">
+        <Grid RowDefinitions="Auto,*" x:DataType="pages:BasePage"
+              BindingContext="{Binding BindingContext, Source={RelativeSource TemplatedParent}}">
             <Grid ColumnDefinitions="56,*,56" HeightRequest="56">
                 <ImageButton Source="{AppThemeBinding Light=icon_back_dark.png, Dark=icon_back_light.png}" Padding="16"
                              Command="{Binding BackButtonCommand, Source={RelativeSource TemplatedParent}}"
@@ -28,6 +31,9 @@
             </Grid>
 
             <ContentPresenter Grid.Row="1" />
+            <ActivityIndicator Grid.Row="1" x:DataType="nav:BaseViewModel" IsRunning="{Binding IsBusy}" IsVisible="{Binding IsBusy}"
+                               HorizontalOptions="Center" VerticalOptions="Center"
+                               WidthRequest="48" HeightRequest="48" />
         </Grid>
     </ControlTemplate>
 </ResourceDictionary>

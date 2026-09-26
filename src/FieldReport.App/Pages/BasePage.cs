@@ -1,12 +1,16 @@
 using System.Windows.Input;
+using FieldReport.App.Extensions;
+using FieldReport.Core.Navigation;
+using FieldReport.Core.Services;
 
 namespace FieldReport.App.Pages;
 
 /// <summary>
-/// Strona z nagłówkiem. Wygląd nagłówka opisuje szablon „PageTemplate” w Templates/PageTemplate.xaml (taki sam na Androidzie i iOS),
-/// a strona ustawia tylko jego treść: tytuł (Title), strzałkę „wstecz” (CanNavigateBack) i ikonę akcji z prawej (ActionIcon, ActionCommand).
+/// Strona z nagłówkiem, która przekazuje swój cykl życia do ViewModelu. Wygląd nagłówka i wskaźnik ładowania opisuje szablon
+/// „PageTemplate” w Templates/PageTemplate.xaml (taki sam na Androidzie i iOS), a strona ustawia tylko treść nagłówka: tytuł (Title),
+/// strzałkę „wstecz” (CanNavigateBack) i ikonę akcji z prawej (ActionIcon, ActionCommand).
 /// </summary>
-public abstract class BasePage : ContentPage
+public abstract class BasePage(IErrorHandler errors) : ContentPage
 {
     public static readonly BindableProperty CanNavigateBackProperty =
         BindableProperty.Create(nameof(CanNavigateBack), typeof(bool), typeof(BasePage), false);
@@ -43,6 +47,9 @@ public abstract class BasePage : ContentPage
         set => SetValue(ActionCommandProperty, value);
     }
 
+    /// <summary>Obsługa błędów — także dla stron tworzonych w code-behind (new PlaygroundPage(Errors)).</summary>
+    protected IErrorHandler Errors => errors;
+
     // Szablon (styl z App.xaml) jest nakładany już w konstruktorze ContentPage, zanim wykona się kod BasePage,
     // dlatego komendę tworzymy przy pierwszym odczycie, a nie w konstruktorze
     private Command? _backButtonCommand;
@@ -50,15 +57,34 @@ public abstract class BasePage : ContentPage
     /// <summary>Komenda strzałki „wstecz” (wiąże ją szablon nagłówka).</summary>
     public ICommand BackButtonCommand => _backButtonCommand ??= new Command(GoBack);
 
-    private async void GoBack()
+    // Strzałka „wstecz” = systemowy przycisk „wstecz”: decyduje ViewModel strony; strona bez ViewModelu po prostu wraca
+    private void GoBack()
     {
-        try
-        {
-            await Navigation.PopAsync();
-        }
-        catch (Exception ex)
-        {
-            System.Diagnostics.Debug.WriteLine(ex); // async void zawsze z try/catch
-        }
+        if (BindingContext is BaseViewModel vm) vm.OnBackRequestedAsync().FireAndForget(errors);
+        else Navigation.PopAsync().FireAndForget(errors);
+    }
+
+    protected override void OnAppearing()
+    {
+        base.OnAppearing();
+        if (BindingContext is BaseViewModel vm) vm.OnAppearingAsync().FireAndForget(errors);
+    }
+
+    protected override void OnDisappearing()
+    {
+        base.OnDisappearing();
+        if (BindingContext is BaseViewModel vm) vm.OnDisappearingAsync().FireAndForget(errors);
+    }
+
+    protected override bool OnBackButtonPressed()
+    {
+        if (BindingContext is not BaseViewModel vm) return base.OnBackButtonPressed();
+
+        // Korzeń stosu: oddajemy przycisk systemowi, żeby „wstecz” z listy zamykało aplikację (start i routing).
+        if (Navigation.NavigationStack.Count <= 1 && Navigation.ModalStack.Count == 0)
+            return base.OnBackButtonPressed();
+
+        vm.OnBackRequestedAsync().FireAndForget(errors);
+        return true;
     }
 }
