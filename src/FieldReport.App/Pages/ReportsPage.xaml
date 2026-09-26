@@ -5,7 +5,9 @@
                 xmlns:components="clr-namespace:FieldReport.App.Components"
                 xmlns:loc="clr-namespace:FieldReport.App.MarkupExtensions"
                 xmlns:vm="clr-namespace:FieldReport.Core.ViewModels;assembly=FieldReport.Core"
+                xmlns:presentation="clr-namespace:FieldReport.Core.Presentation;assembly=FieldReport.Core"
                 x:Class="FieldReport.App.Pages.ReportsPage"
+                x:DataType="vm:ReportsViewModel"
                 Title="{loc:Translate Reports_Title}"
                 ActionIcon="{AppThemeBinding Light=icon_settings_dark.png, Dark=icon_settings_light.png}">
 
@@ -33,7 +35,8 @@
 
         <!-- Karta zgłoszenia: Border + Grid (miniatura | tytuł + data | odznaki). Płasko: szablon × N elementów. -->
         <CollectionView.ItemTemplate>
-            <DataTemplate>
+            <!-- x:DataType w szablonie: kontekstem elementu listy jest ReportItem (nie ViewModel strony) -->
+            <DataTemplate x:DataType="presentation:ReportItem">
                 <!-- SwipeView: przesunięcie w lewo → „Usuń” (tylko niewysłane). Komenda z ViewModelu strony
                      (RelativeSource AncestorType), parametr = element listy ({Binding .}). -->
                 <SwipeView Margin="16,0" BackgroundColor="Transparent">

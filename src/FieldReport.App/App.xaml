@@ -2,6 +2,7 @@
 <Application xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:pages="clr-namespace:FieldReport.App.Pages"
+             xmlns:conv="clr-namespace:FieldReport.App.Converters"
              x:Class="FieldReport.App.App">
     <!-- Zasoby globalne: kolory i style dostępne w całej aplikacji -->
     <Application.Resources>
@@ -11,6 +12,12 @@
                 <ResourceDictionary Source="Resources/Styles/Styles.xaml" />
                 <ResourceDictionary Source="Templates/PageTemplate.xaml" />
             </ResourceDictionary.MergedDictionaries>
+
+            <!-- Konwertery: znaczenie (enum) → wygląd (kolor z palety) -->
+            <conv:PriorityToColorConverter x:Key="PriorityToColor"
+                High="{StaticResource DangerColor}" Normal="{StaticResource WarningColor}" Low="{StaticResource NeutralColor}" />
+            <conv:StatusToColorConverter x:Key="StatusToColor"
+                New="{StaticResource InfoColor}" InProgress="{StaticResource WarningColor}" Done="{StaticResource SuccessColor}" />
 
             <Style TargetType="pages:BasePage" ApplyToDerivedTypes="True" BasedOn="{StaticResource PageStyle}">
                 <Setter Property="ControlTemplate" Value="{StaticResource PageTemplate}" />
