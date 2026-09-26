@@ -15,10 +15,14 @@
     <ScrollView>
         <VerticalStackLayout Padding="16,16,16,32" Spacing="16" IsVisible="{Binding Report, Converter={StaticResource IsNotNullConverter}}">
 
-            <!-- Zdjęcie zgłoszenia albo miniatura zastępcza -->
-            <Border Style="{StaticResource Thumbnail}" WidthRequest="-1" HeightRequest="180">
-                <Image Source="{Binding Report.PhotoPath, TargetNullValue='report_placeholder.png'}"
-                       Aspect="AspectFit" WidthRequest="96" HeightRequest="96" />
+            <!-- Zdjęcie usterki (z kreatora) albo miniatura zastępcza -->
+            <Border Style="{StaticResource Thumbnail}" WidthRequest="-1" HeightRequest="220">
+                <Grid>
+                    <Image Source="report_placeholder.png" Aspect="AspectFit" WidthRequest="96" HeightRequest="96"
+                           IsVisible="{Binding Report.PhotoPath, Converter={StaticResource IsNullConverter}}" />
+                    <Image Source="{Binding Report.PhotoPath}" Aspect="AspectFill"
+                           IsVisible="{Binding Report.PhotoPath, Converter={StaticResource IsNotNullConverter}}" AutomationId="DetailsPhoto" />
+                </Grid>
             </Border>
 
             <VerticalStackLayout Spacing="10">

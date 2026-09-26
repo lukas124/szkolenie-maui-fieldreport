@@ -38,3 +38,19 @@ public class UserFeedbackTests
         Assert.That(answer, Is.True);
     }
 }
+
+[TestFixture]
+public class UserFeedbackCustomButtonsTests
+{
+    [Test]
+    public async Task Confirm_WithButtonKeys_UsesTextsFromResources()
+    {
+        var dialogs = new Mock<FieldReport.Core.Services.IDialogService>();
+        var feedback = new FieldReport.Core.Presentation.UserFeedback(dialogs.Object,
+            Mock.Of<FieldReport.Core.Presentation.IErrorMessageProvider>(), new FieldReport.Tests.TestData.KeyLocalizer());
+
+        await feedback.ConfirmAsync("T", "M", "Permission_OpenSettings", "Common_Cancel");
+
+        dialogs.Verify(d => d.ConfirmAsync("T", "M", "Permission_OpenSettings", "Common_Cancel"), Times.Once);
+    }
+}

@@ -64,7 +64,6 @@
   <data name="NewReport_DescriptionLabel" xml:space="preserve"><value>Description (optional)</value></data>
   <data name="NewReport_DescriptionPlaceholder" xml:space="preserve"><value>What happened, where, what has already been checked…</value></data>
   <data name="NewReport_PriorityLabel" xml:space="preserve"><value>Priority</value></data>
-  <data name="NewReport_PhotoPlaceholder" xml:space="preserve"><value>A photo of the fault is optional. Continue.</value></data>
   <data name="NewReport_Next" xml:space="preserve"><value>Next</value></data>
   <data name="NewReport_Save" xml:space="preserve"><value>Save</value></data>
   <data name="NewReport_Back" xml:space="preserve"><value>Back</value></data>
@@ -77,4 +76,16 @@
   <data name="Settings_SignOut" xml:space="preserve"><value>Sign out</value></data>
   <data name="Settings_SignOutTitle" xml:space="preserve"><value>Sign out?</value></data>
   <data name="Settings_SignOutMessage" xml:space="preserve"><value>After signing out you will need to sign in again.</value></data>
+  <data name="Error_permission_denied" xml:space="preserve"><value>The app has no access to the camera. Allow access to take a photo of the fault.</value></data>
+  <data name="Error_permission_denied_permanently" xml:space="preserve"><value>Camera access is blocked. You can enable it in the system settings.</value></data>
+  <data name="Error_media_not_supported" xml:space="preserve"><value>This device has no camera. Choose a photo from the gallery.</value></data>
+  <data name="Error_media_failed" xml:space="preserve"><value>The photo could not be saved. Please try again.</value></data>
+  <data name="Error_media_cancelled" xml:space="preserve"><value>Cancelled.</value></data>
+  <data name="Permission_CameraTitle" xml:space="preserve"><value>No camera access</value></data>
+  <data name="Permission_CameraSettingsMessage" xml:space="preserve"><value>Camera access has been blocked. To take a photo of the fault, enable the "Camera" permission in the app settings.</value></data>
+  <data name="Permission_OpenSettings" xml:space="preserve"><value>Open settings</value></data>
+  <data name="NewReport_TakePhoto" xml:space="preserve"><value>Take a photo</value></data>
+  <data name="NewReport_PickPhoto" xml:space="preserve"><value>Choose from gallery</value></data>
+  <data name="NewReport_RemovePhoto" xml:space="preserve"><value>Remove</value></data>
+  <data name="NewReport_PhotoHint" xml:space="preserve"><value>A photo of the fault is optional. Take a new one or choose one from the gallery.</value></data>
 </root>
