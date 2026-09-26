@@ -4,6 +4,7 @@
                 xmlns:pages="clr-namespace:FieldReport.App.Pages"
                 xmlns:components="clr-namespace:FieldReport.App.Components"
                 xmlns:loc="clr-namespace:FieldReport.App.MarkupExtensions"
+                xmlns:vm="clr-namespace:FieldReport.Core.ViewModels;assembly=FieldReport.Core"
                 x:Class="FieldReport.App.Pages.ReportsPage"
                 Title="{loc:Translate Reports_Title}"
                 ActionIcon="{AppThemeBinding Light=icon_settings_dark.png, Dark=icon_settings_light.png}">
@@ -33,8 +34,27 @@
         <!-- Karta zgłoszenia: Border + Grid (miniatura | tytuł + data | odznaki). Płasko: szablon × N elementów. -->
         <CollectionView.ItemTemplate>
             <DataTemplate>
+                <!-- SwipeView: przesunięcie w lewo → „Usuń” (tylko niewysłane). Komenda z ViewModelu strony
+                     (RelativeSource AncestorType), parametr = element listy ({Binding .}). -->
+                <SwipeView Margin="16,0" BackgroundColor="Transparent">
+                    <SwipeView.RightItems>
+                        <SwipeItems Mode="Reveal">
+                            <!-- akcja widoczna tylko dla niewysłanych -->
+                            <SwipeItemView IsVisible="{Binding IsPendingSync}"
+                                           Command="{Binding DeleteReportCommand, Source={RelativeSource AncestorType={x:Type vm:ReportsViewModel}}}"
+                                           CommandParameter="{Binding .}">
+                                <Border Style="{StaticResource SwipeAction}">
+                                    <VerticalStackLayout Spacing="4" VerticalOptions="Center" HorizontalOptions="Center">
+                                        <Image Source="icon_delete.png" WidthRequest="24" HeightRequest="24" />
+                                        <Label Text="{loc:Translate Reports_Delete}" Style="{StaticResource SwipeActionText}" />
+                                    </VerticalStackLayout>
+                                </Border>
+                            </SwipeItemView>
+                        </SwipeItems>
+                    </SwipeView.RightItems>
+
                 <!-- ramka karty: zaokrąglone tło ze stylu Card -->
-                <Border Style="{StaticResource Card}" Margin="16,0" Padding="12">
+                <Border Style="{StaticResource Card}" Padding="12">
                     <!-- 2 kolumny: miniatura 64 px | reszta; 3 wiersze: tytuł, data, odznaki -->
                     <Grid ColumnDefinitions="64,*" RowDefinitions="Auto,Auto,Auto" ColumnSpacing="14" RowSpacing="4">
                         <!-- miniatura w kolumnie 0, przez 3 wiersze -->
@@ -62,6 +82,7 @@
                         </FlexLayout>
                     </Grid>
                 </Border>
+                </SwipeView>
             </DataTemplate>
         </CollectionView.ItemTemplate>
     </CollectionView>

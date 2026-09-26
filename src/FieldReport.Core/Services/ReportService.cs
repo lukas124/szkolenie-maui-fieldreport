@@ -14,4 +14,14 @@ public sealed class ReportService(IReportRepository repository) : IReportService
             .ThenBy(r => r.Id).ToList();
         return Result<IReadOnlyList<Report>>.Success(sorted);
     }
+
+    public async Task<Result> DeleteAsync(Guid id, CancellationToken ct = default)
+    {
+        var report = await repository.GetAsync(id, ct);
+        if (report is null) return Result.Failure(Errors.ReportNotFound);
+        if (report.SyncState != SyncState.Pending) return Result.Failure(Errors.ReportAlreadySynced); // wysłanych nie usuwamy
+
+        await repository.DeleteAsync(id, ct);
+        return Result.Success();
+    }
 }
