@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!-- Odznaka statusu zgłoszenia -->
+<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:models="clr-namespace:FieldReport.Core.Models;assembly=FieldReport.Core"
+             x:Class="FieldReport.App.Components.StatusBadge"
+             x:Name="Root">
+    <Border Style="{StaticResource Badge}">
+        <HorizontalStackLayout Spacing="6">
+            <Ellipse WidthRequest="8" HeightRequest="8" VerticalOptions="Center" Fill="{StaticResource InfoColor}">
+                <Ellipse.Triggers>
+                    <DataTrigger TargetType="Ellipse" Binding="{Binding Status, Source={x:Reference Root}}"
+                                 Value="{x:Static models:ReportStatus.InProgress}">
+                        <Setter Property="Fill" Value="{StaticResource WarningColor}" />
+                    </DataTrigger>
+                    <DataTrigger TargetType="Ellipse" Binding="{Binding Status, Source={x:Reference Root}}"
+                                 Value="{x:Static models:ReportStatus.Done}">
+                        <Setter Property="Fill" Value="{StaticResource SuccessColor}" />
+                    </DataTrigger>
+                </Ellipse.Triggers>
+            </Ellipse>
+            <Label Text="{Binding Text, Source={x:Reference Root}}" Style="{StaticResource BadgeText}" />
+        </HorizontalStackLayout>
+    </Border>
+</ContentView>
