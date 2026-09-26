@@ -2,39 +2,66 @@
 <pages:BasePage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
                 xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
                 xmlns:pages="clr-namespace:FieldReport.App.Pages"
+                xmlns:components="clr-namespace:FieldReport.App.Components"
                 xmlns:loc="clr-namespace:FieldReport.App.MarkupExtensions"
                 x:Class="FieldReport.App.Pages.ReportsPage"
                 Title="{loc:Translate Reports_Title}"
                 ActionIcon="{AppThemeBinding Light=icon_settings_dark.png, Dark=icon_settings_light.png}">
 
-    <!-- Lista zgłoszeń: prosty szablon elementu (tytuł, data, status, priorytet, znacznik „Oczekuje na wysłanie”) -->
+    <!-- Nigdy CollectionView w ScrollView: lista sama się przewija i wirtualizuje elementy -->
     <CollectionView ItemsSource="{Binding Reports}" SelectionMode="None">
-        <!-- Pusty stan: CollectionView pokazuje EmptyView, gdy lista nie ma elementów -->
+        <CollectionView.ItemsLayout>
+            <LinearItemsLayout Orientation="Vertical" ItemSpacing="12" />
+        </CollectionView.ItemsLayout>
+
+        <CollectionView.Header>
+            <BoxView HeightRequest="12" Color="Transparent" />
+        </CollectionView.Header>
+        <CollectionView.Footer>
+            <BoxView HeightRequest="24" Color="Transparent" />
+        </CollectionView.Footer>
+
+        <!-- Pusty stan listy zgłoszeń -->
         <CollectionView.EmptyView>
-            <Label Text="{loc:Translate Reports_Empty}" Style="{StaticResource Body}" HorizontalTextAlignment="Center" Margin="40,60" />
+            <VerticalStackLayout Padding="40,0,40,60" Spacing="16" VerticalOptions="Center">
+                <Image Source="empty_reports.png" WidthRequest="120" HeightRequest="120" HorizontalOptions="Center" />
+                <Label Text="{loc:Translate Reports_Empty}" Style="{StaticResource Body}"
+                       HorizontalTextAlignment="Center" FontSize="16" />
+            </VerticalStackLayout>
         </CollectionView.EmptyView>
+
+        <!-- Karta zgłoszenia: Border + Grid (miniatura | tytuł + data | odznaki). Płasko: szablon × N elementów. -->
         <CollectionView.ItemTemplate>
             <DataTemplate>
-                <VerticalStackLayout Padding="20,14" Spacing="4">
-                    <Label Text="{Binding Title}" Style="{StaticResource CardTitle}" />
-                    <Label Style="{StaticResource Caption}">
-                        <Label.FormattedText>
-                            <FormattedString>
-                                <Span Text="{Binding CreatedAtText}" />
-                                <Span Text="  ·  " />
-                                <Span Text="{Binding StatusText}" />
-                                <Span Text="  ·  " />
-                                <Span Text="{loc:Translate Reports_PriorityLabel}" />
-                                <Span Text=": " />
-                                <Span Text="{Binding PriorityText}" />
-                            </FormattedString>
-                        </Label.FormattedText>
-                    </Label>
-                    <!-- tekst z zasobów: „Oczekuje na wysłanie” -->
-                    <Label Text="{loc:Translate Reports_PendingSync}" IsVisible="{Binding IsPendingSync}"
-                           Style="{StaticResource SectionHeader}" FontSize="12" />
-                    <BoxView HeightRequest="1" Margin="0,10,0,0" />
-                </VerticalStackLayout>
+                <!-- ramka karty: zaokrąglone tło ze stylu Card -->
+                <Border Style="{StaticResource Card}" Margin="16,0" Padding="12">
+                    <!-- 2 kolumny: miniatura 64 px | reszta; 3 wiersze: tytuł, data, odznaki -->
+                    <Grid ColumnDefinitions="64,*" RowDefinitions="Auto,Auto,Auto" ColumnSpacing="14" RowSpacing="4">
+                        <!-- miniatura w kolumnie 0, przez 3 wiersze -->
+                        <Border Grid.RowSpan="3" Style="{StaticResource Thumbnail}" VerticalOptions="Start">
+                            <!-- brak zdjęcia (null) → obrazek zastępczy -->
+                            <Image Source="{Binding ThumbnailPath, TargetNullValue='report_placeholder.png'}" Aspect="AspectFill" />
+                        </Border>
+
+                        <!-- kolumna 1, wiersz 0: tytuł zgłoszenia -->
+                        <Label Grid.Column="1" Text="{Binding Title}" Style="{StaticResource CardTitle}" />
+                        <!-- kolumna 1, wiersz 1: data – gotowy tekst z formattera -->
+                        <Label Grid.Column="1" Grid.Row="1" Text="{Binding CreatedAtText}" Style="{StaticResource Caption}" />
+
+                        <!-- kolumna 1, wiersz 2: odznaki; Wrap = zawijaj do nowej linii, gdy brak miejsca -->
+                        <FlexLayout Grid.Column="1" Grid.Row="2" Wrap="Wrap" Margin="0,6,0,0">
+                            <!-- nasz komponent: kropka w kolorze priorytetu + tekst „Wysoki” -->
+                            <components:PriorityBadge Priority="{Binding Priority}" Text="{Binding PriorityText}" Margin="0,0,6,6" />
+                            <!-- to samo dla statusu: „Nowe”, „W trakcie”, „Zakończone” -->
+                            <components:StatusBadge Status="{Binding Status}" Text="{Binding StatusText}" Margin="0,0,6,6" />
+                            <!-- znacznik widoczny tylko dla niewysłanych (IsPendingSync == true) -->
+                            <Border Style="{StaticResource PendingBadge}" IsVisible="{Binding IsPendingSync}" Margin="0,0,6,6">
+                                <!-- tekst z zasobów: „Oczekuje na wysłanie” -->
+                                <Label Text="{loc:Translate Reports_PendingSync}" Style="{StaticResource PendingBadgeText}" />
+                            </Border>
+                        </FlexLayout>
+                    </Grid>
+                </Border>
             </DataTemplate>
         </CollectionView.ItemTemplate>
     </CollectionView>

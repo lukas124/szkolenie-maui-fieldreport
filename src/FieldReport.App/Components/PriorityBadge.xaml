@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!-- Odznaka priorytetu: komponent wystawia właściwości (Priority, Text), nie nawiguje i nie sięga do DI -->
+<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:models="clr-namespace:FieldReport.Core.Models;assembly=FieldReport.Core"
+             x:Class="FieldReport.App.Components.PriorityBadge"
+             x:Name="Root">
+    <Border Style="{StaticResource Badge}">
+        <HorizontalStackLayout Spacing="6">
+            <Ellipse WidthRequest="8" HeightRequest="8" VerticalOptions="Center" Fill="{StaticResource NeutralColor}">
+                <Ellipse.Triggers>
+                    <DataTrigger TargetType="Ellipse" Binding="{Binding Priority, Source={x:Reference Root}}"
+                                 Value="{x:Static models:ReportPriority.High}">
+                        <Setter Property="Fill" Value="{StaticResource DangerColor}" />
+                    </DataTrigger>
+                    <DataTrigger TargetType="Ellipse" Binding="{Binding Priority, Source={x:Reference Root}}"
+                                 Value="{x:Static models:ReportPriority.Normal}">
+                        <Setter Property="Fill" Value="{StaticResource WarningColor}" />
+                    </DataTrigger>
+                </Ellipse.Triggers>
+            </Ellipse>
+            <!-- gotowy tekst z formattera: „Wysoki” -->
+            <Label Text="{Binding Text, Source={x:Reference Root}}" Style="{StaticResource BadgeText}" />
+        </HorizontalStackLayout>
+    </Border>
+</ContentView>

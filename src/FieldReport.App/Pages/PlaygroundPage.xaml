@@ -34,12 +34,41 @@
                 </Grid>
             </Border>
 
+            <!-- Layouty: Grid (Auto, *, gwiazdki proporcjonalne), FlexLayout -->
+            <Label Text="// Grid: Auto | * | 2*" Style="{StaticResource SectionHeader}" Margin="0,16,0,0" />
+            <Grid ColumnDefinitions="Auto,*,2*" ColumnSpacing="8">
+                <Border Style="{StaticResource Badge}"><Label Text="Auto" Style="{StaticResource BadgeText}" /></Border>
+                <Border Grid.Column="1" Style="{StaticResource PendingBadge}"><Label Text="*" Style="{StaticResource PendingBadgeText}" HorizontalOptions="Center" /></Border>
+                <Border Grid.Column="2" Style="{StaticResource PendingBadge}"><Label Text="2*" Style="{StaticResource PendingBadgeText}" HorizontalOptions="Center" /></Border>
+            </Grid>
+
+            <Label Text="// FlexLayout Wrap=&quot;Wrap&quot;" Style="{StaticResource SectionHeader}" Margin="0,16,0,0" />
+            <FlexLayout Wrap="Wrap">
+                <Border Style="{StaticResource Badge}" Margin="0,0,6,6"><Label Text="Grid" Style="{StaticResource BadgeText}" /></Border>
+                <Border Style="{StaticResource Badge}" Margin="0,0,6,6"><Label Text="VerticalStackLayout" Style="{StaticResource BadgeText}" /></Border>
+                <Border Style="{StaticResource Badge}" Margin="0,0,6,6"><Label Text="FlexLayout" Style="{StaticResource BadgeText}" /></Border>
+                <Border Style="{StaticResource Badge}" Margin="0,0,6,6"><Label Text="ScrollView" Style="{StaticResource BadgeText}" /></Border>
+                <Border Style="{StaticResource Badge}" Margin="0,0,6,6"><Label Text="CollectionView" Style="{StaticResource BadgeText}" /></Border>
+                <Border Style="{StaticResource Badge}" Margin="0,0,6,6"><Label Text="Border" Style="{StaticResource BadgeText}" /></Border>
+            </FlexLayout>
+
             <!-- MVVM: [ObservableProperty] + [RelayCommand] z CommunityToolkit.Mvvm -->
             <Label Text="// MVVM: CounterViewModel" Style="{StaticResource SectionHeader}" Margin="0,16,0,0" />
             <Border Style="{StaticResource Card}">
                 <VerticalStackLayout Spacing="12">
                     <Label Text="{Binding CountText}" Style="{StaticResource Title}" />
                     <Button Text="Kliknij" Command="{Binding IncrementCommand}" />
+                </VerticalStackLayout>
+            </Border>
+
+            <!-- Narzędzia dewelopera: pusta lista (ćwiczenia z pustym stanem i usuwaniem) i powrót do danych przykładowych -->
+            <Label Text="// dane przykładowe" Style="{StaticResource SectionHeader}" Margin="0,16,0,0" />
+            <Border Style="{StaticResource Card}">
+                <VerticalStackLayout Spacing="12">
+                    <Label x:Name="SampleDataStatus" Text="Zmianę zobaczysz po powrocie na listę." Style="{StaticResource Body}" />
+                    <Button Text="Wyczyść listę" Style="{StaticResource SecondaryButton}" Clicked="OnClearReportsClicked"
+                            AutomationId="PlaygroundClearReports" />
+                    <Button Text="Przywróć przykłady" Clicked="OnRestoreSamplesClicked" AutomationId="PlaygroundRestoreSamples" />
                 </VerticalStackLayout>
             </Border>
         </VerticalStackLayout>
