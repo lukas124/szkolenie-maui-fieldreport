@@ -6,4 +6,7 @@ namespace FieldReport.Core.Presentation;
 public interface IUserFeedback
 {
     Task ShowErrorAsync(Error error);
+
+    /// <summary>Pytanie tak/nie; argumenty to klucze zasobów (teksty z ILocalizer).</summary>
+    Task<bool> ConfirmAsync(string titleKey, string messageKey);
 }

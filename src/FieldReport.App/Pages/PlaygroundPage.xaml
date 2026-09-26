@@ -60,6 +60,16 @@
                     <Button Text="Kliknij" Command="{Binding IncrementCommand}" />
                 </VerticalStackLayout>
             </Border>
+
+            <!-- Wątek UI: blokujące czekanie (Thread.Sleep) kontra await -->
+            <Label Text="// wątek UI" Style="{StaticResource SectionHeader}" Margin="0,16,0,0" />
+            <Border Style="{StaticResource Card}">
+                <VerticalStackLayout Spacing="12">
+                    <Label x:Name="UiThreadStatus" Text="Kliknij i spróbuj przewinąć stronę." Style="{StaticResource Body}" />
+                    <Button Text="Thread.Sleep(3000)" Style="{StaticResource SecondaryButton}" Clicked="OnBlockingClicked" />
+                    <Button Text="await Task.Delay(3000)" Clicked="OnAwaitClicked" />
+                </VerticalStackLayout>
+            </Border>
         </VerticalStackLayout>
     </ScrollView>
 </pages:BasePage>

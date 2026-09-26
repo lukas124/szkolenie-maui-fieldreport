@@ -21,4 +21,11 @@
   <data name="Error_unknown" xml:space="preserve"><value>Wystąpił nieoczekiwany błąd. Spróbuj ponownie.</value></data>
   <data name="Error_network" xml:space="preserve"><value>Brak połączenia z internetem. Dane zostały zapisane w telefonie.</value></data>
   <data name="Error_invalid_title" xml:space="preserve"><value>Tytuł musi mieć od 3 do 80 znaków.</value></data>
+  <data name="Common_Yes" xml:space="preserve"><value>Tak</value></data>
+  <data name="Common_No" xml:space="preserve"><value>Nie</value></data>
+  <data name="Reports_Delete" xml:space="preserve"><value>Usuń</value></data>
+  <data name="Reports_DeleteTitle" xml:space="preserve"><value>Usunąć zgłoszenie?</value></data>
+  <data name="Reports_DeleteMessage" xml:space="preserve"><value>Zgłoszenie nie zostało jeszcze wysłane. Tej operacji nie można cofnąć.</value></data>
+  <data name="Error_report_not_found" xml:space="preserve"><value>Nie znaleziono zgłoszenia. Mogło zostać już usunięte.</value></data>
+  <data name="Error_report_already_synced" xml:space="preserve"><value>Wysłanego zgłoszenia nie można usunąć.</value></data>
 </root>
