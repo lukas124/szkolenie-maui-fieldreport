@@ -130,3 +130,28 @@ public class ReportTests
         Assert.That(report.CanDelete, Is.False);
     }
 }
+
+[TestFixture]
+public class ReportSyncStateTests
+{
+    [Test]
+    public void MarkOnServer_ReportCanNoLongerBeDeleted()
+    {
+        var report = Report.CreateNew(Guid.NewGuid(), ReportTitle.Create("Awaria").Value!, null, ReportPriority.Low, TestReports.Now, "/p.jpg");
+        Assert.That(report.CanDelete, Is.True);
+
+        report.MarkOnServer(Guid.NewGuid()); // dane przyjęte przez API (Id z serwera), zdjęcie jeszcze czeka
+
+        Assert.That((report.IsOnServer, report.CanDelete, report.SyncState), Is.EqualTo((true, false, SyncState.Pending)));
+    }
+
+    [Test]
+    public void ServerReport_StatusChange_WaitsToBeSent()
+    {
+        var fromServer = TestReports.Create(status: ReportStatus.New, syncState: SyncState.Synced);
+
+        fromServer.ChangeStatus(ReportStatus.InProgress, TestReports.Now);
+
+        Assert.That((fromServer.SyncState, fromServer.IsOnServer), Is.EqualTo((SyncState.Pending, true)));
+    }
+}
