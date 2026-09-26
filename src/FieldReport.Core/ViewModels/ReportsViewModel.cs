@@ -6,6 +6,7 @@ using FieldReport.Core.Navigation;
 using FieldReport.Core.Presentation;
 using FieldReport.Core.Services;
 using FieldReport.Core.Services.Push;
+using FieldReport.Core.Services.Sync;
 using FieldReport.Core.ViewModels.NewReport;
 
 namespace FieldReport.Core.ViewModels;
@@ -16,11 +17,19 @@ public sealed partial class ReportsViewModel(
     IReportService reports,
     IReportItemFactory items,
     IUserFeedback feedback,
-    IMessenger messenger) : BaseViewModel(navigation), IRecipient<ReportsChangedMessage>
+    IMessenger messenger,
+    ISyncService sync) : BaseViewModel(navigation), IRecipient<ReportsChangedMessage>
 {
     private bool _loaded;
 
     public ObservableCollection<ReportItem> Reports { get; } = new(); // elementy listy
+
+    [ObservableProperty]
+    private bool _isRefreshing;
+
+    // true = serwer nieosiągalny: na liście są tylko zgłoszenia czekające w telefonie (widok pokazuje pasek z informacją)
+    [ObservableProperty]
+    private bool _isOffline;
 
     public override Task OnNavigatedToAsync(object? parameter)
     {
@@ -41,17 +50,29 @@ public sealed partial class ReportsViewModel(
     // Powrót na listę (ze szczegółów, z kreatora, z Ustawień po zmianie języka): odświeżamy ją. Pierwsze pojawienie się pomijamy.
     public override Task OnAppearingAsync() => _loaded ? LoadAsync() : Task.CompletedTask;
 
+    // Lista = zgłoszenia z API + niewysłane z telefonu (offline: tylko niewysłane i IsOffline = true)
     private async Task LoadAsync()
     {
-        var result = await reports.GetAllAsync();            // 1) usługa
-        if (!result.IsSuccess)
-        {
-            await feedback.ShowErrorAsync(result.Error!);    // 2a) błąd → komunikat
-            return;
-        }
-
-        Reports.ReplaceWith(result.Value!.Select(items.Create)); // 2b) fabryka → lista
+        var list = await reports.GetAllAsync();
+        Reports.ReplaceWith(list.Reports.Select(items.Create));
+        IsOffline = list.IsOffline;
         _loaded = true;
+    }
+
+    // Lista zgłoszeń i synchronizacja: pull-to-refresh = wysłanie zgłoszeń czekających w telefonie + ponowne pobranie listy
+    [RelayCommand]
+    private async Task RefreshAsync(CancellationToken ct)
+    {
+        IsRefreshing = true;        // wskaźnik „odświeżam”
+        try
+        {
+            await sync.SyncAsync(ct); // usługa: wyślij zaległe
+            await LoadAsync();        // usługa → fabryka → lista
+        }
+        finally
+        {
+            IsRefreshing = false;
+        }
     }
 
     // [RelayCommand] na metodzie zwracającej Task → AsyncRelayCommand:

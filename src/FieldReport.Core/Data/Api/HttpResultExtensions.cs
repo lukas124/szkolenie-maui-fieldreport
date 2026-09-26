@@ -1,9 +1,14 @@
 using System.Net.Http.Json;
 using FieldReport.Core.Models;
+using Polly;
 
 namespace FieldReport.Core.Data.Api;
 
-/// <summary>Jedno miejsce na zamianę odpowiedzi/wyjątków HTTP na Result (SRP). Klienci API tylko budują żądania.</summary>
+/// <summary>
+/// Jedno miejsce na zamianę odpowiedzi/wyjątków HTTP na Result (SRP). Klienci API tylko budują żądania.
+/// Wyjątki Polly z AddStandardResilienceHandler (TimeoutRejectedException, BrokenCircuitException — obie dziedziczą
+/// z ExecutionRejectedException) to też brak sieci z punktu widzenia użytkownika.
+/// </summary>
 public static class HttpResultExtensions
 {
     public static Task<Result<T>> SendForResultAsync<T>(this HttpClient http, HttpRequestMessage request, CancellationToken ct) =>
@@ -37,6 +42,11 @@ public static class HttpResultExtensions
         catch (TaskCanceledException) when (!ct.IsCancellationRequested)
         {
             return failure(Errors.Network); // timeout
+        }
+        catch (ExecutionRejectedException)
+        {
+            // Polly: timeout próby/całości albo otwarty obwód
+            return failure(Errors.Network);
         }
         catch (System.Text.Json.JsonException)              // zła treść odpowiedzi
         {

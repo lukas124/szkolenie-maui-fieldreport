@@ -30,4 +30,16 @@ public sealed class PhotoStorage(IAppPaths paths) : IPhotoStorage
 
         return new MediaFile(path);
     }
+
+    public Task DeleteAsync(string path, CancellationToken ct = default)
+    {
+        if (File.Exists(path)) File.Delete(path);
+        return Task.CompletedTask;
+    }
+
+    public Task DeleteAllAsync(CancellationToken ct = default)
+    {
+        if (Directory.Exists(PhotosDirectory)) Directory.Delete(PhotosDirectory, recursive: true);
+        return Task.CompletedTask;
+    }
 }

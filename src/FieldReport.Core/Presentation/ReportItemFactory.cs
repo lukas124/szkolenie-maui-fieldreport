@@ -12,6 +12,6 @@ public sealed class ReportItemFactory(IReportFormatter formatter) : IReportItemF
         report.Priority, formatter.FormatPriority(report.Priority),
         report.Status, formatter.FormatStatus(report.Status),
         report.SyncState == SyncState.Pending,       // „Oczekuje na wysłanie”
-        report.PhotoPath,
+        report.PhotoPath ?? report.PhotoUrl,
         report.CanDelete);
 }

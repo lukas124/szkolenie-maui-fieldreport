@@ -31,6 +31,12 @@
 	<string>Aparat służy do robienia zdjęć usterek dołączanych do zgłoszeń serwisowych.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>Galeria służy do wybrania zdjęcia usterki dołączanego do zgłoszenia serwisowego.</string>
+	<!-- lokalne API szkoleniowe (http://localhost:5080) z symulatora; publiczne API jest po HTTPS -->
+	<key>NSAppTransportSecurity</key>
+	<dict>
+		<key>NSAllowsLocalNetworking</key>
+		<true/>
+	</dict>
 	<key>XSAppIconAssets</key>
 	<string>Assets.xcassets/appicon.appiconset</string>
 </dict>
