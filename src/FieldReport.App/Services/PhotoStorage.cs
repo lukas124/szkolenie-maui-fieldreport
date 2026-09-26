@@ -8,12 +8,12 @@ namespace FieldReport.App.Services;
 /// Zapis zdjęcia w katalogu aplikacji ze skalowaniem (dłuższy bok maks. 1600 px, JPEG 85%): mniej pamięci
 /// przy wyświetlaniu i mniejszy transfer przy wysyłce. Oryginał z aparatu (kilka MB) nie trafia do bazy ani API.
 /// </summary>
-public sealed class PhotoStorage : IPhotoStorage
+public sealed class PhotoStorage(IAppPaths paths) : IPhotoStorage
 {
     public const float MaxSide = 1600;          // dłuższy bok po zmniejszeniu
     private const float JpegQuality = 0.85f;
 
-    private static string PhotosDirectory => Path.Combine(FileSystem.AppDataDirectory, "photos");
+    private string PhotosDirectory => Path.Combine(paths.DataDirectory, "photos");
 
     public async Task<MediaFile> StoreAsync(Stream source, CancellationToken ct = default)
     {
