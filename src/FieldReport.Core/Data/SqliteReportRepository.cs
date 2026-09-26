@@ -67,4 +67,21 @@ public sealed class SqliteReportRepository(IAppPaths paths) : IReportRepository
         var db = await DbAsync();
         await db.DeleteAsync<ReportRow>(id);
     }
+
+    // Usunięcie starego wiersza i zapis nowego w jednej transakcji: inne zapytania na tym połączeniu czekają do jej końca
+    public async Task ReplaceAsync(Guid oldId, Report report, CancellationToken ct = default)
+    {
+        var db = await DbAsync();
+        await db.RunInTransactionAsync(tx =>
+        {
+            tx.Delete<ReportRow>(oldId);
+            tx.InsertOrReplace(ReportRowMapper.ToRow(report)); // model → wiersz
+        });
+    }
+
+    public async Task DeleteAllAsync(CancellationToken ct = default)
+    {
+        var db = await DbAsync();
+        await db.DeleteAllAsync<ReportRow>();
+    }
 }

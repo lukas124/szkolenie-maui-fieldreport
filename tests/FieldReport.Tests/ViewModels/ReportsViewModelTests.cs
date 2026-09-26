@@ -4,6 +4,7 @@ using FieldReport.Core.Navigation;
 using FieldReport.Core.Presentation;
 using FieldReport.Core.Services;
 using FieldReport.Core.Services.Push;
+using FieldReport.Core.Services.Sync;
 using FieldReport.Core.ViewModels;
 using FieldReport.Tests.TestData;
 
@@ -16,6 +17,7 @@ public class ReportsViewModelTests
     private Mock<IReportService> _reports = null!;
     private Mock<IUserFeedback> _feedback = null!;
     private IMessenger _messenger = null!;
+    private Mock<ISyncService> _sync = null!;
     private ReportsViewModel _vm = null!;
 
     [SetUp]
@@ -29,14 +31,15 @@ public class ReportsViewModelTests
             r.Id, r.Title.Value, "data", r.Priority, "priorytet", r.Status, "status", r.SyncState == SyncState.Pending, null, r.CanDelete));
 
         _messenger = new WeakReferenceMessenger(); // własna instancja: testy nie dzielą odbiorców
-        _vm = new ReportsViewModel(_navigation.Object, _reports.Object, items.Object, _feedback.Object, _messenger);
+        _sync = new Mock<ISyncService>();
+        _vm = new ReportsViewModel(_navigation.Object, _reports.Object, items.Object, _feedback.Object, _messenger, _sync.Object);
     }
 
     [Test]
     public async Task OnNavigatedTo_ServiceSucceeds_ShowsReports()
     {
         _reports.Setup(r => r.GetAllAsync(It.IsAny<CancellationToken>()))
-                .ReturnsAsync(Result<IReadOnlyList<Report>>.Success([TestReports.Create(), TestReports.Create()]));
+                .ReturnsAsync(new ReportList([TestReports.Create(), TestReports.Create()], IsOffline: false));
 
         await _vm.OnNavigatedToAsync(null);
 
@@ -47,7 +50,7 @@ public class ReportsViewModelTests
     public async Task OnNavigatedTo_NoReports_ShowsEmptyList()
     {
         _reports.Setup(r => r.GetAllAsync(It.IsAny<CancellationToken>()))
-                .ReturnsAsync(Result<IReadOnlyList<Report>>.Success([]));
+                .ReturnsAsync(new ReportList([], IsOffline: false));
 
         await _vm.OnNavigatedToAsync(null);
 
@@ -55,15 +58,16 @@ public class ReportsViewModelTests
     }
 
     [Test]
-    public async Task OnNavigatedTo_ServiceFails_ShowsErrorOnce()
+    public async Task OnNavigatedTo_ServerUnavailable_ShowsPendingReports_AndOfflineBar()
     {
-        _reports.Setup(r => r.GetAllAsync(It.IsAny<CancellationToken>()))         // Arrange: usługa zwraca błąd
-                .ReturnsAsync(Result<IReadOnlyList<Report>>.Failure(Errors.Network));
+        _reports.Setup(r => r.GetAllAsync(It.IsAny<CancellationToken>()))
+                .ReturnsAsync(new ReportList([TestReports.Create(syncState: SyncState.Pending)], IsOffline: true));
 
-        await _vm.OnNavigatedToAsync(null);                                        // Act: wejście na stronę
+        await _vm.OnNavigatedToAsync(null);
 
-        _feedback.Verify(f => f.ShowErrorAsync(Errors.Network), Times.Once);      // Assert: komunikat raz
-        Assert.That(_vm.Reports, Is.Empty);                                        // … i pusta lista
+        Assert.That(_vm.IsOffline, Is.True);
+        Assert.That(_vm.Reports, Has.Count.EqualTo(1));
+        _feedback.Verify(f => f.ShowErrorAsync(It.IsAny<Error>()), Times.Never); // brak sieci to nie błąd w dialogu
     }
 
     // ----- nawigacja -----
@@ -84,7 +88,7 @@ public class ReportsViewModelTests
     public async Task OnAppearing_AfterFirstLoad_RefreshesList()
     {
         _reports.Setup(r => r.GetAllAsync(It.IsAny<CancellationToken>()))
-                .ReturnsAsync(Result<IReadOnlyList<Report>>.Success([TestReports.Create()]));
+                .ReturnsAsync(new ReportList([TestReports.Create()], IsOffline: false));
 
         await _vm.OnAppearingAsync();          // pierwsze pojawienie się: bez ładowania
         await _vm.OnNavigatedToAsync(null);    // jednorazowe ładowanie
@@ -93,14 +97,14 @@ public class ReportsViewModelTests
         _reports.Verify(r => r.GetAllAsync(It.IsAny<CancellationToken>()), Times.Exactly(2));
     }
 
-    // ----- Odświeżenie po komunikacie (powiadomienie push na pierwszym planie, synchronizacja) -----
+    // ----- odświeżenie po komunikacie (push na pierwszym planie, koniec wysyłki w tle) -----
 
     [Test]
     public async Task ReportsChangedMessage_AfterLoad_ReloadsList()
     {
         _reports.SetupSequence(r => r.GetAllAsync(It.IsAny<CancellationToken>()))
-                .ReturnsAsync(Result<IReadOnlyList<Report>>.Success([]))
-                .ReturnsAsync(Result<IReadOnlyList<Report>>.Success([TestReports.Create()]));
+                .ReturnsAsync(new ReportList([], IsOffline: false))
+                .ReturnsAsync(new ReportList([TestReports.Create()], IsOffline: false));
         await _vm.OnNavigatedToAsync(null);
 
         _messenger.Send(new ReportsChangedMessage());
@@ -115,12 +119,44 @@ public class ReportsViewModelTests
         _reports.Verify(r => r.GetAllAsync(It.IsAny<CancellationToken>()), Times.Never);
     }
 
+    // ----- Lista zgłoszeń i synchronizacja: pull-to-refresh = wysłanie niewysłanych + ponowne pobranie listy -----
+
+    [Test]
+    public async Task Refresh_SyncsThenReloadsList_AndStopsIndicator()
+    {
+        _sync.Setup(s => s.SyncAsync(It.IsAny<CancellationToken>())).ReturnsAsync(Result.Success());
+        _reports.Setup(r => r.GetAllAsync(It.IsAny<CancellationToken>()))
+                .ReturnsAsync(new ReportList([TestReports.Create()], IsOffline: false));
+        _vm.IsRefreshing = true; // RefreshView ustawia sam
+
+        await _vm.RefreshCommand.ExecuteAsync(null);
+
+        _sync.Verify(s => s.SyncAsync(It.IsAny<CancellationToken>()), Times.Once);
+        Assert.That(_vm.Reports, Has.Count.EqualTo(1));
+        Assert.That(_vm.IsRefreshing, Is.False);
+        Assert.That(_vm.IsOffline, Is.False);
+    }
+
+    [Test]
+    public async Task Refresh_Offline_ShowsPendingReports_AndOfflineBar_WithoutErrorDialog()
+    {
+        _sync.Setup(s => s.SyncAsync(It.IsAny<CancellationToken>())).ReturnsAsync(Result.Failure(Errors.Network));
+        _reports.Setup(r => r.GetAllAsync(It.IsAny<CancellationToken>()))
+                .ReturnsAsync(new ReportList([TestReports.Create(syncState: SyncState.Pending)], IsOffline: true));
+
+        await _vm.RefreshCommand.ExecuteAsync(null);
+
+        Assert.That(_vm.IsOffline, Is.True);
+        Assert.That(_vm.Reports, Has.Count.EqualTo(1));
+        _feedback.Verify(f => f.ShowErrorAsync(It.IsAny<Error>()), Times.Never);
+    }
+
     // ----- usuwanie -----
 
     private async Task<ReportItem> LoadOnePendingAsync()
     {
         _reports.Setup(r => r.GetAllAsync(It.IsAny<CancellationToken>()))
-                .ReturnsAsync(Result<IReadOnlyList<Report>>.Success([TestReports.Create(syncState: SyncState.Pending)]));
+                .ReturnsAsync(new ReportList([TestReports.Create(syncState: SyncState.Pending)], IsOffline: false));
         await _vm.OnNavigatedToAsync(null);
         return _vm.Reports.Single();
     }

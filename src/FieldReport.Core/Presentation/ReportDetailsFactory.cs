@@ -14,6 +14,6 @@ public sealed class ReportDetailsFactory(IReportFormatter formatter, ILocalizer 
         report.Status, formatter.FormatStatus(report.Status),
         formatter.FormatDate(report.CreatedAt), formatter.FormatDate(report.UpdatedAt),
         report.SyncState == SyncState.Pending, formatter.FormatSyncState(report.SyncState),
-        report.PhotoPath,
+        report.PhotoPath ?? report.PhotoUrl,
         report.AllowedNextStatuses.Select(s => new StatusAction(s, localizer.GetString($"StatusAction_{s}"))).ToList());
 }

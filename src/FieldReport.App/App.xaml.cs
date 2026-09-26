@@ -3,6 +3,7 @@ using FieldReport.App.Pages;
 using FieldReport.App.Push;
 using FieldReport.Core.Navigation;
 using FieldReport.Core.Services;
+using FieldReport.Core.Services.Sync;
 using FieldReport.Core.ViewModels;
 using Microsoft.Extensions.Logging;
 
@@ -12,21 +13,32 @@ public partial class App : Application
 {
     private readonly IServiceProvider _services;
     private readonly INavigationService _navigation;
+    private readonly ISyncScheduler _sync;
     private readonly IErrorHandler _errors;
     private readonly PushStartup _push;
     private readonly ILogger<App> _logger;
 
-    public App(IServiceProvider services, INavigationService navigation, PushStartup push,
+    public App(IServiceProvider services, INavigationService navigation, ISyncScheduler sync, PushStartup push,
         SessionExpiredHandler sessionExpired, IErrorHandler errors, ILogger<App> logger)
     {
         InitializeComponent();
         _services = services;
         _navigation = navigation;
+        _sync = sync;
         _errors = errors;
         _push = push;
         _logger = logger;
         sessionExpired.Start(); // sesja wygasła → ekran logowania
         push.Start(); // powiadomienia push: zdarzenia Firebase podpinamy od razu — tapnięcie powiadomienia może być powodem uruchomienia aplikacji
+
+        // Internet wrócił → wysyłamy zgłoszenia, które czekały w telefonie (synchronizacja), i porządkujemy powiadomienia push,
+        // np. usuwamy token FCM, jeśli wylogowanie odbyło się bez sieci
+        Connectivity.Current.ConnectivityChanged += (_, e) =>
+        {
+            if (e.NetworkAccess != NetworkAccess.Internet) return;
+            _sync.RequestSync();
+            _push.OnResumed();
+        };
     }
 
     // Tworzy okno aplikacji i loguje zdarzenia jego cyklu życia (widać je w adb logcat -s DOTNET).
@@ -44,6 +56,7 @@ public partial class App : Application
             try
             {
                 await root.InitializeAsync(); // start aplikacji: decyzja startowa — logowanie albo lista (StartupViewModel)
+                _sync.RequestSync();          // synchronizacja: wysyłka zgłoszeń, które czekały w telefonie od poprzedniego uruchomienia
             }
             catch (Exception ex)
             {
@@ -64,7 +77,8 @@ public partial class App : Application
         window.Resumed += (_, _) =>
         {
             _logger.LogInformation("Window: Resumed (app back in foreground)");
-            _push.OnResumed(); // powiadomienia push: rejestracja tokenu, jeśli zgodę włączono w ustawieniach systemu
+            _sync.RequestSync();  // synchronizacja: wysyłka zgłoszeń czekających w telefonie
+            _push.OnResumed();    // powiadomienia push: rejestracja tokenu, jeśli zgodę włączono w ustawieniach systemu
             if (CurrentViewModel(window) is { } vm) vm.OnResumedAsync().FireAndForget(_errors); // np. Ustawienia po zmianie zgody
         };
         window.Destroying += (_, _) => _logger.LogInformation("Window: Destroying");

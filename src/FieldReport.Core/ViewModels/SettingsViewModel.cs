@@ -83,7 +83,10 @@ public sealed partial class SettingsViewModel(
     [RelayCommand]
     private async Task SignOutAsync(CancellationToken ct)
     {
-        if (!await feedback.ConfirmAsync("Settings_SignOutTitle", "Settings_SignOutMessage"))
+        // ostrzeżenie o niewysłanych: po wylogowaniu lokalne dane technika są usuwane z telefonu
+        var pending = await account.CountPendingAsync(ct);
+        var message = pending > 0 ? "Settings_SignOutPendingMessage" : "Settings_SignOutMessage";
+        if (!await feedback.ConfirmAsync("Settings_SignOutTitle", message))
             return;
 
         await account.SignOutAsync(ct);
