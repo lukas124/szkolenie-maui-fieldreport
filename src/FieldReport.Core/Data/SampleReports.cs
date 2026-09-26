@@ -31,5 +31,5 @@ public static class SampleReports
     private static Report Sample(string id, string title, string description, ReportPriority priority,
         ReportStatus status, SyncState syncState, DateTimeOffset createdAt, DateTimeOffset updatedAt) =>
         new(Guid.Parse(id), ReportTitle.Create(title).Value!, description, priority, status, syncState,
-            photoPath: null, createdAt, updatedAt);
+            photoPath: null, createdAt, updatedAt, isOnServer: syncState == SyncState.Synced); // wysłane = na serwerze
 }

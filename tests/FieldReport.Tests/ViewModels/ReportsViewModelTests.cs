@@ -23,7 +23,7 @@ public class ReportsViewModelTests
         _feedback = new Mock<IUserFeedback>();
         var items = new Mock<IReportItemFactory>();
         items.Setup(f => f.Create(It.IsAny<Report>())).Returns((Report r) => new ReportItem(
-            r.Id, r.Title.Value, "data", r.Priority, "priorytet", r.Status, "status", r.SyncState == SyncState.Pending, null));
+            r.Id, r.Title.Value, "data", r.Priority, "priorytet", r.Status, "status", r.SyncState == SyncState.Pending, null, r.CanDelete));
 
         _vm = new ReportsViewModel(_navigation.Object, _reports.Object, items.Object, _feedback.Object);
     }
@@ -60,6 +60,33 @@ public class ReportsViewModelTests
 
         _feedback.Verify(f => f.ShowErrorAsync(Errors.Network), Times.Once);      // Assert: komunikat raz
         Assert.That(_vm.Reports, Is.Empty);                                        // … i pusta lista
+    }
+
+    // ----- nawigacja -----
+
+    [Test]
+    public async Task OpenReport_NavigatesToDetails_WithReportId()
+    {
+        var reportId = Guid.NewGuid();
+        var item = new ReportItem(reportId, "Awaria pompy", "data", ReportPriority.High, "Wysoki",
+            ReportStatus.New, "Nowe", true, null, true);
+
+        await _vm.OpenReportCommand.ExecuteAsync(item);
+
+        _navigation.Verify(n => n.NavigateToAsync<ReportDetailsViewModel>(reportId), Times.Once);
+    }
+
+    [Test]
+    public async Task OnAppearing_AfterFirstLoad_RefreshesList()
+    {
+        _reports.Setup(r => r.GetAllAsync(It.IsAny<CancellationToken>()))
+                .ReturnsAsync(Result<IReadOnlyList<Report>>.Success([TestReports.Create()]));
+
+        await _vm.OnAppearingAsync();          // pierwsze pojawienie się: bez ładowania
+        await _vm.OnNavigatedToAsync(null);    // jednorazowe ładowanie
+        await _vm.OnAppearingAsync();          // powrót ze szczegółów: odświeżenie
+
+        _reports.Verify(r => r.GetAllAsync(It.IsAny<CancellationToken>()), Times.Exactly(2));
     }
 
     // ----- usuwanie -----
@@ -115,9 +142,11 @@ public class ReportsViewModelTests
     public async Task DeleteReport_CanExecute_OnlyForNotSentReports()
     {
         var pending = await LoadOnePendingAsync();
-        var synced = pending with { IsPendingSync = false };
+        var synced = pending with { IsPendingSync = false, CanDelete = false };
+        var sentWithLocalChanges = pending with { IsPendingSync = true, CanDelete = false };
 
         Assert.That(_vm.DeleteReportCommand.CanExecute(pending), Is.True);
         Assert.That(_vm.DeleteReportCommand.CanExecute(synced), Is.False);
+        Assert.That(_vm.DeleteReportCommand.CanExecute(sentWithLocalChanges), Is.False);
     }
 }

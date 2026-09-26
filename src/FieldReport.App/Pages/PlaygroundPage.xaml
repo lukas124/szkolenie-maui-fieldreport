@@ -5,14 +5,9 @@
                 xmlns:pages="clr-namespace:FieldReport.App.Pages"
                 xmlns:vm="clr-namespace:FieldReport.Core.ViewModels.Playground;assembly=FieldReport.Core"
                 x:Class="FieldReport.App.Pages.PlaygroundPage"
-                x:DataType="vm:CounterViewModel"
+                x:DataType="vm:PlaygroundViewModel"
                 Title="Playground"
                 CanNavigateBack="True">
-    <!-- Playground: ViewModel tworzony w XAML (tylko w piaskownicy; strony aplikacji dostają go z DI) -->
-    <pages:BasePage.BindingContext>
-        <vm:CounterViewModel />
-    </pages:BasePage.BindingContext>
-
     <ScrollView>
         <VerticalStackLayout Padding="16" Spacing="8">
             <Label Text="Witaj w MAUI" Style="{StaticResource Headline}" />
@@ -55,8 +50,9 @@
 
             <!-- MVVM: [ObservableProperty] + [RelayCommand] z CommunityToolkit.Mvvm -->
             <Label Text="// MVVM: CounterViewModel" Style="{StaticResource SectionHeader}" Margin="0,16,0,0" />
-            <Border Style="{StaticResource Card}">
-                <VerticalStackLayout Spacing="12">
+            <!-- ViewModel komponentu: BindingContext = Counter (ObservableObject, nie BaseViewModel) -->
+            <Border Style="{StaticResource Card}" BindingContext="{Binding Counter}">
+                <VerticalStackLayout Spacing="12" x:DataType="vm:CounterViewModel">
                     <Label Text="{Binding CountText}" Style="{StaticResource Title}" />
                     <Button Text="Kliknij" Command="{Binding IncrementCommand}" />
                 </VerticalStackLayout>

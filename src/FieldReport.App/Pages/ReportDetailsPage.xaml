@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!-- Szczegóły zgłoszenia. Przyciski akcji z listy StatusAction (BindableLayout): nowy status nie zmienia XAML. -->
+<pages:BasePage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+                xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+                xmlns:pages="clr-namespace:FieldReport.App.Pages"
+                xmlns:components="clr-namespace:FieldReport.App.Components"
+                xmlns:loc="clr-namespace:FieldReport.App.MarkupExtensions"
+                xmlns:vm="clr-namespace:FieldReport.Core.ViewModels;assembly=FieldReport.Core"
+                xmlns:presentation="clr-namespace:FieldReport.Core.Presentation;assembly=FieldReport.Core"
+                x:Class="FieldReport.App.Pages.ReportDetailsPage"
+                x:DataType="vm:ReportDetailsViewModel"
+                Title="{loc:Translate Details_Title}"
+                CanNavigateBack="True">
+
+    <ScrollView>
+        <VerticalStackLayout Padding="16,16,16,32" Spacing="16" IsVisible="{Binding Report, Converter={StaticResource IsNotNullConverter}}">
+
+            <!-- Zdjęcie zgłoszenia albo miniatura zastępcza -->
+            <Border Style="{StaticResource Thumbnail}" WidthRequest="-1" HeightRequest="180">
+                <Image Source="{Binding Report.PhotoPath, TargetNullValue='report_placeholder.png'}"
+                       Aspect="AspectFit" WidthRequest="96" HeightRequest="96" />
+            </Border>
+
+            <VerticalStackLayout Spacing="10">
+                <Label Text="{Binding Report.Title}" Style="{StaticResource Title}" FontSize="22" />
+                <FlexLayout Wrap="Wrap">
+                    <components:PriorityBadge Priority="{Binding Report.Priority}" Text="{Binding Report.PriorityText}" Margin="0,0,6,6" />
+                    <components:StatusBadge Status="{Binding Report.Status}" Text="{Binding Report.StatusText}" Margin="0,0,6,6" />
+                    <Border Style="{StaticResource PendingBadge}" IsVisible="{Binding Report.IsPendingSync}" Margin="0,0,6,6">
+                        <Label Text="{loc:Translate Reports_PendingSync}" Style="{StaticResource PendingBadgeText}" />
+                    </Border>
+                </FlexLayout>
+            </VerticalStackLayout>
+
+            <Border Style="{StaticResource Card}">
+                <VerticalStackLayout Spacing="8">
+                    <Label Text="{loc:Translate Details_Description}" Style="{StaticResource SectionHeader}" />
+                    <Label Text="{Binding Report.DescriptionText}" Style="{StaticResource Body}" />
+                </VerticalStackLayout>
+            </Border>
+
+            <Border Style="{StaticResource Card}">
+                <Grid ColumnDefinitions="Auto,*" RowDefinitions="Auto,Auto,Auto" ColumnSpacing="16" RowSpacing="10">
+                    <Label Text="{loc:Translate Details_CreatedAt}" Style="{StaticResource Caption}" VerticalOptions="Center" />
+                    <Label Grid.Column="1" Text="{Binding Report.CreatedAtText}" HorizontalOptions="End" />
+                    <Label Grid.Row="1" Text="{loc:Translate Details_UpdatedAt}" Style="{StaticResource Caption}" VerticalOptions="Center" />
+                    <Label Grid.Row="1" Grid.Column="1" Text="{Binding Report.UpdatedAtText}" HorizontalOptions="End" />
+                    <Label Grid.Row="2" Text="{loc:Translate Details_SyncState}" Style="{StaticResource Caption}" VerticalOptions="Center" />
+                    <Label Grid.Row="2" Grid.Column="1" Text="{Binding Report.SyncStateText}" HorizontalOptions="End" />
+                </Grid>
+            </Border>
+
+            <!-- Akcje zależne od dozwolonych przejść (Report.AllowedNextStatuses) -->
+            <Label Text="{loc:Translate Details_ActionsHeader}" Style="{StaticResource SectionHeader}" Margin="0,8,0,0" />
+            <VerticalStackLayout Spacing="10" BindableLayout.ItemsSource="{Binding Report.Actions}">
+                <BindableLayout.ItemTemplate>
+                    <DataTemplate x:DataType="presentation:StatusAction">
+                        <Button Text="{Binding Text}"
+                                Command="{Binding ChangeStatusCommand, Source={RelativeSource AncestorType={x:Type vm:ReportDetailsViewModel}}}"
+                                CommandParameter="{Binding .}" />
+                    </DataTemplate>
+                </BindableLayout.ItemTemplate>
+                <BindableLayout.EmptyView>
+                    <Border Style="{StaticResource Badge}" Padding="14,12">
+                        <Label Text="{loc:Translate Details_NoActions}" Style="{StaticResource BadgeText}" HorizontalTextAlignment="Center" />
+                    </Border>
+                </BindableLayout.EmptyView>
+            </VerticalStackLayout>
+        </VerticalStackLayout>
+    </ScrollView>
+</pages:BasePage>

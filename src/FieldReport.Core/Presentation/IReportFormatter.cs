@@ -8,4 +8,5 @@ public interface IReportFormatter
     string FormatDate(DateTimeOffset value);
     string FormatStatus(ReportStatus status);
     string FormatPriority(ReportPriority priority);
+    string FormatSyncState(SyncState syncState);
 }

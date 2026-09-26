@@ -4,13 +4,15 @@
                 xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
                 xmlns:pages="clr-namespace:FieldReport.App.Pages"
                 xmlns:loc="clr-namespace:FieldReport.App.MarkupExtensions"
+                xmlns:vm="clr-namespace:FieldReport.Core.ViewModels;assembly=FieldReport.Core"
                 x:Class="FieldReport.App.Pages.SettingsPage"
+                x:DataType="vm:SettingsViewModel"
                 Title="{loc:Translate Settings_Title}"
                 CanNavigateBack="True">
     <ScrollView>
         <VerticalStackLayout Padding="16,16,16,32" Spacing="16">
             <!-- piaskownica do pokazów XAML -->
-            <Button Text="Playground" Style="{StaticResource SecondaryButton}" Clicked="OnPlaygroundClicked"
+            <Button Text="Playground" Style="{StaticResource SecondaryButton}" Command="{Binding OpenPlaygroundCommand}"
                     AutomationId="SettingsPlayground" />
         </VerticalStackLayout>
     </ScrollView>
