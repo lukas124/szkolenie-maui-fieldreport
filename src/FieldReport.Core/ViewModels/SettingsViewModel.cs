@@ -1,18 +1,21 @@
 using System.Globalization;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using FieldReport.Core.Models;
 using FieldReport.Core.Navigation;
 using FieldReport.Core.Presentation;
 using FieldReport.Core.Services;
+using FieldReport.Core.Services.Push;
 using FieldReport.Core.ViewModels.Playground;
 
 namespace FieldReport.Core.ViewModels;
 
-/// <summary>Ustawienia: technik, środowisko, wersja, język aplikacji (PL/EN), Playground i wylogowanie.</summary>
+/// <summary>Ustawienia: technik, środowisko, wersja, język, stan powiadomień + „Włącz”, (Debug) „Kopiuj token FCM”, Playground, „Wyloguj”.</summary>
 public sealed partial class SettingsViewModel(
     INavigationService navigation,
-    IAuthService auth,
+    IAccountService account,
     IAppEnvironment environment,
+    INotificationSettingsService notifications,
     ILocalizer localizer,
     IUserFeedback feedback) : BaseViewModel(navigation)
 {
@@ -22,22 +25,48 @@ public sealed partial class SettingsViewModel(
     [ObservableProperty]
     private string _email = string.Empty;
 
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(AreNotificationsEnabled))]
+    private PushPermissionStatus _notificationStatus;
+
     // Języki, dla których są pliki zasobów: Strings.resx (polski) i Strings.en.resx (angielski)
     public IReadOnlyList<LanguageOption> Languages { get; } = [new("pl-PL", "Polski"), new("en", "English")];
 
     [ObservableProperty]
     private LanguageOption? _selectedLanguage;
 
+    public bool AreNotificationsEnabled => NotificationStatus == PushPermissionStatus.Granted;
     public string EnvironmentName => environment.EnvironmentName;
     public string VersionText => environment.VersionText;
+    public bool IsDebug => environment.IsDebug;
 
     public override async Task OnNavigatedToAsync(object? parameter)
     {
         SelectedLanguage = Languages.FirstOrDefault(l => l.Code == localizer.CurrentCulture.Name) ?? Languages[0];
 
-        var session = await auth.GetSessionAsync();
+        var session = await account.GetSessionAsync();
         TechnicianName = session?.TechnicianName ?? string.Empty;
         Email = session?.Email ?? string.Empty;
+        NotificationStatus = await notifications.GetStatusAsync();
+    }
+
+    // Powrót do aplikacji z ustawień systemu (Window.Resumed): zgoda mogła się zmienić
+    public override async Task OnResumedAsync() => NotificationStatus = await notifications.GetStatusAsync();
+
+    [RelayCommand]
+    private async Task EnableNotificationsAsync(CancellationToken ct)
+    {
+        var result = await notifications.EnableAsync(ct);
+        if (result.IsSuccess) NotificationStatus = result.Value;
+        else await feedback.ShowErrorAsync(result.Error!);
+    }
+
+    [RelayCommand]
+    private async Task CopyPushTokenAsync(CancellationToken ct)
+    {
+        if (!await notifications.CopyTokenAsync(ct)) { await feedback.ShowErrorAsync(Errors.PushTokenUnavailable); return; }
+
+        await feedback.ShowInfoAsync("Settings_TokenCopiedTitle", "Settings_TokenCopiedMessage");
     }
 
     // Wybór w Pickerze → zmiana języka w locie (teksty z {loc:Translate} odświeżają się same)
@@ -57,7 +86,7 @@ public sealed partial class SettingsViewModel(
         if (!await feedback.ConfirmAsync("Settings_SignOutTitle", "Settings_SignOutMessage"))
             return;
 
-        await auth.SignOutAsync(ct);
+        await account.SignOutAsync(ct);
         await Navigation.ResetToAsync<LoginViewModel>();
     }
 }

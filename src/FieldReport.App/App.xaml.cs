@@ -1,6 +1,8 @@
-using FieldReport.App.Navigation;
+using FieldReport.App.Extensions;
 using FieldReport.App.Pages;
+using FieldReport.App.Push;
 using FieldReport.Core.Navigation;
+using FieldReport.Core.Services;
 using FieldReport.Core.ViewModels;
 using Microsoft.Extensions.Logging;
 
@@ -10,14 +12,21 @@ public partial class App : Application
 {
     private readonly IServiceProvider _services;
     private readonly INavigationService _navigation;
+    private readonly IErrorHandler _errors;
+    private readonly PushStartup _push;
     private readonly ILogger<App> _logger;
 
-    public App(IServiceProvider services, INavigationService navigation, ILogger<App> logger)
+    public App(IServiceProvider services, INavigationService navigation, PushStartup push,
+        SessionExpiredHandler sessionExpired, IErrorHandler errors, ILogger<App> logger)
     {
         InitializeComponent();
         _services = services;
         _navigation = navigation;
+        _errors = errors;
+        _push = push;
         _logger = logger;
+        sessionExpired.Start(); // sesja wygasła → ekran logowania
+        push.Start(); // powiadomienia push: zdarzenia Firebase podpinamy od razu — tapnięcie powiadomienia może być powodem uruchomienia aplikacji
     }
 
     // Tworzy okno aplikacji i loguje zdarzenia jego cyklu życia (widać je w adb logcat -s DOTNET).
@@ -52,9 +61,22 @@ public partial class App : Application
         window.Activated += (_, _) => _logger.LogInformation("Window: Activated");
         window.Deactivated += (_, _) => _logger.LogInformation("Window: Deactivated");
         window.Stopped += (_, _) => _logger.LogInformation("Window: Stopped (app in background)");
-        window.Resumed += (_, _) => _logger.LogInformation("Window: Resumed (app back in foreground)");
+        window.Resumed += (_, _) =>
+        {
+            _logger.LogInformation("Window: Resumed (app back in foreground)");
+            _push.OnResumed(); // powiadomienia push: rejestracja tokenu, jeśli zgodę włączono w ustawieniach systemu
+            if (CurrentViewModel(window) is { } vm) vm.OnResumedAsync().FireAndForget(_errors); // np. Ustawienia po zmianie zgody
+        };
         window.Destroying += (_, _) => _logger.LogInformation("Window: Destroying");
 
         return window;
+    }
+
+    // ViewModel strony na wierzchu (modal albo ostatnia strona stosu)
+    private static BaseViewModel? CurrentViewModel(Window window)
+    {
+        var navigation = window.Page?.Navigation;
+        var page = navigation?.ModalStack.LastOrDefault() ?? navigation?.NavigationStack.LastOrDefault();
+        return page?.BindingContext as BaseViewModel;
     }
 }

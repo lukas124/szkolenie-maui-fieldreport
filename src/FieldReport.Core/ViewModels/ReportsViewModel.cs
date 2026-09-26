@@ -1,9 +1,11 @@
 using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using CommunityToolkit.Mvvm.Messaging;
 using FieldReport.Core.Navigation;
 using FieldReport.Core.Presentation;
 using FieldReport.Core.Services;
+using FieldReport.Core.Services.Push;
 using FieldReport.Core.ViewModels.NewReport;
 
 namespace FieldReport.Core.ViewModels;
@@ -13,13 +15,28 @@ public sealed partial class ReportsViewModel(
     INavigationService navigation,
     IReportService reports,
     IReportItemFactory items,
-    IUserFeedback feedback) : BaseViewModel(navigation)
+    IUserFeedback feedback,
+    IMessenger messenger) : BaseViewModel(navigation), IRecipient<ReportsChangedMessage>
 {
     private bool _loaded;
 
     public ObservableCollection<ReportItem> Reports { get; } = new(); // elementy listy
 
-    public override Task OnNavigatedToAsync(object? parameter) => LoadAsync(); // jednorazowe ładowanie
+    public override Task OnNavigatedToAsync(object? parameter)
+    {
+        // WeakReferenceMessenger: rejestracja nie trzyma ViewModelu przy życiu (brak wycieku jak przy zdarzeniu singletona)
+        messenger.Register(this);
+        return LoadAsync(); // jednorazowe ładowanie
+    }
+
+    // powiadomienie push na pierwszym planie → odświeżenie listy (wołane na wątku UI)
+    public void Receive(ReportsChangedMessage message) => _ = RefreshFromMessageAsync();
+
+    private async Task RefreshFromMessageAsync()
+    {
+        try { await LoadAsync(); }
+        catch (Exception) { /* ignorujemy: to odświeżenie w tle, błąd pokaże się przy następnym ładowaniu listy */ }
+    }
 
     // Powrót na listę (ze szczegółów, z kreatora, z Ustawień po zmianie języka): odświeżamy ją. Pierwsze pojawienie się pomijamy.
     public override Task OnAppearingAsync() => _loaded ? LoadAsync() : Task.CompletedTask;

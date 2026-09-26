@@ -3,18 +3,21 @@ using CommunityToolkit.Mvvm.Input;
 using FieldReport.Core.Navigation;
 using FieldReport.Core.Presentation;
 using FieldReport.Core.Services;
+using FieldReport.Core.Services.Push;
 
 namespace FieldReport.Core.ViewModels;
 
 /// <summary>
 /// Logowanie technika. ViewModel orkiestruje: reguła formatu → ICredentialsValidator, logowanie → IAuthService,
-/// tekst błędu → IUserFeedback. Po sukcesie reset stosu do listy (nie da się wrócić wstecz do logowania).
+/// tekst błędu → IUserFeedback. Po sukcesie reset stosu do listy (nie da się wrócić wstecz do logowania),
+/// a przy pierwszym logowaniu modal „Włącz powiadomienia”.
 /// </summary>
 public sealed partial class LoginViewModel(
     INavigationService navigation,
     IAuthService auth,
     ICredentialsValidator validator,
-    IUserFeedback feedback) : BaseViewModel(navigation)
+    IUserFeedback feedback,
+    INotificationOnboarding onboarding) : BaseViewModel(navigation)
 {
     [ObservableProperty]
     [NotifyCanExecuteChangedFor(nameof(SignInCommand))]
@@ -45,5 +48,9 @@ public sealed partial class LoginViewModel(
         }
 
         await Navigation.ResetToAsync<ReportsViewModel>();
+
+        // Powiadomienia push: pierwsze logowanie → ekran wyjaśniający przed systemową prośbą o zgodę (nigdy przy zimnym starcie)
+        if (await onboarding.AfterSignInAsync(ct))
+            await Navigation.OpenModalAsync<NotificationPrimingViewModel>();
     }
 }

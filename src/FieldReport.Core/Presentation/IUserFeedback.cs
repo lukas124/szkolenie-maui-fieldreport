@@ -7,6 +7,9 @@ public interface IUserFeedback
 {
     Task ShowErrorAsync(Error error);
 
+    /// <summary>Informacja z przyciskiem OK (klucze zasobów).</summary>
+    Task ShowInfoAsync(string titleKey, string messageKey);
+
     /// <summary>Pytanie tak/nie; argumenty to klucze zasobów (teksty z ILocalizer).</summary>
     Task<bool> ConfirmAsync(string titleKey, string messageKey);
 
