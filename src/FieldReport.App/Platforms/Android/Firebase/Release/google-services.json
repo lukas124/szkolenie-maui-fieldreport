@@ -1,0 +1,67 @@
+{
+  "project_info": {
+    "project_number": "839381772672",
+    "project_id": "fieldreport-training",
+    "storage_bucket": "fieldreport-training.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:839381772672:android:77955fc8f9e67223dff965",
+        "android_client_info": {
+          "package_name": "pl.szkolenie.fieldreport"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDeYXOTzlr2DL905o2EDa5wtvaYLEBQKzc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:839381772672:android:5ce522d934530785dff965",
+        "android_client_info": {
+          "package_name": "pl.szkolenie.fieldreport.dev"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDeYXOTzlr2DL905o2EDa5wtvaYLEBQKzc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:839381772672:android:247b85e035c62bdbdff965",
+        "android_client_info": {
+          "package_name": "pl.szkolenie.fieldreport.test"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDeYXOTzlr2DL905o2EDa5wtvaYLEBQKzc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

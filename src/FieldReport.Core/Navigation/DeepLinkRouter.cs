@@ -1,3 +1,4 @@
+using FieldReport.Core.Services;
 using FieldReport.Core.ViewModels;
 
 namespace FieldReport.Core.Navigation;
@@ -5,17 +6,20 @@ namespace FieldReport.Core.Navigation;
 /// <summary>
 /// Deep link → nawigacja (singleton). Zanim start się skończy, link tylko zapamiętujemy:
 /// nawigacja w trakcie routingu startowego zostałaby i tak usunięta resetem stosu.
+/// Link otwieramy tylko dla zalogowanego (tapnięcie powiadomienia na ekranie logowania = nic).
 /// </summary>
-public sealed class DeepLinkRouter(INavigationService navigation) : IDeepLinkRouter
+public sealed class DeepLinkRouter(INavigationService navigation, ISessionStore sessions) : IDeepLinkRouter
 {
     private DeepLink? _pending;      // link odłożony na koniec startu
     private bool _startupCompleted;  // czy start już się skończył
 
-    public Task RouteAsync(DeepLink link)
+    // tapnięcie powiadomienia albo „Pokaż” na banerze
+    public async Task RouteAsync(DeepLink link)
     {
-        if (_startupCompleted) return NavigateAsync(link);
-        _pending = link;
-        return Task.CompletedTask;
+        if (!_startupCompleted) { _pending = link; return; } // odłóż
+        // wylogowany: nie pokazujemy danych zgłoszenia
+        if (await sessions.GetAsync() is null) return;
+        await NavigateAsync(link);
     }
 
     // StartupViewModel: await deepLinks.OnStartupCompletedAsync(signedIn);

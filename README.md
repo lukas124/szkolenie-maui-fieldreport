@@ -54,6 +54,26 @@ dotnet build src/FieldReport.App -t:Run -f net10.0-ios
 
 Logi aplikacji (m.in. zdarzenia cyklu życia okna) na Androidzie: `adb logcat -s DOTNET`.
 
+## API szkoleniowe
+
+Aplikacja od checkpointu `11-push` rozmawia z **API szkoleniowym** (ASP.NET Core, Swagger, Firebase Admin SDK),
+które jest w **osobnym repozytorium** `lukas124/fieldreport-training-api`.
+
+| Co | Adres |
+|---|---|
+| Baza API (aplikacja) | `https://mobilny.dev/maui/podstawowe/` |
+| Swagger (dyspozytor, próby na żywo) | https://mobilny.dev/maui/podstawowe/swagger |
+| Lokalnie (plan B, API uruchomione na laptopie) | `http://localhost:5080/`, z emulatora Androida `http://10.0.2.2:5080/` |
+
+- Logowanie: **dowolny poprawny e-mail + PIN `1234`**; każdy e-mail to osobny technik z osobnymi danymi.
+- Dyspozytor (bez logowania, w Swaggerze): `POST /api/dispatcher/reports` z body
+  `{"technicianEmail":"jan.kowalski@firma.pl","title":"Awaria pompy","description":"…","priority":"High"}`
+  tworzy zgłoszenie technika i wysyła push `report_assigned`; `PATCH /api/dispatcher/reports/{id}/status` z `{"status":"InProgress"}` —
+  push `report_status_changed`.
+- Adres bazowy **kończy się `/`**, a ścieżki w klientach są względne (`api/reports`, bez `/` na początku) — inaczej
+  `HttpClient` zgubi prefiks `/maui/podstawowe`.
+- JSON: camelCase, enumy jako tekst (`"priority":"High"`, `"status":"InProgress"`).
+
 ## Checkpointy
 
 Każdy blok ćwiczeń ma dwie gałęzie:

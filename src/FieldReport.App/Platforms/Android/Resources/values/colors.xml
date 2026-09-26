@@ -5,4 +5,6 @@
     <color name="colorPrimaryDark">#F5F7F8</color>
     <!-- akcent StrefaKodera.pl (kursor, zaznaczenia w natywnych kontrolkach) -->
     <color name="colorAccent">#C43A0E</color>
+    <!-- kolor ikony powiadomienia FCM (meta-data w AndroidManifest.xml) -->
+    <color name="notification_accent">#C43A0E</color>
 </resources>

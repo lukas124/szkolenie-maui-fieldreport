@@ -12,4 +12,12 @@ public sealed class MauiAppEnvironment : IAppEnvironment
 #endif
 
     public string VersionText => $"{AppInfo.Current.VersionString} ({AppInfo.Current.BuildString})";
+
+#if DEBUG
+    public bool IsDebug => true;
+#else
+    public bool IsDebug => false;
+#endif
+
+    public string PlatformName => DeviceInfo.Current.Platform == DevicePlatform.iOS ? "ios" : "android";
 }

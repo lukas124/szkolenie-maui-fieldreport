@@ -71,7 +71,22 @@
     <PackageReference Include="Microsoft.Maui.Controls" />
     <PackageReference Include="Microsoft.Extensions.Logging.Debug" />
     <PackageReference Include="Microsoft.Extensions.Logging.Console" />
+    <PackageReference Include="Microsoft.Extensions.Http" />
     <PackageReference Include="CommunityToolkit.Maui" />
+    <PackageReference Include="Plugin.Firebase.CloudMessaging" />
+  </ItemGroup>
+
+  <!-- Firebase (powiadomienia push): konfiguracja klienta z folderu bieżącej konfiguracji buildu (Debug/Test/Release = osobne aplikacje w Firebase) -->
+  <ItemGroup Condition="$(TargetFramework.Contains('-android'))">
+    <GoogleServicesJson Include="Platforms\Android\Firebase\$(Configuration)\google-services.json" />
+  </ItemGroup>
+  <ItemGroup Condition="$(TargetFramework.Contains('-ios'))">
+    <BundleResource Include="Platforms\iOS\Firebase\$(Configuration)\GoogleService-Info.plist"
+                    LogicalName="GoogleService-Info.plist" />
+  </ItemGroup>
+  <!-- pliki pozostałych konfiguracji nie trafiają do buildu -->
+  <ItemGroup>
+    <None Remove="Platforms\**\Firebase\**" />
   </ItemGroup>
 
   <ItemGroup>
