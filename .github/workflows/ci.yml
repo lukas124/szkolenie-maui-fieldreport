@@ -1,0 +1,59 @@
+# CI (Continuous Integration): przy każdym pushu i pull requeście sprawdzamy, czy kod się buduje i czy testy przechodzą.
+# Nic nie jest podpisywane ani publikowane — to tylko „bramka jakości” przed scaleniem zmian.
+name: CI
+
+on:
+  push:            # każdy push na dowolną gałąź
+  pull_request:    # każdy pull request do main
+    branches: [main]
+  workflow_dispatch: # ręczne uruchomienie z zakładki Actions
+
+jobs:
+  # Testy jednostkowe (FieldReport.Tests, net10.0) — nie potrzebują emulatora ani workloadu MAUI
+  test:
+    name: Testy (dotnet test)
+    runs-on: ubuntu-latest
+    steps:
+      # Pobranie kodu repozytorium
+      - uses: actions/checkout@v7
+
+      # Instalacja .NET SDK w wersji z global.json
+      - uses: actions/setup-dotnet@v6
+        with:
+          global-json-file: global.json
+
+      # Uruchomienie testów; wynik w formacie TRX do pobrania jako artefakt
+      - name: dotnet test
+        run: dotnet test tests/FieldReport.Tests/FieldReport.Tests.csproj -c Release --logger "trx;LogFileName=test-results.trx" --results-directory TestResults
+
+      # Wyniki testów do pobrania z podsumowania uruchomienia (także gdy testy nie przeszły)
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: test-results
+          path: TestResults
+
+  # Build aplikacji na Androida (Release) — sprawdza XAML, compiled bindings, zasoby i manifest
+  build-android:
+    name: Build Android
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-dotnet@v6
+        with:
+          global-json-file: global.json
+
+      # Android SDK jest już na maszynie GitHub; .NET for Android wymaga JDK 17
+      - uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      # Workload MAUI dla Androida (na Linuxie projekt App ma tylko target net10.0-android)
+      - name: Instalacja workloadu maui-android
+        run: dotnet workload install maui-android
+
+      # Build Release; w CI nie podpisujemy (APK podpisany kluczem debug wystarcza do sprawdzenia buildu)
+      - name: dotnet build (Android, Release)
+        run: dotnet build src/FieldReport.App/FieldReport.App.csproj -f net10.0-android -c Release

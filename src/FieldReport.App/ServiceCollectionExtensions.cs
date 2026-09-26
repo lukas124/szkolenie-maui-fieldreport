@@ -61,7 +61,7 @@ public static class ServiceCollectionExtensions
     // API szkoleniowe: typed clients z IHttpClientFactory. BaseUrl kończy się „/”, ścieżki w klientach są względne.
     public static IServiceCollection AddApiClients(this IServiceCollection services)
     {
-        services.Configure<ApiSettings>(o => o.BaseUrl = ApiSettings.TrainingBaseUrl);
+        // ApiSettings z appsettings.{Configuration}.json (MauiProgram.AddAppConfiguration)
         services.AddTransient<AuthHeaderHandler>(); // dokleja Bearer z SecureStorage
 
         services.AddHttpClient<IAuthApiClient, AuthApiClient>(ConfigureApi);

@@ -17,6 +17,8 @@
     <PackageVersion Include="Plugin.Firebase.CloudMessaging" Version="4.0.1" />
     <!-- App: IHttpClientFactory, typed clients -->
     <PackageVersion Include="Microsoft.Extensions.Http" Version="10.0.12" />
+    <!-- App: appsettings.json + appsettings.{Configuration}.json jako zasoby osadzone -->
+    <PackageVersion Include="Microsoft.Extensions.Configuration.Json" Version="10.0.12" />
     <!-- App: odporność HttpClient (retry tylko bezpiecznych metod, timeouty, circuit breaker) -->
     <PackageVersion Include="Microsoft.Extensions.Http.Resilience" Version="10.10.0" />
     <!-- Core: typy wyjątków Polly (TimeoutRejectedException, BrokenCircuitException) w HttpResultExtensions -->

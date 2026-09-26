@@ -25,7 +25,10 @@ FieldReport.slnx
 │   ├── FieldReport.Core/     # net10.0, BEZ MAUI: Models, ValueObjects, Services, Data, ViewModels, Presentation, Navigation
 │   └── FieldReport.App/      # MAUI: strony, komponenty, konwertery, MauiProgram, Platforms/
 ├── tests/FieldReport.Tests/  # NUnit + Moq, net10.0 (bez emulatora)
-└── docs/cwiczenia/           # treść ćwiczeń do każdego bloku
+├── docs/cwiczenia/           # treść ćwiczeń do każdego bloku
+├── .github/workflows/        # CI/CD w GitHub Actions
+├── azure-pipelines/          # CI/CD w Azure DevOps
+└── GitVersion.yml            # reguły numeracji wersji
 ```
 
 Jedna zasada architektoniczna: **`FieldReport.Core` nie referuje MAUI**. ViewModele testujemy w sekundę, bez emulatora.
@@ -53,6 +56,24 @@ dotnet build src/FieldReport.App -t:Run -f net10.0-ios
 ```
 
 Logi aplikacji (m.in. zdarzenia cyklu życia okna) na Androidzie: `adb logcat -s DOTNET`.
+
+### Środowiska (od `14-release`)
+
+| Konfiguracja | Aplikacja | `ApplicationId` |
+|---|---|---|
+| `Debug` | FieldReport DEV | `pl.szkolenie.fieldreport.dev` |
+| `Test` | FieldReport TEST | `pl.szkolenie.fieldreport.test` |
+| `Release` | FieldReport | `pl.szkolenie.fieldreport` |
+
+```bash
+# TEST obok DEV na jednym emulatorze: build konfiguracji Test…
+dotnet build src/FieldReport.App -f net10.0-android -c Test
+# …i instalacja APK (-r = zastąp, jeśli już zainstalowana)
+adb install -r src/FieldReport.App/bin/Test/net10.0-android/pl.szkolenie.fieldreport.test-Signed.apk
+```
+
+Adres API: `src/FieldReport.App/appsettings.json` (`Api:BaseUrl`, zawsze z `/` na końcu); lokalne API z emulatora —
+wpisz `"BaseUrl": "http://10.0.2.2:5080/"` w `appsettings.Debug.json` (HTTP bez TLS jest dozwolony tylko w Debug).
 
 ## API szkoleniowe
 
@@ -117,6 +138,33 @@ git grep -n "TODO:"            # miejsca do uzupełnienia
 # utknąłeś? odłóż swoje zmiany (git stash), pobierz nowe gałęzie i przejdź do rozwiązania bloku:
 git stash && git fetch && git checkout 02-mvvm
 ```
+
+## CI/CD
+
+Pipeline'y są w dwóch wariantach — **GitHub Actions** i **Azure DevOps** — robią to samo:
+
+| Plik | Kiedy | Co robi |
+|---|---|---|
+| `.github/workflows/ci.yml` | każdy push i pull request do `main` | `dotnet test` + build Androida (Release) |
+| `.github/workflows/cd.yml` | ręcznie (Actions → CD → Run workflow) | GitVersion → podpisany AAB (Android) i IPA (iOS) jako artefakty |
+| `azure-pipelines/ci.yml` | push na `main`, PR (Build validation) | jak wyżej, w Azure DevOps |
+| `azure-pipelines/cd.yml` | ręcznie | jak wyżej; wspólne kroki w `azure-pipelines/templates/` |
+| `GitVersion.yml` | — | reguły numeracji wersji |
+
+**Wersja aplikacji** (GitVersion liczy ją z historii gita):
+
+```bash
+# początek numeracji: tag na commicie, od którego liczymy wersje
+git tag v1.0.0 && git push origin v1.0.0
+# każdy kolejny commit na main = kolejny „patch” (1.0.1, 1.0.2…); większy skok przez opis commita:
+git commit -m "Nowy ekran raportów +semver: minor"   # → 1.1.0
+```
+
+- `ApplicationDisplayVersion` (wersja dla ludzi) = `MajorMinorPatch` z GitVersion, np. `1.1.0`,
+- `ApplicationVersion` (numer, który w sklepie musi zawsze rosnąć) = numer uruchomienia pipeline'u
+  (`github.run_number` / `Build.BuildId`); oba przekazujemy do `dotnet publish` przez `-p:…`.
+- Sekrety (keystore Androida, certyfikat i profil Apple, hasła) są tylko w magazynie CI (GitHub Secrets / Azure Library);
+  w YAML są wyłącznie ich nazwy — lista w komentarzu na początku `cd.yml`.
 
 ## Licencje
 

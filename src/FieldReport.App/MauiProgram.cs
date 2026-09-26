@@ -4,6 +4,9 @@ using FieldReport.App.Pages;
 using FieldReport.Core.ViewModels;
 using FieldReport.Core.ViewModels.NewReport;
 using FieldReport.Core.ViewModels.Playground;
+using FieldReport.App.Services;
+using FieldReport.Core.Data.Api;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.Maui.LifecycleEvents;
 
@@ -29,6 +32,7 @@ public static class MauiProgram
             });
 
         ConfigureHandlers(); // mapper Entry/Editor (Android)
+        builder.AddAppConfiguration(); // appsettings.json + appsettings.{Configuration}.json
 
         // Kontener DI: rejestracje pogrupowane w metodach rozszerzających (ServiceCollectionExtensions)
         builder.Services
@@ -69,6 +73,23 @@ public static class MauiProgram
         // piaskownica
         routes.Map<PlaygroundViewModel, PlaygroundPage>();
         return routes;
+    }
+
+    // Konfiguracja per środowisko: zasoby osadzone (csproj) — do binarki trafia tylko plik bieżącej konfiguracji
+    public static MauiAppBuilder AddAppConfiguration(this MauiAppBuilder builder)
+    {
+        var assembly = typeof(MauiProgram).Assembly;
+        using var baseStream = assembly.GetManifestResourceStream("appsettings.json")
+            ?? throw new InvalidOperationException("appsettings.json is missing.");
+        using var envStream = assembly.GetManifestResourceStream("appsettings.environment.json");
+
+        var config = new ConfigurationBuilder().AddJsonStream(baseStream);
+        if (envStream is not null) config.AddJsonStream(envStream); // nadpisuje bazę
+
+        builder.Configuration.AddConfiguration(config.Build());
+        builder.Services.Configure<ApiSettings>(builder.Configuration.GetSection("Api"));
+        builder.Services.Configure<AppEnvironmentSettings>(builder.Configuration.GetSection("Environment"));
+        return builder;
     }
 
     // powiadomienia push: inicjalizacja Firebase w cyklu życia platformy (Plugin.Firebase)
