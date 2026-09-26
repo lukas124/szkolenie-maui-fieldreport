@@ -1,3 +1,8 @@
+using CommunityToolkit.Maui;
+using FieldReport.App.Navigation;
+using FieldReport.App.Pages;
+using FieldReport.Core.ViewModels;
+using FieldReport.Core.ViewModels.Playground;
 using Microsoft.Extensions.Logging;
 
 namespace FieldReport.App;
@@ -10,6 +15,7 @@ public static class MauiProgram
         var builder = MauiApp.CreateBuilder();
         builder
             .UseMauiApp<App>()
+            .UseMauiCommunityToolkit() // gotowe konwertery (np. IsNotNullConverter) i inne dodatki
             .ConfigureFonts(fonts =>
             {
                 fonts.AddFont("IBMPlexSans-Regular.ttf", "PlexRegular");
@@ -27,6 +33,7 @@ public static class MauiProgram
             .AddPlatformServices()
             .AddViewModels()
             .AddPages();
+        builder.Services.AddSingleton(CreatePageRoutes());
 
 #if DEBUG
         builder.Logging.AddDebug(); // okno Output w IDE (z debuggerem)
@@ -35,6 +42,23 @@ public static class MauiProgram
 #endif
 
         return builder.Build();
+    }
+
+    // Mapa nawigacji: który ViewModel wyświetla która strona
+    // (używa jej NavigationService)
+    private static PageRoutes CreatePageRoutes()
+    {
+        // ViewModel → strona
+        var routes = new PageRoutes();
+        // lista zgłoszeń
+        routes.Map<ReportsViewModel, ReportsPage>();
+        // szczegóły zgłoszenia
+        routes.Map<ReportDetailsViewModel, ReportDetailsPage>();
+        // ustawienia (zębatka)
+        routes.Map<SettingsViewModel, SettingsPage>();
+        // piaskownica
+        routes.Map<PlaygroundViewModel, PlaygroundPage>();
+        return routes;
     }
 
     // Dostosowanie natywnych kontrolek przez mapper handlera (bez własnych rendererów).

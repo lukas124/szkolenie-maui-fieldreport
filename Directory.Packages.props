@@ -9,6 +9,8 @@
     <PackageVersion Include="Microsoft.Extensions.Logging.Debug" Version="10.0.12" />
     <PackageVersion Include="Microsoft.Extensions.Logging.Console" Version="10.0.12" />
     <PackageVersion Include="CommunityToolkit.Mvvm" Version="8.4.2" />
+    <!-- App: gotowe konwertery, Snackbar i inne dodatki MAUI -->
+    <PackageVersion Include="CommunityToolkit.Maui" Version="15.0.1" />
     <!-- Tests -->
     <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="18.10.1" />
     <PackageVersion Include="NUnit" Version="4.6.1" />
