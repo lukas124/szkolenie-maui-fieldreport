@@ -13,6 +13,17 @@ public interface INavigationService
     /// </summary>
     Task NavigateToAsync<TViewModel>(object? parameter = null) where TViewModel : BaseViewModel;
 
+    /// <summary>Otwiera stronę jako okno modalne (na całą wysokość,
+    /// nad stosem), np. kreator nowego zgłoszenia.</summary>
+    Task OpenModalAsync<TViewModel>(object? parameter = null) where TViewModel : BaseViewModel;
+
+    /// <summary>
+    /// Zaczyna stos od nowa: strona dla <typeparamref name="TViewModel"/>
+    /// zostaje jedyną stroną (np. lista po zalogowaniu), więc przycisk „wstecz”
+    /// nie wróci już do poprzednich ekranów.
+    /// </summary>
+    Task ResetToAsync<TViewModel>() where TViewModel : BaseViewModel;
+
     /// <summary>Wraca do poprzedniej strony (albo zamyka okno modalne).</summary>
     Task GoBackAsync();
 }

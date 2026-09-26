@@ -1,4 +1,3 @@
-using FieldReport.App.Pages;
 using FieldReport.Core.Navigation;
 
 namespace FieldReport.App.Navigation;
@@ -36,6 +35,50 @@ public sealed class NavigationService(IServiceProvider services, PageRoutes rout
         }
 
         await LoadAsync(viewModel, parameter);  // 4) IsBusy = true → OnNavigatedToAsync(parameter) → IsBusy = false
+    }
+
+    /// <summary>Jak NavigateToAsync, ale strona trafia na stos modalny (zamyka ją GoBackAsync).</summary>
+    public async Task OpenModalAsync<TViewModel>(object? parameter = null) where TViewModel : BaseViewModel
+    {
+        if (_isNavigating) return;
+        _isNavigating = true;
+        BaseViewModel viewModel;
+        try
+        {
+            viewModel = CreatePage<TViewModel>(out var page);
+            await CurrentNavigation.PushModalAsync(page);
+        }
+        finally
+        {
+            _isNavigating = false;
+        }
+
+        await LoadAsync(viewModel, parameter);
+    }
+
+    /// <summary>Zamyka okna modalne, wstawia nową stronę i usuwa ze stosu wszystkie strony pod nią.</summary>
+    public async Task ResetToAsync<TViewModel>() where TViewModel : BaseViewModel
+    {
+        if (_isNavigating) return;
+        _isNavigating = true;
+        BaseViewModel viewModel;
+        try
+        {
+            viewModel = CreatePage<TViewModel>(out var page);
+            while (CurrentNavigation.ModalStack.Count > 0)    // 1. zamknij modale
+                await CurrentNavigation.PopModalAsync(false);
+
+            await CurrentNavigation.PushAsync(page, false);   // 2. nowa strona
+            // Stare strony usuwamy dopiero PO dodaniu nowej, żeby stos ani na chwilę nie był pusty
+            foreach (var oldPage in CurrentNavigation.NavigationStack.Where(p => p != page).ToList())
+                CurrentNavigation.RemovePage(oldPage);      // 3. usuń stare (PO dodaniu nowej)
+        }
+        finally
+        {
+            _isNavigating = false;
+        }
+
+        await LoadAsync(viewModel, null);
     }
 
     /// <summary>Zamyka okno modalne, a gdy go nie ma — zdejmuje bieżącą stronę ze stosu.</summary>

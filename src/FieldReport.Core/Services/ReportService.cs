@@ -21,6 +21,18 @@ public sealed class ReportService(IReportRepository repository, IClock clock) : 
         return report is null ? Result<Report>.Failure(Errors.ReportNotFound) : Result<Report>.Success(report);
     }
 
+    public async Task<Result<Guid>> CreateAsync(NewReportDraft draft, CancellationToken ct = default)
+    {
+        if (draft.Title is null) return Result<Guid>.Failure(Errors.InvalidTitle);
+        var description = string.IsNullOrWhiteSpace(draft.Description) ? null : draft.Description.Trim();
+        if (description?.Length > Report.MaxDescriptionLength) return Result<Guid>.Failure(Errors.InvalidDescription);
+
+        // Guid nadaje aplikacja (synchronizacja: ponowiona wysyłka PUT /reports/{id} nie tworzy duplikatu)
+        var report = Report.CreateNew(Guid.NewGuid(), draft.Title, description, draft.Priority, clock.Now, draft.PhotoPath);
+        await repository.SaveAsync(report, ct);
+        return Result<Guid>.Success(report.Id);
+    }
+
     public async Task<Result<Report>> ChangeStatusAsync(Guid id, ReportStatus next, CancellationToken ct = default)
     {
         var report = await repository.GetAsync(id, ct);

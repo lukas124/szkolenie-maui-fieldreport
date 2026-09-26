@@ -2,6 +2,7 @@ using CommunityToolkit.Maui;
 using FieldReport.App.Navigation;
 using FieldReport.App.Pages;
 using FieldReport.Core.ViewModels;
+using FieldReport.Core.ViewModels.NewReport;
 using FieldReport.Core.ViewModels.Playground;
 using Microsoft.Extensions.Logging;
 
@@ -50,10 +51,15 @@ public static class MauiProgram
     {
         // ViewModel → strona
         var routes = new PageRoutes();
+        routes.Map<StartupViewModel, StartupPage>();
+        routes.Map<StartupErrorViewModel, StartupErrorPage>();
+        routes.Map<LoginViewModel, LoginPage>();
         // lista zgłoszeń
         routes.Map<ReportsViewModel, ReportsPage>();
         // szczegóły zgłoszenia
         routes.Map<ReportDetailsViewModel, ReportDetailsPage>();
+        // kreator nowego zgłoszenia
+        routes.Map<NewReportFlowViewModel, NewReportFlowPage>();
         // ustawienia (zębatka)
         routes.Map<SettingsViewModel, SettingsPage>();
         // piaskownica
@@ -69,9 +75,18 @@ public static class MauiProgram
         Microsoft.Maui.Handlers.EntryHandler.Mapper.AppendToMapping("NoUnderline", (handler, _) =>
             handler.PlatformView.BackgroundTintList =
                 Android.Content.Res.ColorStateList.ValueOf(Android.Graphics.Color.Transparent));
+        Microsoft.Maui.Handlers.PickerHandler.Mapper.AppendToMapping("NoUnderline", (handler, _) =>
+            handler.PlatformView.BackgroundTintList =
+                Android.Content.Res.ColorStateList.ValueOf(Android.Graphics.Color.Transparent));
         Microsoft.Maui.Handlers.EditorHandler.Mapper.AppendToMapping("NoUnderline", (handler, _) =>
             handler.PlatformView.BackgroundTintList =
                 Android.Content.Res.ColorStateList.ValueOf(Android.Graphics.Color.Transparent));
+#elif IOS
+        // iOS: bez natywnej ramki UITextField (ramkę daje styl InputFrame); Picker też jest polem UITextField
+        Microsoft.Maui.Handlers.EntryHandler.Mapper.AppendToMapping("NoBorder", (handler, _) =>
+            handler.PlatformView.BorderStyle = UIKit.UITextBorderStyle.None);
+        Microsoft.Maui.Handlers.PickerHandler.Mapper.AppendToMapping("NoBorder", (handler, _) =>
+            handler.PlatformView.BorderStyle = UIKit.UITextBorderStyle.None);
 #endif
     }
 }
