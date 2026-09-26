@@ -20,7 +20,7 @@ public static class ServiceCollectionExtensions
     // IReportService, repozytorium, fabryki, formatery, IUserFeedback… (FieldReport.Core, bez MAUI)
     public static IServiceCollection AddCoreServices(this IServiceCollection services)
     {
-        services.AddSingleton<IReportRepository, InMemoryReportRepository>();
+        services.AddSingleton<IReportRepository, SqliteReportRepository>(); // praca offline: dane w SQLite; inna implementacja repozytorium = zmiana tylko tej linii
         services.AddSingleton<IReportService, ReportService>();
         services.AddSingleton<IAuthService, FakeAuthService>(); // logowanie „na niby”: PIN 1234
         services.AddSingleton<ICredentialsValidator, CredentialsValidator>();
@@ -43,6 +43,7 @@ public static class ServiceCollectionExtensions
         services.AddSingleton<ILocalizer, Localizer>();
         services.AddSingleton<ISessionStore, SecureSessionStore>();
         services.AddSingleton<IAppEnvironment, MauiAppEnvironment>();
+        services.AddSingleton<IAppPaths, MauiAppPaths>(); // FileSystem.AppDataDirectory
         services.AddSingleton<IPermissionService, MauiPermissionService>();
         services.AddSingleton<IPhotoStorage, PhotoStorage>();
         services.AddSingleton<IMediaService, MauiMediaService>();
