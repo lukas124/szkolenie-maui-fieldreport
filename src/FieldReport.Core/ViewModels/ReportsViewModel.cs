@@ -4,6 +4,7 @@ using CommunityToolkit.Mvvm.Input;
 using FieldReport.Core.Navigation;
 using FieldReport.Core.Presentation;
 using FieldReport.Core.Services;
+using FieldReport.Core.ViewModels.NewReport;
 
 namespace FieldReport.Core.ViewModels;
 
@@ -43,7 +44,10 @@ public sealed partial class ReportsViewModel(
     private Task OpenReportAsync(ReportItem item) =>
         Navigation.NavigateToAsync<ReportDetailsViewModel>(item.Id);
 
-    // zębatka w nagłówku otwiera Ustawienia
+    // Lista zgłoszeń: „+” otwiera kreator (modal), ikona w nagłówku — Ustawienia
+    [RelayCommand]
+    private Task NewReportAsync() => Navigation.OpenModalAsync<NewReportFlowViewModel>();
+
     [RelayCommand]
     private Task OpenSettingsAsync() => Navigation.NavigateToAsync<SettingsViewModel>();
 

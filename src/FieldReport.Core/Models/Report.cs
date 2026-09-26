@@ -29,9 +29,13 @@ public sealed class Report
         IsOnServer = isOnServer;
     }
 
+    /// <summary>Maksymalna długość opisu (kreator nowego zgłoszenia: opis opcjonalny, maks. 500 znaków).</summary>
+    public const int MaxDescriptionLength = 500;
+
     /// <summary>Nowe zgłoszenie założone w aplikacji: status Nowe, „Oczekuje na wysłanie”.</summary>
-    public static Report CreateNew(Guid id, ReportTitle title, string? description, ReportPriority priority, DateTimeOffset now)
-        => new(id, title, description, priority, ReportStatus.New, SyncState.Pending, null, now, now, isOnServer: false);
+    public static Report CreateNew(Guid id, ReportTitle title, string? description, ReportPriority priority, DateTimeOffset now,
+        string? photoPath = null)
+        => new(id, title, description, priority, ReportStatus.New, SyncState.Pending, photoPath, now, now, isOnServer: false);
 
     public Guid Id { get; }
     public ReportTitle Title { get; }

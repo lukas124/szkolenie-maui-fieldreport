@@ -37,6 +37,10 @@ public class MainActivity : MauiAppCompatActivity
         if (Window is null) return;
         var isNight = (configuration?.UiMode & UiMode.NightMask) == UiMode.NightYes;
         SetBarIcons(Window, isNight);
+
+        // Strona modalna MAUI (np. kreator) ma własne okno dialogu — jej pasek statusu też trzeba przełączyć
+        foreach (var dialog in SupportFragmentManager.Fragments.OfType<AndroidX.Fragment.App.DialogFragment>())
+            if (dialog.Dialog?.Window is { } modalWindow) SetBarIcons(modalWindow, isNight);
     }
 
     // Ikony paska statusu i nawigacji: ciemne na jasnym tle, jasne na ciemnym

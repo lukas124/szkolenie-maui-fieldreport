@@ -1,5 +1,7 @@
 using FieldReport.App.Navigation;
 using FieldReport.App.Pages;
+using FieldReport.Core.Navigation;
+using FieldReport.Core.ViewModels;
 using Microsoft.Extensions.Logging;
 
 namespace FieldReport.App;
@@ -7,12 +9,14 @@ namespace FieldReport.App;
 public partial class App : Application
 {
     private readonly IServiceProvider _services;
+    private readonly INavigationService _navigation;
     private readonly ILogger<App> _logger;
 
-    public App(IServiceProvider services, ILogger<App> logger)
+    public App(IServiceProvider services, INavigationService navigation, ILogger<App> logger)
     {
         InitializeComponent();
         _services = services;
+        _navigation = navigation;
         _logger = logger;
     }
 
@@ -30,11 +34,19 @@ public partial class App : Application
             _logger.LogInformation("Window: Created");
             try
             {
-                await root.InitializeAsync(); // ładowanie pierwszej strony (listy)
+                await root.InitializeAsync(); // start aplikacji: decyzja startowa — logowanie albo lista (StartupViewModel)
             }
             catch (Exception ex)
             {
                 _logger.LogCritical(ex, "Startup failed"); // async void w handlerze: zawsze try/catch
+                try
+                {
+                    await _navigation.ResetToAsync<StartupErrorViewModel>();
+                }
+                catch (Exception fatal)
+                {
+                    _logger.LogCritical(fatal, "Startup error page failed");
+                }
             }
         };
         window.Activated += (_, _) => _logger.LogInformation("Window: Activated");
