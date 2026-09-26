@@ -1,4 +1,9 @@
 <Solution>
+  <Configurations>
+    <BuildType Name="Debug" />
+    <BuildType Name="Release" />
+    <BuildType Name="Test" />
+  </Configurations>
   <Folder Name="/src/">
     <Project Path="src/FieldReport.App/FieldReport.App.csproj" />
     <Project Path="src/FieldReport.Core/FieldReport.Core.csproj" />
