@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!-- Ustawienia. Na razie tylko narzędzia dewelopera; kolejne sekcje dochodzą w następnych blokach. -->
+<pages:BasePage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+                xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+                xmlns:pages="clr-namespace:FieldReport.App.Pages"
+                x:Class="FieldReport.App.Pages.SettingsPage"
+                Title="Ustawienia"
+                CanNavigateBack="True">
+    <ScrollView>
+        <VerticalStackLayout Padding="16,16,16,32" Spacing="16">
+            <!-- piaskownica do pokazów XAML -->
+            <Button Text="Playground" Style="{StaticResource SecondaryButton}" Clicked="OnPlaygroundClicked"
+                    AutomationId="SettingsPlayground" />
+        </VerticalStackLayout>
+    </ScrollView>
+</pages:BasePage>

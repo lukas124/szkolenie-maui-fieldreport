@@ -1,0 +1,64 @@
+using System.Windows.Input;
+
+namespace FieldReport.App.Pages;
+
+/// <summary>
+/// Strona z nagłówkiem. Wygląd nagłówka opisuje szablon „PageTemplate” w Templates/PageTemplate.xaml (taki sam na Androidzie i iOS),
+/// a strona ustawia tylko jego treść: tytuł (Title), strzałkę „wstecz” (CanNavigateBack) i ikonę akcji z prawej (ActionIcon, ActionCommand).
+/// </summary>
+public abstract class BasePage : ContentPage
+{
+    public static readonly BindableProperty CanNavigateBackProperty =
+        BindableProperty.Create(nameof(CanNavigateBack), typeof(bool), typeof(BasePage), false);
+
+    // Zmiana ikony zmienia też HasAction (szablon pokazuje przycisk akcji tylko, gdy jest ikona)
+    public static readonly BindableProperty ActionIconProperty =
+        BindableProperty.Create(nameof(ActionIcon), typeof(ImageSource), typeof(BasePage),
+            propertyChanged: (page, _, _) => ((BasePage)page).OnPropertyChanged(nameof(HasAction)));
+
+    public static readonly BindableProperty ActionCommandProperty =
+        BindableProperty.Create(nameof(ActionCommand), typeof(ICommand), typeof(BasePage));
+
+    /// <summary>true = w nagłówku jest strzałka „wstecz”.</summary>
+    public bool CanNavigateBack
+    {
+        get => (bool)GetValue(CanNavigateBackProperty);
+        set => SetValue(CanNavigateBackProperty, value);
+    }
+
+    /// <summary>Ikona akcji z prawej strony nagłówka (brak ikony = brak przycisku).</summary>
+    public ImageSource? ActionIcon
+    {
+        get => (ImageSource?)GetValue(ActionIconProperty);
+        set => SetValue(ActionIconProperty, value);
+    }
+
+    /// <summary>true = strona ma ikonę akcji, więc nagłówek pokazuje przycisk z prawej.</summary>
+    public bool HasAction => ActionIcon is not null;
+
+    /// <summary>Komenda wykonywana po dotknięciu ikony akcji.</summary>
+    public ICommand? ActionCommand
+    {
+        get => (ICommand?)GetValue(ActionCommandProperty);
+        set => SetValue(ActionCommandProperty, value);
+    }
+
+    // Szablon (styl z App.xaml) jest nakładany już w konstruktorze ContentPage, zanim wykona się kod BasePage,
+    // dlatego komendę tworzymy przy pierwszym odczycie, a nie w konstruktorze
+    private Command? _backButtonCommand;
+
+    /// <summary>Komenda strzałki „wstecz” (wiąże ją szablon nagłówka).</summary>
+    public ICommand BackButtonCommand => _backButtonCommand ??= new Command(GoBack);
+
+    private async void GoBack()
+    {
+        try
+        {
+            await Navigation.PopAsync();
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine(ex); // async void zawsze z try/catch
+        }
+    }
+}

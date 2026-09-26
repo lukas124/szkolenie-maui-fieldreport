@@ -1,0 +1,73 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <!-- Android zawsze; iOS tylko na macOS (wymaga Xcode i workloadu maui-ios) -->
+    <TargetFrameworks>net10.0-android</TargetFrameworks>
+    <TargetFrameworks Condition="$([MSBuild]::IsOSPlatform('osx'))">$(TargetFrameworks);net10.0-ios</TargetFrameworks>
+
+    <OutputType>Exe</OutputType>
+    <RootNamespace>FieldReport.App</RootNamespace>
+    <UseMaui>true</UseMaui>
+    <SingleProject>true</SingleProject>
+
+    <!-- Wersje: ApplicationDisplayVersion = to, co widzi użytkownik; ApplicationVersion = zawsze rosnący numer buildu -->
+    <ApplicationDisplayVersion>1.0.0</ApplicationDisplayVersion>
+    <ApplicationVersion>42</ApplicationVersion>
+
+    <SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'android'">26.0</SupportedOSPlatformVersion>
+    <SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'ios'">16.0</SupportedOSPlatformVersion>
+
+    <!-- Szkolenie: nie blokuj buildu iOS, gdy pakiet .NET for iOS oczekuje o jedną wersję nowszego Xcode
+         (np. 26.6 vs zainstalowany 26.5). W CI/produkcji usuń i trzymaj zgodne wersje. -->
+    <ValidateXcodeVersion>false</ValidateXcodeVersion>
+
+    <!-- Compiled bindings także dla bindingów z ustawionym Source (x:Reference, RelativeSource) -->
+    <MauiEnableXamlCBindingWithSourceCompilation>true</MauiEnableXamlCBindingWithSourceCompilation>
+  </PropertyGroup>
+
+  <!-- Tożsamość aplikacji per konfiguracja
+       (DEV i PROD obok siebie na jednym telefonie).
+       PropertyGroup z Condition działa tylko przy budowaniu w danej konfiguracji
+       (dotnet build -c Debug|Release). -->
+  <!-- Debug = DEV: domyślna konfiguracja dotnet build / dotnet run,
+       do pracy przy kodzie -->
+  <!-- wersja dla programisty -->
+  <PropertyGroup Condition="'$(Configuration)' == 'Debug'">
+    <!-- ApplicationId: identyfikator aplikacji w systemie
+         (Android: package name, iOS: bundle ID).
+         Inny identyfikator = osobna aplikacja, instalowana obok pozostałych -->
+    <ApplicationId>pl.szkolenie.fieldreport.dev</ApplicationId>
+    <!-- ApplicationTitle: nazwa wyświetlana pod ikoną aplikacji -->
+    <ApplicationTitle>FieldReport DEV</ApplicationTitle>
+  </PropertyGroup>
+  <!-- Release = PROD: wersja produkcyjna -->
+  <!-- wersja do sklepu -->
+  <PropertyGroup Condition="'$(Configuration)' == 'Release'">
+    <!-- identyfikator bez przyrostka i nazwa bez dopisku: aplikacja produkcyjna -->
+    <ApplicationId>pl.szkolenie.fieldreport</ApplicationId>
+    <ApplicationTitle>FieldReport</ApplicationTitle>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- Ikona: tło + pierwszy plan (SVG → PNG w wielu rozdzielczościach przy buildzie) -->
+    <MauiIcon Include="Resources\AppIcon\appicon.svg" ForegroundFile="Resources\AppIcon\appiconfg.svg" Color="#C43A0E" />
+
+    <!-- Splash screen -->
+    <MauiSplashScreen Include="Resources\Splash\splash.svg" Color="#C43A0E" BaseSize="128,128" />
+
+    <MauiImage Include="Resources\Images\*" />
+    <MauiFont Include="Resources\Fonts\*" />
+    <MauiAsset Include="Resources\Raw\**" LogicalName="%(RecursiveDir)%(Filename)%(Extension)" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Maui.Controls" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Debug" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Console" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\FieldReport.Core\FieldReport.Core.csproj" />
+  </ItemGroup>
+
+</Project>

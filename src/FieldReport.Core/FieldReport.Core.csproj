@@ -1,0 +1,13 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!-- Core: modele, usługi, ViewModele, prezentacja. BEZ MAUI (dzięki temu testy działają bez emulatora). -->
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <RootNamespace>FieldReport.Core</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="FieldReport.Tests" />
+  </ItemGroup>
+
+</Project>

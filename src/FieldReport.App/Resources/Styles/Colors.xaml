@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+  Paleta FieldReport — nawiązuje do identyfikacji StrefaKodera.pl (design tokens).
+  Konwencja: <Token>Light / <Token>Dark; w stylach łączymy je przez AppThemeBinding.
+-->
+<ResourceDictionary xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml">
+
+    <!-- Tła i powierzchnie -->
+    <Color x:Key="BackgroundLight">#F5F7F8</Color>
+    <Color x:Key="BackgroundDark">#0F1214</Color>
+    <Color x:Key="SurfaceLight">#FFFFFF</Color>
+    <Color x:Key="SurfaceDark">#141A1E</Color>
+    <Color x:Key="SurfaceRaisedLight">#EDF1F3</Color>
+    <Color x:Key="SurfaceRaisedDark">#1B2126</Color>
+    <Color x:Key="BorderLight">#DDE3E7</Color>
+    <Color x:Key="BorderDark">#242C33</Color>
+    <Color x:Key="BorderStrongLight">#C4CDD3</Color>
+    <Color x:Key="BorderStrongDark">#2A3138</Color>
+
+    <!-- Tekst -->
+    <Color x:Key="TextPrimaryLight">#1B2126</Color>
+    <Color x:Key="TextPrimaryDark">#E6EAED</Color>
+    <Color x:Key="TextSecondaryLight">#3B444B</Color>
+    <Color x:Key="TextSecondaryDark">#9AA6AF</Color>
+    <Color x:Key="TextMutedLight">#5C6770</Color>
+    <Color x:Key="TextMutedDark">#8C97A0</Color>
+
+    <!-- Akcent (pomarańczowy StrefaKodera.pl) -->
+    <Color x:Key="AccentLight">#C43A0E</Color>
+    <Color x:Key="AccentDark">#C26A37</Color>
+    <Color x:Key="OnAccentLight">#FFF6F2</Color>
+    <Color x:Key="OnAccentDark">#1A0E08</Color>
+    <Color x:Key="AccentTintLight">#14C43A0E</Color>
+    <Color x:Key="AccentTintDark">#26C26A37</Color>
+
+    <!-- Kolory znaczeniowe (średnie tony: czytelne w trybie jasnym i ciemnym) -->
+    <Color x:Key="DangerColor">#E5484D</Color>
+    <Color x:Key="WarningColor">#E09B2D</Color>
+    <Color x:Key="NeutralColor">#8C97A0</Color>
+    <Color x:Key="InfoColor">#4A90C8</Color>
+    <Color x:Key="SuccessColor">#4C9E5F</Color>
+
+    <Color x:Key="White">#FFFFFF</Color>
+    <Color x:Key="Black">#000000</Color>
+</ResourceDictionary>

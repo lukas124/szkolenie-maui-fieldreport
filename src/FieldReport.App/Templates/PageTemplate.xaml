@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+  Szablony kontrolek (ControlTemplate) wspólne dla całej aplikacji. Słownik jest dołączony w App.xaml (MergedDictionaries).
+-->
+<ResourceDictionary xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+                    xmlns:pages="clr-namespace:FieldReport.App.Pages">
+
+    <!--
+      Szablon strony (ControlTemplate): nagłówek + treść strony (ContentPresenter). Każda BasePage dostaje go ze stylu w App.xaml.
+      Nagłówek rysuje MAUI, więc wygląda tak samo na Androidzie i iOS (systemowy pasek nawigacji jest ukryty — Styles.xaml).
+      Binding z Source={RelativeSource TemplatedParent} czyta właściwości strony, która używa szablonu (Title, CanNavigateBack…).
+    -->
+    <ControlTemplate x:Key="PageTemplate">
+        <Grid RowDefinitions="Auto,*" x:DataType="pages:BasePage">
+            <Grid ColumnDefinitions="56,*,56" HeightRequest="56">
+                <ImageButton Source="{AppThemeBinding Light=icon_back_dark.png, Dark=icon_back_light.png}" Padding="16"
+                             Command="{Binding BackButtonCommand, Source={RelativeSource TemplatedParent}}"
+                             IsVisible="{Binding CanNavigateBack, Source={RelativeSource TemplatedParent}}"
+                             AutomationId="HeaderBack" />
+                <Label Grid.Column="1" Text="{Binding Title, Source={RelativeSource TemplatedParent}}" Style="{StaticResource HeaderTitle}" />
+                <ImageButton Grid.Column="2" Source="{Binding ActionIcon, Source={RelativeSource TemplatedParent}}" Padding="16"
+                             Command="{Binding ActionCommand, Source={RelativeSource TemplatedParent}}"
+                             IsVisible="{Binding HasAction, Source={RelativeSource TemplatedParent}}"
+                             AutomationId="HeaderAction" />
+                <!-- linia oddzielająca nagłówek od treści -->
+                <BoxView Grid.ColumnSpan="3" HeightRequest="1" VerticalOptions="End" />
+            </Grid>
+
+            <ContentPresenter Grid.Row="1" />
+        </Grid>
+    </ControlTemplate>
+</ResourceDictionary>

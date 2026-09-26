@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<Application xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:pages="clr-namespace:FieldReport.App.Pages"
+             x:Class="FieldReport.App.App">
+    <!-- Zasoby globalne: kolory i style dostępne w całej aplikacji -->
+    <Application.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="Resources/Styles/Colors.xaml" />
+                <ResourceDictionary Source="Resources/Styles/Styles.xaml" />
+                <ResourceDictionary Source="Templates/PageTemplate.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+
+            <Style TargetType="pages:BasePage" ApplyToDerivedTypes="True" BasedOn="{StaticResource PageStyle}">
+                <Setter Property="ControlTemplate" Value="{StaticResource PageTemplate}" />
+            </Style>
+        </ResourceDictionary>
+    </Application.Resources>
+</Application>

@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!-- Ekran startowy. Zębatka w nagłówku (ActionIcon) otwiera Ustawienia, a z nich Playground. -->
+<pages:BasePage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+                xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+                xmlns:pages="clr-namespace:FieldReport.App.Pages"
+                x:Class="FieldReport.App.Pages.HomePage"
+                Title="FieldReport"
+                ActionIcon="{AppThemeBinding Light=icon_settings_dark.png, Dark=icon_settings_light.png}">
+    <ScrollView>
+        <VerticalStackLayout Padding="24,32" Spacing="20">
+
+            <VerticalStackLayout Spacing="6">
+                <Label Text="~/szkolenie/maui $" Style="{StaticResource SectionHeader}" />
+                <Label Style="{StaticResource Headline}">
+                    <Label.FormattedText>
+                        <FormattedString>
+                            <Span Text="FieldReport" />
+                            <Span Text="_" TextColor="{AppThemeBinding Light={StaticResource AccentLight}, Dark={StaticResource AccentDark}}" />
+                        </FormattedString>
+                    </Label.FormattedText>
+                </Label>
+                <Label Text="Zgłoszenia serwisowe w terenie. Aplikacja szkoleniowa „Podstawy .NET MAUI”."
+                       Style="{StaticResource Body}" />
+            </VerticalStackLayout>
+
+            <Border Style="{StaticResource Card}">
+                <VerticalStackLayout Spacing="10">
+                    <Label Text="// checkpoint 01-start" Style="{StaticResource SectionHeader}" />
+                    <Label Text="Szkielet rozwiązania gotowy" Style="{StaticResource CardTitle}" />
+                    <Label Style="{StaticResource Body}"
+                           Text="• Core – modele i logika, bez MAUI&#10;• App – widoki, platforma, MauiProgram&#10;• Tests – NUnit + Moq, bez emulatora" />
+                    <Label Style="{StaticResource Caption}"
+                           Text="Cykl życia okna (Created, Stopped, Resumed…) zobaczysz w logach: adb logcat" />
+                </VerticalStackLayout>
+            </Border>
+
+            <Label Text="{OnPlatform Android='Uruchomiono na Androidzie', iOS='Uruchomiono na iOS', Default='Uruchomiono'}"
+                   Style="{StaticResource Caption}" HorizontalOptions="Center" />
+        </VerticalStackLayout>
+    </ScrollView>
+</pages:BasePage>
