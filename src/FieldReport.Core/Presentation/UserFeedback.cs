@@ -12,5 +12,8 @@ public sealed class UserFeedback(IDialogService dialogs, IErrorMessageProvider m
             localizer.GetString("Common_Ok"));                     // przycisk „OK”
 
     public Task<bool> ConfirmAsync(string titleKey, string messageKey) =>
-        dialogs.ConfirmAsync(localizer.GetString(titleKey), localizer.GetString(messageKey), localizer.GetString("Common_Yes"), localizer.GetString("Common_No"));
+        ConfirmAsync(titleKey, messageKey, "Common_Yes", "Common_No");
+
+    public Task<bool> ConfirmAsync(string titleKey, string messageKey, string acceptKey, string cancelKey) =>
+        dialogs.ConfirmAsync(localizer.GetString(titleKey), localizer.GetString(messageKey), localizer.GetString(acceptKey), localizer.GetString(cancelKey));
 }

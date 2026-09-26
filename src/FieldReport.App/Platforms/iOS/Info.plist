@@ -26,6 +26,11 @@
 		<string>UIInterfaceOrientationLandscapeLeft</string>
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
+	<!-- Kreator nowego zgłoszenia, krok „Zdjęcie”: bez tych opisów iOS zamyka aplikację przy pierwszym użyciu aparatu, a Apple odrzuca build -->
+	<key>NSCameraUsageDescription</key>
+	<string>Aparat służy do robienia zdjęć usterek dołączanych do zgłoszeń serwisowych.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Galeria służy do wybrania zdjęcia usterki dołączanego do zgłoszenia serwisowego.</string>
 	<key>XSAppIconAssets</key>
 	<string>Assets.xcassets/appicon.appiconset</string>
 </dict>
