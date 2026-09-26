@@ -1,8 +1,5 @@
 using FieldReport.App.Navigation;
 using FieldReport.App.Pages;
-using FieldReport.App.Services;
-using FieldReport.Core.Presentation;
-using FieldReport.Core.Services;
 using FieldReport.Core.ViewModels;
 using Microsoft.Extensions.Logging;
 
@@ -10,13 +7,13 @@ namespace FieldReport.App;
 
 public partial class App : Application
 {
-    private readonly ILocalizer _localizer;
+    private readonly IServiceProvider _services;
     private readonly ILogger<App> _logger;
 
-    public App(ILocalizer localizer, ILogger<App> logger)
+    public App(IServiceProvider services, ILogger<App> logger)
     {
         InitializeComponent();
-        _localizer = localizer;
+        _services = services;
         _logger = logger;
     }
 
@@ -26,16 +23,11 @@ public partial class App : Application
     // nie wykona się drugi raz, a CreateWindow — tak. Dlatego kod startowy podpinamy do zdarzeń okna.
     protected override Window CreateWindow(IActivationState? activationState)
     {
-        // Obiekty aplikacji tworzymy ręcznie, w jednym miejscu: usługi → ViewModel → strona.
-        // ViewModel dostaje usługi w konstruktorze i nie wie, skąd pochodzą.
-        var dialogs = new MauiDialogService();
-        var errors = new LoggingErrorHandler(_logger);
-        var navigation = new NavigationService();
-        var reports = new SampleReportService();
-        var items = new ReportItemFactory(new ReportFormatter(_localizer));
-        var feedback = new UserFeedback(dialogs, new ErrorMessageProvider(_localizer), _localizer);
-        var viewModel = new ReportsViewModel(navigation, reports, items, feedback);
-        var page = new ReportsPage(errors) { BindingContext = viewModel };
+        // App to „composition root”: jedyne miejsce, w którym prosimy kontener DI o gotowe obiekty.
+        // Kontener sam tworzy ViewModel razem z jego zależnościami (rejestracje: ServiceCollectionExtensions).
+        var page = _services.GetRequiredService<ReportsPage>();
+        var viewModel = _services.GetRequiredService<ReportsViewModel>();
+        page.BindingContext = viewModel;
 
         var window = new Window(new NavigationPage(page));
 
