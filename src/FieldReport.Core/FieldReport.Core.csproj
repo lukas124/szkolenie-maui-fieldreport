@@ -12,6 +12,8 @@
     <!-- SQLite (praca offline): sqlite-net (ORM-lite) + natywna biblioteka SQLite -->
     <PackageReference Include="sqlite-net-pcl" />
     <PackageReference Include="SQLitePCLRaw.bundle_green" />
+    <!-- tylko typy wyjątków odporności HTTP (Errors.Network) -->
+    <PackageReference Include="Polly.Core" />
   </ItemGroup>
 
   <ItemGroup>

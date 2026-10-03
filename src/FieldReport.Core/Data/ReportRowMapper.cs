@@ -17,7 +17,8 @@ public static class ReportRowMapper
         row.PhotoPath,
         row.CreatedAt,
         row.UpdatedAt,
-        isOnServer: false);
+        row.IsOnServer,
+        idempotencyKey: row.IdempotencyKey);
 
     public static ReportRow ToRow(Report report) => new()
     {
@@ -28,6 +29,8 @@ public static class ReportRowMapper
         Status = (int)report.Status,
         PhotoPath = report.PhotoPath,
         CreatedAt = report.CreatedAt,
-        UpdatedAt = report.UpdatedAt
+        UpdatedAt = report.UpdatedAt,
+        IsOnServer = report.IsOnServer,
+        IdempotencyKey = report.IdempotencyKey
     };
 }

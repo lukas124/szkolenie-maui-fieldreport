@@ -4,6 +4,8 @@ using FieldReport.Core.Navigation;
 using FieldReport.Core.Presentation;
 using FieldReport.Core.Services;
 using FieldReport.Core.Services.Push;
+using FieldReport.Core.Services.Sync;
+using FieldReport.Core.Data;
 using FieldReport.Core.ViewModels;
 using FieldReport.Tests.TestData;
 
@@ -221,7 +223,7 @@ public class ForegroundPushHandlerTests
 
         _messenger.Send(Message("report_assigned", "x"));
 
-        Assert.That(refreshed, Is.EqualTo(1));
+        Assert.That(refreshed, Is.EqualTo(1)); // lista pobierze nowe zgłoszenie z API
     }
 
     [Test]
@@ -268,8 +270,14 @@ public class AccountServiceTests
         devices.InSequence(sequence).Setup(d => d.UnregisterAsync(It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
         auth.InSequence(sequence).Setup(a => a.SignOutAsync(It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
 
-        await new AccountService(auth.Object, devices.Object).SignOutAsync();
+        var reports = new Mock<IReportRepository>();
+        reports.InSequence(sequence).Setup(r => r.DeleteAllAsync(It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
+
+        var photos = new Mock<IPhotoStorage>();
+        await new AccountService(auth.Object, devices.Object, reports.Object, photos.Object).SignOutAsync();
+        photos.Verify(p => p.DeleteAllAsync(It.IsAny<CancellationToken>()), Times.Once); // także zdjęcia
 
         auth.Verify(a => a.SignOutAsync(It.IsAny<CancellationToken>()), Times.Once);
+        reports.Verify(r => r.DeleteAllAsync(It.IsAny<CancellationToken>()), Times.Once); // dane technika nie zostają
     }
 }

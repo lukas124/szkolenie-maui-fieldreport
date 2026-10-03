@@ -14,17 +14,26 @@ public sealed partial class ReportDetailsViewModel(
     IReportDetailsFactory details,
     IUserFeedback feedback) : BaseViewModel(navigation)
 {
+    private Report? _model; // wyświetlane zgłoszenie (model) — potrzebne przy zmianie statusu, także offline
+
     [ObservableProperty]
     // gotowe teksty + lista akcji (StatusAction) zbudowana z AllowedNextStatuses
     private ReportDetails? _report;
 
-    // Parametr nawigacji = Id zgłoszenia
-    // (ReportsViewModel: NavigateToAsync<ReportDetailsViewModel>(item.Id))
+    // Parametr nawigacji = Id zgłoszenia (z listy albo z tapniętego powiadomienia)
     public override async Task OnNavigatedToAsync(object? parameter)
     {
         var reportId = (Guid)parameter!;
-        // usługa
+        // usługa: z telefonu (niewysłane) albo z API
         var result = await reports.GetAsync(reportId);
+        if (result.Error == Errors.ReportNotFound)
+        {
+            // Najczęściej: lista pokazywała jeszcze niewysłane zgłoszenie z lokalnym Id, a w tle zostało ono wysłane
+            // i ma już Id nadane przez serwer. Mówimy, co się stało, i wracamy na listę — odświeży się sama (OnAppearingAsync)
+            await feedback.ShowInfoAsync("Details_NotFound_Title", "Details_NotFound_Message");
+            await Navigation.GoBackAsync();
+            return;
+        }
         // wynik → ekran albo komunikat
         await ShowAsync(result);
     }
@@ -32,8 +41,7 @@ public sealed partial class ReportDetailsViewModel(
     [RelayCommand]
     private async Task ChangeStatusAsync(StatusAction action)
     {
-        // usługa: reguła z modelu + zapis
-        var result = await reports.ChangeStatusAsync(Report!.Id, action.TargetStatus);
+        var result = await reports.ChangeStatusAsync(_model!, action.TargetStatus); // usługa: reguła z modelu + zapis
         await ShowAsync(result);
     }
 
@@ -41,8 +49,10 @@ public sealed partial class ReportDetailsViewModel(
     private async Task ShowAsync(Result<Report> result)
     {
         if (result.IsSuccess)
-            Report = details.Create(result.Value!); // nowy stan ekranu
-        else
-            await feedback.ShowErrorAsync(result.Error!);
+        {
+            _model = result.Value!;
+            Report = details.Create(_model); // nowy stan ekranu
+        }
+        else await feedback.ShowErrorAsync(result.Error!);
     }
 }

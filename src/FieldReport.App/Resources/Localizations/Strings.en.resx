@@ -10,8 +10,9 @@
   <data name="Reports_Title" xml:space="preserve"><value>Reports</value></data>
   <data name="Settings_Title" xml:space="preserve"><value>Settings</value></data>
   <data name="Reports_Empty" xml:space="preserve"><value>No reports.</value></data>
-  <data name="Reports_PriorityLabel" xml:space="preserve"><value>priority</value></data>
+  <data name="Reports_EmptyOffline" xml:space="preserve"><value>No reports waiting to be sent.</value></data>
   <data name="Reports_PendingSync" xml:space="preserve"><value>Waiting to be sent</value></data>
+  <data name="Reports_Offline" xml:space="preserve"><value>No connection to the server — you only see reports waiting on the phone to be sent.</value></data>
   <data name="ReportStatus_New" xml:space="preserve"><value>New</value></data>
   <data name="ReportStatus_InProgress" xml:space="preserve"><value>In progress</value></data>
   <data name="ReportStatus_Done" xml:space="preserve"><value>Done</value></data>
@@ -27,6 +28,8 @@
   <data name="Reports_DeleteTitle" xml:space="preserve"><value>Delete the report?</value></data>
   <data name="Reports_DeleteMessage" xml:space="preserve"><value>The report has not been sent yet. This cannot be undone.</value></data>
   <data name="Error_report_not_found" xml:space="preserve"><value>Report not found. It may have been deleted.</value></data>
+  <data name="Details_NotFound_Title" xml:space="preserve"><value>Report sent</value></data>
+  <data name="Details_NotFound_Message" xml:space="preserve"><value>The report has already been sent or deleted — the list has been refreshed.</value></data>
   <data name="Error_report_already_synced" xml:space="preserve"><value>A report that has been sent cannot be deleted.</value></data>
   <data name="Details_Title" xml:space="preserve"><value>Report details</value></data>
   <data name="Details_Description" xml:space="preserve"><value>Description</value></data>
@@ -116,4 +119,5 @@
   <data name="Settings_CopyToken" xml:space="preserve"><value>Copy FCM token</value></data>
   <data name="Settings_TokenCopiedTitle" xml:space="preserve"><value>Copied</value></data>
   <data name="Settings_TokenCopiedMessage" xml:space="preserve"><value>The FCM token is on the clipboard. Paste it in the Firebase console ("Send test message").</value></data>
+  <data name="Settings_SignOutPendingMessage" xml:space="preserve"><value>You have reports that have not been sent yet. After signing out they will be deleted from the phone. Sign out anyway?</value></data>
 </root>

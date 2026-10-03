@@ -114,6 +114,17 @@ public class SettingsViewModelTests
     }
 
     [Test]
+    public async Task SignOut_WithUnsentReports_WarnsTheyWillBeDeleted()
+    {
+        _account.Setup(a => a.CountPendingAsync(It.IsAny<CancellationToken>())).ReturnsAsync(2);
+
+        await _vm.SignOutCommand.ExecuteAsync(null);
+
+        _feedback.Verify(f => f.ConfirmAsync("Settings_SignOutTitle", "Settings_SignOutPendingMessage"), Times.Once);
+        _account.Verify(a => a.SignOutAsync(It.IsAny<CancellationToken>()), Times.Never); // nie potwierdzono
+    }
+
+    [Test]
     public async Task SignOut_NotConfirmed_DoesNothing()
     {
         await _vm.SignOutCommand.ExecuteAsync(null);
