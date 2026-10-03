@@ -36,6 +36,25 @@
                 </VerticalStackLayout>
             </Border>
 
+            <!-- Powiadomienia push w Ustawieniach: stan + „Włącz” (prośba o zgodę albo ustawienia systemu przy trwałej odmowie) -->
+            <Border Style="{StaticResource Card}">
+                <VerticalStackLayout Spacing="10">
+                    <Label Text="{loc:Translate Settings_Notifications}" Style="{StaticResource SectionHeader}" />
+                    <Label Text="{loc:Translate Settings_NotificationsOff}" Style="{StaticResource CardTitle}" AutomationId="SettingsNotificationsState">
+                        <Label.Triggers>
+                            <DataTrigger TargetType="Label" Binding="{Binding AreNotificationsEnabled}" Value="True">
+                                <Setter Property="Text" Value="{loc:Translate Settings_NotificationsOn}" />
+                            </DataTrigger>
+                        </Label.Triggers>
+                    </Label>
+                    <Button Text="{loc:Translate Settings_EnableNotifications}" Command="{Binding EnableNotificationsCommand}"
+                            IsVisible="{Binding AreNotificationsEnabled, Converter={StaticResource InvertedBoolConverter}}"
+                            AutomationId="SettingsEnableNotifications" />
+                    <!-- tylko Debug: token do testu z konsoli Firebase („Wyślij wiadomość testową”) -->
+                    <Button Text="{loc:Translate Settings_CopyToken}" Style="{StaticResource SecondaryButton}"
+                            Command="{Binding CopyPushTokenCommand}" IsVisible="{Binding IsDebug}" AutomationId="SettingsCopyToken" />
+                </VerticalStackLayout>
+            </Border>
             <!-- piaskownica do pokazów XAML -->
             <Button Text="Playground" Style="{StaticResource SecondaryButton}" Command="{Binding OpenPlaygroundCommand}"
                     AutomationId="SettingsPlayground" />

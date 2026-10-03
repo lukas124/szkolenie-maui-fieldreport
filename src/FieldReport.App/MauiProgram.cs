@@ -5,6 +5,7 @@ using FieldReport.Core.ViewModels;
 using FieldReport.Core.ViewModels.NewReport;
 using FieldReport.Core.ViewModels.Playground;
 using Microsoft.Extensions.Logging;
+using Microsoft.Maui.LifecycleEvents;
 
 namespace FieldReport.App;
 
@@ -16,7 +17,8 @@ public static class MauiProgram
         var builder = MauiApp.CreateBuilder();
         builder
             .UseMauiApp<App>()
-            .UseMauiCommunityToolkit() // gotowe konwertery (np. IsNotNullConverter) i inne dodatki
+            .UseMauiCommunityToolkit() // gotowe konwertery, Snackbar (baner push na pierwszym planie)
+            .RegisterFirebaseServices()
             .ConfigureFonts(fonts =>
             {
                 fonts.AddFont("IBMPlexSans-Regular.ttf", "PlexRegular");
@@ -32,6 +34,7 @@ public static class MauiProgram
         builder.Services
             .AddCoreServices()
             .AddPlatformServices()
+            .AddApiClients()
             .AddViewModels()
             .AddPages();
         builder.Services.AddSingleton(CreatePageRoutes());
@@ -62,9 +65,36 @@ public static class MauiProgram
         routes.Map<NewReportFlowViewModel, NewReportFlowPage>();
         // ustawienia (zębatka)
         routes.Map<SettingsViewModel, SettingsPage>();
+        routes.Map<NotificationPrimingViewModel, NotificationPrimingPage>();
         // piaskownica
         routes.Map<PlaygroundViewModel, PlaygroundPage>();
         return routes;
+    }
+
+    // powiadomienia push: inicjalizacja Firebase w cyklu życia platformy (Plugin.Firebase)
+    private static MauiAppBuilder RegisterFirebaseServices(this MauiAppBuilder builder)
+    {
+        builder.ConfigureLifecycleEvents(events =>
+        {
+#if IOS
+            events.AddiOS(ios => ios.WillFinishLaunching((_, _) =>
+            {
+                Plugin.Firebase.Core.Platforms.iOS.CrossFirebase.Initialize();
+                // ustawia delegata UNUserNotificationCenter (tapnięcia, pierwszy plan) i prosi o token APNs —
+                // na symulatorze / bez capability Push token nie powstanie, ale aplikacja działa dalej
+                Plugin.Firebase.CloudMessaging.FirebaseCloudMessagingImplementation.Initialize();
+                // pierwszy plan: baner w aplikacji zamiast systemowego (tapnięcia dalej obsługuje plugin)
+                UserNotifications.UNUserNotificationCenter.Current.Delegate = new ForegroundNotificationDelegate(
+                    (Plugin.Firebase.CloudMessaging.FirebaseCloudMessagingImplementation)
+                    Plugin.Firebase.CloudMessaging.CrossFirebaseCloudMessaging.Current);
+                return false;
+            }));
+#elif ANDROID
+            events.AddAndroid(android => android.OnCreate((activity, _) =>
+                Plugin.Firebase.Core.Platforms.Android.CrossFirebase.Initialize(activity, () => Platform.CurrentActivity!)));
+#endif
+        });
+        return builder;
     }
 
     // Dostosowanie natywnych kontrolek przez mapper handlera (bez własnych rendererów).

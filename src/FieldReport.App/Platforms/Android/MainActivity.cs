@@ -1,8 +1,10 @@
 using Android.App;
+using Android.Content;
 using Android.Content.PM;
 using Android.Content.Res;
 using Android.OS;
 using AndroidX.Core.View;
+using Plugin.Firebase.CloudMessaging;
 
 namespace FieldReport.App;
 
@@ -22,6 +24,21 @@ public class MainActivity : MauiAppCompatActivity
     {
         base.OnCreate(savedInstanceState);
         UpdateSystemBars(Resources?.Configuration); // ikony pasków systemowych
+
+        // Powiadomienia push: kanał i pierwszy plan — na pierwszym planie
+        // nie pokazujemy powiadomienia systemowego, tylko baner w aplikacji
+        // (FirebasePushAdapter → PushReceivedMessage)
+        FirebaseCloudMessagingImplementation.ChannelId = MainApplication.ReportsChannelId;
+        FirebaseCloudMessagingImplementation.ShowLocalNotificationAction = _ => { };
+        // tapnięcie, które uruchomiło aplikację (zimny start)
+        FirebaseCloudMessagingImplementation.OnNewIntent(Intent!);
+    }
+
+    protected override void OnNewIntent(Intent? intent)
+    {
+        base.OnNewIntent(intent);
+        // tapnięcie, gdy aplikacja była w tle
+        if (intent is not null) FirebaseCloudMessagingImplementation.OnNewIntent(intent);
     }
 
     public override void OnConfigurationChanged(Configuration newConfig)

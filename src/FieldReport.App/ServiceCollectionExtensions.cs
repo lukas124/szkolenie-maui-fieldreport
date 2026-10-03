@@ -1,11 +1,15 @@
+using CommunityToolkit.Mvvm.Messaging;
 using FieldReport.App.Navigation;
+using FieldReport.App.Push;
 using FieldReport.App.Pages;
 using FieldReport.App.Services;
 using FieldReport.App.Services.Localization;
 using FieldReport.Core.Data;
+using FieldReport.Core.Data.Api;
 using FieldReport.Core.Navigation;
 using FieldReport.Core.Presentation;
 using FieldReport.Core.Services;
+using FieldReport.Core.Services.Push;
 using FieldReport.Core.ViewModels;
 using FieldReport.Core.ViewModels.NewReport;
 using FieldReport.Core.ViewModels.Playground;
@@ -22,7 +26,10 @@ public static class ServiceCollectionExtensions
     {
         services.AddSingleton<IReportRepository, SqliteReportRepository>(); // praca offline: dane w SQLite; inna implementacja repozytorium = zmiana tylko tej linii
         services.AddSingleton<IReportService, ReportService>();
-        services.AddSingleton<IAuthService, FakeAuthService>(); // logowanie „na niby”: PIN 1234
+        // Logowanie technika przez API. Transient, bo korzysta z typed HttpClient (HttpClient z fabryki nie trzymamy w singletonie).
+        services.AddTransient<IAuthService, ApiAuthService>();
+        services.AddTransient<IAccountService, AccountService>();
+        services.AddSingleton<SessionExpiredHandler>(); // nieudane odświeżenie tokenu → logowanie
         services.AddSingleton<ICredentialsValidator, CredentialsValidator>();
         services.AddSingleton<IDeepLinkRouter, DeepLinkRouter>();
 
@@ -31,7 +38,34 @@ public static class ServiceCollectionExtensions
         services.AddSingleton<IReportDetailsFactory, ReportDetailsFactory>();
         services.AddSingleton<IErrorMessageProvider, ErrorMessageProvider>();
         services.AddSingleton<IUserFeedback, UserFeedback>();
+
+        // powiadomienia push
+        services.AddSingleton<IMessenger>(WeakReferenceMessenger.Default);
+        services.AddSingleton<IPushMessageRouter, PushMessageRouter>();
+        services.AddSingleton<ForegroundPushHandler>();
+        services.AddTransient<IDeviceRegistrationService, DeviceRegistrationService>();
+        services.AddSingleton<Func<IDeviceRegistrationService>>(sp => () => sp.GetRequiredService<IDeviceRegistrationService>());
+        services.AddTransient<INotificationOnboarding, NotificationOnboarding>();
+        services.AddTransient<INotificationSettingsService, NotificationSettingsService>();
         return services;
+    }
+
+    // API szkoleniowe: typed clients z IHttpClientFactory. BaseUrl kończy się „/”, ścieżki w klientach są względne.
+    public static IServiceCollection AddApiClients(this IServiceCollection services)
+    {
+        services.Configure<ApiSettings>(o => o.BaseUrl = ApiSettings.TrainingBaseUrl);
+        services.AddTransient<AuthHeaderHandler>(); // dokleja Bearer z SecureStorage
+
+        services.AddHttpClient<IAuthApiClient, AuthApiClient>(ConfigureApi);
+        services.AddHttpClient<IDevicesApiClient, DevicesApiClient>(ConfigureApi)
+            .AddHttpMessageHandler<AuthHeaderHandler>();
+        return services;
+    }
+
+    private static void ConfigureApi(IServiceProvider sp, HttpClient client)
+    {
+        client.BaseAddress = new Uri(sp.GetRequiredService<Microsoft.Extensions.Options.IOptions<ApiSettings>>().Value.BaseUrl);
+        client.Timeout = TimeSpan.FromSeconds(30);
     }
 
     // IDialogService, IClock, IErrorHandler… (implementacje MAUI; w testach mocki)
@@ -47,6 +81,16 @@ public static class ServiceCollectionExtensions
         services.AddSingleton<IPermissionService, MauiPermissionService>();
         services.AddSingleton<IPhotoStorage, PhotoStorage>();
         services.AddSingleton<IMediaService, MauiMediaService>();
+        services.AddSingleton<IAppPreferences, MauiAppPreferences>();
+        services.AddSingleton<IClipboardService, MauiClipboardService>();
+
+        // powiadomienia push: Firebase — plugin tylko tu i w FirebasePushAdapter
+        services.AddSingleton(_ => Plugin.Firebase.CloudMessaging.CrossFirebaseCloudMessaging.Current);
+        services.AddSingleton<FirebasePushAdapter>();
+        services.AddSingleton<IPushTokenProvider>(sp => sp.GetRequiredService<FirebasePushAdapter>());
+        services.AddSingleton<IPushPermissionService, MauiPushPermissionService>();
+        services.AddSingleton<IInAppNotifier, SnackbarInAppNotifier>();
+        services.AddSingleton<PushStartup>();
         return services;
     }
 
@@ -60,6 +104,7 @@ public static class ServiceCollectionExtensions
         services.AddTransient<ReportDetailsViewModel>();
         services.AddTransient<NewReportFlowViewModel>();
         services.AddTransient<SettingsViewModel>();
+        services.AddTransient<NotificationPrimingViewModel>();
         services.AddTransient<PlaygroundViewModel>();
         services.AddTransient<CounterViewModel>();
 
@@ -82,6 +127,7 @@ public static class ServiceCollectionExtensions
         services.AddTransient<ReportDetailsPage>();
         services.AddTransient<NewReportFlowPage>();
         services.AddTransient<SettingsPage>();
+        services.AddTransient<NotificationPrimingPage>();
         services.AddTransient<PlaygroundPage>();
         return services;
     }

@@ -13,6 +13,10 @@
     <PackageVersion Include="CommunityToolkit.Mvvm" Version="8.4.2" />
     <!-- App: gotowe konwertery, Snackbar i inne dodatki MAUI -->
     <PackageVersion Include="CommunityToolkit.Maui" Version="15.0.1" />
+    <!-- App: powiadomienia push. Plugin.Firebase 4.x (net9.0-android/ios) działa z .NET 10 / MAUI 10 -->
+    <PackageVersion Include="Plugin.Firebase.CloudMessaging" Version="4.0.1" />
+    <!-- App: IHttpClientFactory, typed clients -->
+    <PackageVersion Include="Microsoft.Extensions.Http" Version="10.0.12" />
     <!-- Core: lokalna baza (praca offline). bundle_green = natywny SQLite dla Androida (e_sqlite3) i systemowy na iOS -->
     <PackageVersion Include="sqlite-net-pcl" Version="1.9.172" />
     <PackageVersion Include="SQLitePCLRaw.bundle_green" Version="2.1.11" />

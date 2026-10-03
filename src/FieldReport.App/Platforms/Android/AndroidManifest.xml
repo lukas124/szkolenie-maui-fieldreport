@@ -1,8 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
-	<application android:allowBackup="true" android:icon="@mipmap/appicon" android:roundIcon="@mipmap/appicon_round" android:supportsRtl="true"></application>
+	<application android:allowBackup="true" android:icon="@mipmap/appicon" android:roundIcon="@mipmap/appicon_round" android:supportsRtl="true">
+		<!-- Powiadomienia push: komunikaty FCM wyświetlane przez system (aplikacja w tle / zamknięta) -->
+		<meta-data android:name="com.google.firebase.messaging.default_notification_channel_id" android:value="reports" />
+		<meta-data android:name="com.google.firebase.messaging.default_notification_icon" android:resource="@drawable/ic_notification" />
+		<meta-data android:name="com.google.firebase.messaging.default_notification_color" android:resource="@color/notification_accent" />
+	</application>
 	<uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 	<uses-permission android:name="android.permission.INTERNET" />
+	<!-- Powiadomienia push: Android 13+ — zgoda na wyświetlanie powiadomień (prośba w runtime, ekran „Włącz powiadomienia”) -->
+	<uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
 
 	<!-- Kreator nowego zgłoszenia, krok „Zdjęcie”: aparat (prośba w runtime: Permissions.Camera). Aparat opcjonalny — bez niego zostaje galeria. -->
 	<uses-permission android:name="android.permission.CAMERA" />

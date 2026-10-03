@@ -19,7 +19,7 @@
   <data name="ReportPriority_Normal" xml:space="preserve"><value>Normalny</value></data>
   <data name="ReportPriority_High" xml:space="preserve"><value>Wysoki</value></data>
   <data name="Error_unknown" xml:space="preserve"><value>Wystąpił nieoczekiwany błąd. Spróbuj ponownie.</value></data>
-  <data name="Error_network" xml:space="preserve"><value>Brak połączenia z internetem. Dane zostały zapisane w telefonie.</value></data>
+  <data name="Error_network" xml:space="preserve"><value>Brak połączenia z internetem. Sprawdź sieć i spróbuj ponownie.</value></data>
   <data name="Error_invalid_title" xml:space="preserve"><value>Tytuł musi mieć od 3 do 80 znaków.</value></data>
   <data name="Common_Yes" xml:space="preserve"><value>Tak</value></data>
   <data name="Common_No" xml:space="preserve"><value>Nie</value></data>
@@ -88,4 +88,32 @@
   <data name="NewReport_PickPhoto" xml:space="preserve"><value>Wybierz z galerii</value></data>
   <data name="NewReport_RemovePhoto" xml:space="preserve"><value>Usuń</value></data>
   <data name="NewReport_PhotoHint" xml:space="preserve"><value>Zdjęcie usterki jest opcjonalne. Zrób nowe albo wybierz z galerii.</value></data>
+  <data name="Error_unauthorized" xml:space="preserve"><value>Sesja wygasła. Zaloguj się ponownie.</value></data>
+  <data name="Error_session_expired" xml:space="preserve"><value>Sesja wygasła. Zaloguj się ponownie.</value></data>
+  <data name="Error_invalid_request" xml:space="preserve"><value>Serwer odrzucił dane zgłoszenia.</value></data>
+  <data name="Error_not_found" xml:space="preserve"><value>Nie znaleziono danych na serwerze.</value></data>
+  <data name="Error_conflict" xml:space="preserve"><value>Operacja jest niemożliwa (konflikt danych na serwerze).</value></data>
+  <data name="Error_server" xml:space="preserve"><value>Serwer chwilowo nie odpowiada. Spróbuj ponownie za chwilę.</value></data>
+  <data name="Error_invalid_response" xml:space="preserve"><value>Serwer zwrócił nieoczekiwaną odpowiedź.</value></data>
+  <data name="Error_push_token_unavailable" xml:space="preserve"><value>Brak tokenu FCM na tym urządzeniu (np. emulator bez Google Play albo iOS bez konfiguracji push).</value></data>
+  <data name="Push_report_assigned" xml:space="preserve"><value>Nowe zgłoszenie: {0}</value></data>
+  <data name="Push_report_status_changed" xml:space="preserve"><value>Dyspozytor zmienił status: {0}</value></data>
+  <data name="Push_UnknownTitle" xml:space="preserve"><value>zgłoszenie</value></data>
+  <data name="Push_Show" xml:space="preserve"><value>Pokaż</value></data>
+  <data name="Push_ChannelName" xml:space="preserve"><value>Zgłoszenia</value></data>
+  <data name="Push_ChannelDescription" xml:space="preserve"><value>Nowe zgłoszenia i zmiany statusu od dyspozytora</value></data>
+  <data name="Priming_Title" xml:space="preserve"><value>Włącz powiadomienia</value></data>
+  <data name="Priming_Message" xml:space="preserve"><value>Dyspozytor przydziela zgłoszenia na bieżąco. Dzięki powiadomieniom od razu się o nich dowiesz — także gdy aplikacja jest zamknięta.</value></data>
+  <data name="Priming_BulletAssigned" xml:space="preserve"><value>• Nowe zgłoszenie przypisane do Ciebie</value></data>
+  <data name="Priming_BulletStatus" xml:space="preserve"><value>• Zmiana statusu zgłoszenia przez dyspozytora</value></data>
+  <data name="Priming_BulletSettings" xml:space="preserve"><value>Zgodę możesz zmienić w każdej chwili w Ustawieniach.</value></data>
+  <data name="Priming_Enable" xml:space="preserve"><value>Włącz</value></data>
+  <data name="Priming_NotNow" xml:space="preserve"><value>Nie teraz</value></data>
+  <data name="Settings_Notifications" xml:space="preserve"><value>Powiadomienia</value></data>
+  <data name="Settings_NotificationsOn" xml:space="preserve"><value>Włączone</value></data>
+  <data name="Settings_NotificationsOff" xml:space="preserve"><value>Wyłączone</value></data>
+  <data name="Settings_EnableNotifications" xml:space="preserve"><value>Włącz powiadomienia</value></data>
+  <data name="Settings_CopyToken" xml:space="preserve"><value>Kopiuj token FCM</value></data>
+  <data name="Settings_TokenCopiedTitle" xml:space="preserve"><value>Skopiowano</value></data>
+  <data name="Settings_TokenCopiedMessage" xml:space="preserve"><value>Token FCM jest w schowku. Wklej go w konsoli Firebase („Wyślij wiadomość testową”).</value></data>
 </root>

@@ -28,6 +28,9 @@ public abstract partial class BaseViewModel : ObservableObject
     /// <summary>Gdy strona przestaje być widoczna.</summary>
     public virtual Task OnDisappearingAsync() => Task.CompletedTask; // gdy strona znika
 
+    /// <summary>Aplikacja wróciła z tła, a ta strona jest na wierzchu (np. powrót z ustawień systemu).</summary>
+    public virtual Task OnResumedAsync() => Task.CompletedTask;      // powrót aplikacji z tła
+
     /// <summary>Systemowy przycisk „wstecz”. Domyślnie: powrót do poprzedniej strony.</summary>
     public virtual Task OnBackRequestedAsync() => Navigation.GoBackAsync(); // „wstecz”
 

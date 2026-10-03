@@ -88,4 +88,32 @@
   <data name="NewReport_PickPhoto" xml:space="preserve"><value>Choose from gallery</value></data>
   <data name="NewReport_RemovePhoto" xml:space="preserve"><value>Remove</value></data>
   <data name="NewReport_PhotoHint" xml:space="preserve"><value>A photo of the fault is optional. Take a new one or choose one from the gallery.</value></data>
+  <data name="Error_unauthorized" xml:space="preserve"><value>Your session has expired. Please sign in again.</value></data>
+  <data name="Error_session_expired" xml:space="preserve"><value>Your session has expired. Please sign in again.</value></data>
+  <data name="Error_invalid_request" xml:space="preserve"><value>The server rejected the report data.</value></data>
+  <data name="Error_not_found" xml:space="preserve"><value>The data was not found on the server.</value></data>
+  <data name="Error_conflict" xml:space="preserve"><value>The operation is not possible (data conflict on the server).</value></data>
+  <data name="Error_server" xml:space="preserve"><value>The server is temporarily unavailable. Please try again in a moment.</value></data>
+  <data name="Error_invalid_response" xml:space="preserve"><value>The server returned an unexpected response.</value></data>
+  <data name="Error_push_token_unavailable" xml:space="preserve"><value>No FCM token on this device (e.g. an emulator without Google Play or iOS without push configuration).</value></data>
+  <data name="Push_report_assigned" xml:space="preserve"><value>New report: {0}</value></data>
+  <data name="Push_report_status_changed" xml:space="preserve"><value>The dispatcher changed the status: {0}</value></data>
+  <data name="Push_UnknownTitle" xml:space="preserve"><value>report</value></data>
+  <data name="Push_Show" xml:space="preserve"><value>Show</value></data>
+  <data name="Push_ChannelName" xml:space="preserve"><value>Reports</value></data>
+  <data name="Push_ChannelDescription" xml:space="preserve"><value>New reports and status changes from the dispatcher</value></data>
+  <data name="Priming_Title" xml:space="preserve"><value>Turn on notifications</value></data>
+  <data name="Priming_Message" xml:space="preserve"><value>The dispatcher assigns reports as they come in. Notifications let you know right away — even when the app is closed.</value></data>
+  <data name="Priming_BulletAssigned" xml:space="preserve"><value>• A new report assigned to you</value></data>
+  <data name="Priming_BulletStatus" xml:space="preserve"><value>• A report status changed by the dispatcher</value></data>
+  <data name="Priming_BulletSettings" xml:space="preserve"><value>You can change your consent at any time in Settings.</value></data>
+  <data name="Priming_Enable" xml:space="preserve"><value>Turn on</value></data>
+  <data name="Priming_NotNow" xml:space="preserve"><value>Not now</value></data>
+  <data name="Settings_Notifications" xml:space="preserve"><value>Notifications</value></data>
+  <data name="Settings_NotificationsOn" xml:space="preserve"><value>On</value></data>
+  <data name="Settings_NotificationsOff" xml:space="preserve"><value>Off</value></data>
+  <data name="Settings_EnableNotifications" xml:space="preserve"><value>Turn on notifications</value></data>
+  <data name="Settings_CopyToken" xml:space="preserve"><value>Copy FCM token</value></data>
+  <data name="Settings_TokenCopiedTitle" xml:space="preserve"><value>Copied</value></data>
+  <data name="Settings_TokenCopiedMessage" xml:space="preserve"><value>The FCM token is on the clipboard. Paste it in the Firebase console ("Send test message").</value></data>
 </root>
