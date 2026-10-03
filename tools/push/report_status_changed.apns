@@ -1,0 +1,6 @@
+{
+  "Simulator Target Bundle": "pl.szkolenie.fieldreport.dev",
+  "aps": { "alert": { "title": "Zmiana statusu", "body": "Awaria pompy" }, "sound": "default" },
+  "type": "report_status_changed",
+  "reportId": "3f2c9a4e-8d1b-4c7a-9e55-0a1b2c3d4e5f"
+}

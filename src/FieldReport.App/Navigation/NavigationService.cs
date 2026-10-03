@@ -5,6 +5,8 @@ namespace FieldReport.App.Navigation;
 /// <summary>
 /// Nawigacja ViewModel-first na stosie stron okna (RootPage : NavigationPage).
 /// Strona i ViewModel pochodzą z kontenera DI, a PageRoutes mówi, która strona należy do którego ViewModelu.
+/// Stos zmieniamy zawsze na wątku UI (MainThread): nawigację może wywołać kod działający w tle,
+/// np. obsługa wygasłej sesji albo tapnięcie powiadomienia push.
 /// </summary>
 public sealed class NavigationService(IServiceProvider services, PageRoutes routes) : INavigationService
 {
@@ -27,7 +29,7 @@ public sealed class NavigationService(IServiceProvider services, PageRoutes rout
         try
         {
             viewModel = CreatePage<TViewModel>(out var page); // 1) strona + ViewModel z DI (mapa PageRoutes)
-            await CurrentNavigation.PushAsync(page);          // 2) połóż stronę na stosie
+            await MainThread.InvokeOnMainThreadAsync(() => CurrentNavigation.PushAsync(page)); // 2) połóż stronę na stosie
         }
         finally
         {
@@ -46,7 +48,7 @@ public sealed class NavigationService(IServiceProvider services, PageRoutes rout
         try
         {
             viewModel = CreatePage<TViewModel>(out var page);
-            await CurrentNavigation.PushModalAsync(page);
+            await MainThread.InvokeOnMainThreadAsync(() => CurrentNavigation.PushModalAsync(page));
         }
         finally
         {
@@ -65,13 +67,16 @@ public sealed class NavigationService(IServiceProvider services, PageRoutes rout
         try
         {
             viewModel = CreatePage<TViewModel>(out var page);
-            while (CurrentNavigation.ModalStack.Count > 0)    // 1. zamknij modale
-                await CurrentNavigation.PopModalAsync(false);
+            await MainThread.InvokeOnMainThreadAsync(async () =>
+            {
+                while (CurrentNavigation.ModalStack.Count > 0)    // 1. zamknij modale
+                    await CurrentNavigation.PopModalAsync(false);
 
-            await CurrentNavigation.PushAsync(page, false);   // 2. nowa strona
-            // Stare strony usuwamy dopiero PO dodaniu nowej, żeby stos ani na chwilę nie był pusty
-            foreach (var oldPage in CurrentNavigation.NavigationStack.Where(p => p != page).ToList())
-                CurrentNavigation.RemovePage(oldPage);      // 3. usuń stare (PO dodaniu nowej)
+                await CurrentNavigation.PushAsync(page, false);   // 2. nowa strona
+                // Stare strony usuwamy dopiero PO dodaniu nowej, żeby stos ani na chwilę nie był pusty
+                foreach (var oldPage in CurrentNavigation.NavigationStack.Where(p => p != page).ToList())
+                    CurrentNavigation.RemovePage(oldPage);      // 3. usuń stare (PO dodaniu nowej)
+            });
         }
         finally
         {
@@ -88,10 +93,13 @@ public sealed class NavigationService(IServiceProvider services, PageRoutes rout
         _isNavigating = true;
         try
         {
-            if (CurrentNavigation.ModalStack.Count > 0)
-                await CurrentNavigation.PopModalAsync();   // otwarty modal – zamknij go
-            else if (CurrentNavigation.NavigationStack.Count > 1)
-                await CurrentNavigation.PopAsync();        // poprzednia strona
+            await MainThread.InvokeOnMainThreadAsync(async () =>
+            {
+                if (CurrentNavigation.ModalStack.Count > 0)
+                    await CurrentNavigation.PopModalAsync();   // otwarty modal – zamknij go
+                else if (CurrentNavigation.NavigationStack.Count > 1)
+                    await CurrentNavigation.PopAsync();        // poprzednia strona
+            });
         }
         finally
         {

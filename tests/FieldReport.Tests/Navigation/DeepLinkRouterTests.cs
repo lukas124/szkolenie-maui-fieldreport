@@ -1,4 +1,6 @@
+using FieldReport.Core.Models;
 using FieldReport.Core.Navigation;
+using FieldReport.Core.Services;
 using FieldReport.Core.ViewModels;
 
 namespace FieldReport.Tests.Navigation;
@@ -7,6 +9,7 @@ namespace FieldReport.Tests.Navigation;
 public class DeepLinkRouterTests
 {
     private Mock<INavigationService> _navigation = null!;
+    private Mock<ISessionStore> _sessions = null!;
     private DeepLinkRouter _router = null!;
     private readonly Guid _reportId = Guid.NewGuid();
 
@@ -14,7 +17,9 @@ public class DeepLinkRouterTests
     public void SetUp()
     {
         _navigation = new Mock<INavigationService>();
-        _router = new DeepLinkRouter(_navigation.Object);
+        _sessions = new Mock<ISessionStore>();
+        _sessions.Setup(s => s.GetAsync()).ReturnsAsync(new Session("a@b.pl", "A", "t", "r"));
+        _router = new DeepLinkRouter(_navigation.Object, _sessions.Object);
     }
 
     private void VerifyDetails(Times times) =>
@@ -44,6 +49,15 @@ public class DeepLinkRouterTests
         await _router.OnStartupCompletedAsync(true);
         await _router.RouteAsync(new DeepLink(_reportId));
         VerifyDetails(Times.Once());
+    }
+
+    [Test]
+    public async Task LinkAfterStartup_SignedOut_IsIgnored()
+    {
+        _sessions.Setup(s => s.GetAsync()).ReturnsAsync((Session?)null);
+        await _router.OnStartupCompletedAsync(false);
+        await _router.RouteAsync(new DeepLink(_reportId));
+        VerifyDetails(Times.Never());
     }
 
     [Test]

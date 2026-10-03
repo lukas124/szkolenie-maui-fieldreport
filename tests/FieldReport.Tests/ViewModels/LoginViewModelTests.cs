@@ -2,6 +2,7 @@ using FieldReport.Core.Models;
 using FieldReport.Core.Navigation;
 using FieldReport.Core.Presentation;
 using FieldReport.Core.Services;
+using FieldReport.Core.Services.Push;
 using FieldReport.Core.ViewModels;
 
 namespace FieldReport.Tests.ViewModels;
@@ -12,6 +13,7 @@ public class LoginViewModelTests
     private Mock<INavigationService> _navigation = null!;
     private Mock<IAuthService> _auth = null!;
     private Mock<IUserFeedback> _feedback = null!;
+    private Mock<INotificationOnboarding> _onboarding = null!;
     private LoginViewModel _vm = null!;
 
     [SetUp]
@@ -20,7 +22,8 @@ public class LoginViewModelTests
         _navigation = new Mock<INavigationService>();
         _auth = new Mock<IAuthService>();
         _feedback = new Mock<IUserFeedback>();
-        _vm = new LoginViewModel(_navigation.Object, _auth.Object, new CredentialsValidator(), _feedback.Object);
+        _onboarding = new Mock<INotificationOnboarding>();
+        _vm = new LoginViewModel(_navigation.Object, _auth.Object, new CredentialsValidator(), _feedback.Object, _onboarding.Object);
     }
 
     [TestCase("", "")]
@@ -85,5 +88,52 @@ public class LoginViewModelTests
         await first;
 
         _auth.Verify(a => a.SignInAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Once);
+    }
+
+    // ----- Powiadomienia push: ekran „Włącz powiadomienia” tylko po pierwszym logowaniu -----
+
+    private async Task SignInSuccessfullyAsync()
+    {
+        _auth.Setup(a => a.SignInAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>())).ReturnsAsync(Result.Success());
+        _vm.Email = "jan@firma.pl";
+        _vm.Pin = "1234";
+        await _vm.SignInCommand.ExecuteAsync(null);
+    }
+
+    [Test]
+    public async Task FirstSignIn_ResetsToList_ThenShowsNotificationPriming()
+    {
+        var sequence = new MockSequence();
+        _navigation.InSequence(sequence).Setup(n => n.ResetToAsync<ReportsViewModel>()).Returns(Task.CompletedTask);
+        _navigation.InSequence(sequence).Setup(n => n.OpenModalAsync<NotificationPrimingViewModel>(null)).Returns(Task.CompletedTask);
+        _onboarding.Setup(o => o.AfterSignInAsync(It.IsAny<CancellationToken>())).ReturnsAsync(true);
+
+        await SignInSuccessfullyAsync();
+
+        _navigation.Verify(n => n.OpenModalAsync<NotificationPrimingViewModel>(null), Times.Once);
+    }
+
+    [Test]
+    public async Task LaterSignIn_DoesNotShowPriming()
+    {
+        _onboarding.Setup(o => o.AfterSignInAsync(It.IsAny<CancellationToken>())).ReturnsAsync(false);
+
+        await SignInSuccessfullyAsync();
+
+        _navigation.Verify(n => n.OpenModalAsync<NotificationPrimingViewModel>(It.IsAny<object?>()), Times.Never);
+    }
+
+    [Test]
+    public async Task FailedSignIn_DoesNotTouchOnboarding()
+    {
+        _auth.Setup(a => a.SignInAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
+             .ReturnsAsync(Result.Failure(Errors.Network));
+        _vm.Email = "jan@firma.pl";
+        _vm.Pin = "1234";
+
+        await _vm.SignInCommand.ExecuteAsync(null);
+
+        _feedback.Verify(f => f.ShowErrorAsync(Errors.Network), Times.Once);
+        _onboarding.Verify(o => o.AfterSignInAsync(It.IsAny<CancellationToken>()), Times.Never);
     }
 }

@@ -1,7 +1,9 @@
+using CommunityToolkit.Mvvm.Messaging;
 using FieldReport.Core.Models;
 using FieldReport.Core.Navigation;
 using FieldReport.Core.Presentation;
 using FieldReport.Core.Services;
+using FieldReport.Core.Services.Push;
 using FieldReport.Core.ViewModels;
 using FieldReport.Tests.TestData;
 
@@ -13,6 +15,7 @@ public class ReportsViewModelTests
     private Mock<INavigationService> _navigation = null!;
     private Mock<IReportService> _reports = null!;
     private Mock<IUserFeedback> _feedback = null!;
+    private IMessenger _messenger = null!;
     private ReportsViewModel _vm = null!;
 
     [SetUp]
@@ -25,7 +28,8 @@ public class ReportsViewModelTests
         items.Setup(f => f.Create(It.IsAny<Report>())).Returns((Report r) => new ReportItem(
             r.Id, r.Title.Value, "data", r.Priority, "priorytet", r.Status, "status", r.SyncState == SyncState.Pending, null, r.CanDelete));
 
-        _vm = new ReportsViewModel(_navigation.Object, _reports.Object, items.Object, _feedback.Object);
+        _messenger = new WeakReferenceMessenger(); // własna instancja: testy nie dzielą odbiorców
+        _vm = new ReportsViewModel(_navigation.Object, _reports.Object, items.Object, _feedback.Object, _messenger);
     }
 
     [Test]
@@ -87,6 +91,28 @@ public class ReportsViewModelTests
         await _vm.OnAppearingAsync();          // powrót ze szczegółów: odświeżenie
 
         _reports.Verify(r => r.GetAllAsync(It.IsAny<CancellationToken>()), Times.Exactly(2));
+    }
+
+    // ----- Odświeżenie po komunikacie (powiadomienie push na pierwszym planie, synchronizacja) -----
+
+    [Test]
+    public async Task ReportsChangedMessage_AfterLoad_ReloadsList()
+    {
+        _reports.SetupSequence(r => r.GetAllAsync(It.IsAny<CancellationToken>()))
+                .ReturnsAsync(Result<IReadOnlyList<Report>>.Success([]))
+                .ReturnsAsync(Result<IReadOnlyList<Report>>.Success([TestReports.Create()]));
+        await _vm.OnNavigatedToAsync(null);
+
+        _messenger.Send(new ReportsChangedMessage());
+
+        Assert.That(() => _vm.Reports, Has.Count.EqualTo(1).After(1000, 20));
+    }
+
+    [Test]
+    public void ReportsChangedMessage_BeforeNavigation_IsIgnored()
+    {
+        _messenger.Send(new ReportsChangedMessage()); // ViewModel jeszcze niezarejestrowany
+        _reports.Verify(r => r.GetAllAsync(It.IsAny<CancellationToken>()), Times.Never);
     }
 
     // ----- usuwanie -----

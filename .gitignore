@@ -496,3 +496,9 @@ $RECYCLE.BIN/
 .DS_Store
 .idea/
 *.DotSettings.user
+
+# Konfiguracja klienta Firebase per konfiguracja buildu (to NIE sekret — commitujemy), mimo wzorców [Dd]ebug/ [Rr]elease/ wyżej
+!src/FieldReport.App/Platforms/Android/Firebase/Debug/
+!src/FieldReport.App/Platforms/Android/Firebase/Release/
+!src/FieldReport.App/Platforms/iOS/Firebase/Debug/
+!src/FieldReport.App/Platforms/iOS/Firebase/Release/
