@@ -9,6 +9,9 @@
   <ItemGroup>
     <!-- MVVM: ObservableObject, [ObservableProperty], [RelayCommand] (generatory kodu) -->
     <PackageReference Include="CommunityToolkit.Mvvm" />
+    <!-- SQLite (praca offline): sqlite-net (ORM-lite) + natywna biblioteka SQLite -->
+    <PackageReference Include="sqlite-net-pcl" />
+    <PackageReference Include="SQLitePCLRaw.bundle_green" />
   </ItemGroup>
 
   <ItemGroup>

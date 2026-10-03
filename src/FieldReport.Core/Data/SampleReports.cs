@@ -28,21 +28,6 @@ public static class SampleReports
             ReportPriority.Low, ReportStatus.Done, SyncState.Synced, now.AddDays(-4), now.AddDays(-3)),
     ];
 
-    /// <summary>Narzędzie dewelopera (Playground): usuwa z repozytorium wszystkie zgłoszenia, także wysłane.</summary>
-    public static async Task RemoveAllAsync(IReportRepository repository)
-    {
-        foreach (var report in await repository.GetAllAsync())
-            await repository.DeleteAsync(report.Id);
-    }
-
-    /// <summary>Narzędzie dewelopera (Playground): przywraca startowy zestaw zgłoszeń przykładowych.</summary>
-    public static async Task RestoreAsync(IReportRepository repository, DateTimeOffset now)
-    {
-        await RemoveAllAsync(repository);
-        foreach (var report in Create(now))
-            await repository.SaveAsync(report);
-    }
-
     private static Report Sample(string id, string title, string description, ReportPriority priority,
         ReportStatus status, SyncState syncState, DateTimeOffset createdAt, DateTimeOffset updatedAt) =>
         new(Guid.Parse(id), ReportTitle.Create(title).Value!, description, priority, status, syncState,
