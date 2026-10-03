@@ -23,6 +23,13 @@
 
     <!-- Compiled bindings także dla bindingów z ustawionym Source (x:Reference, RelativeSource) -->
     <MauiEnableXamlCBindingWithSourceCompilation>true</MauiEnableXamlCBindingWithSourceCompilation>
+
+    <!-- XAML kompilowany do C# przez generator (też w Debug): błędy bindingów widać już w buildzie -->
+    <MauiXamlInflator>SourceGen</MauiXamlInflator>
+    <!-- Literówka w ścieżce bindingu (x:DataType) = błąd kompilacji zamiast cichego braku danych.
+         MAUIG2045 (generator XAML), XC0045 (XamlC) — „Property not found”. -->
+    <WarningsAsErrors>$(WarningsAsErrors);MAUIG2045</WarningsAsErrors>
+    <MSBuildWarningsAsErrors>$(MSBuildWarningsAsErrors);XC0045</MSBuildWarningsAsErrors>
   </PropertyGroup>
 
   <!-- Tożsamość aplikacji per konfiguracja

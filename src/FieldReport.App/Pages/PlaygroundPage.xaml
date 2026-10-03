@@ -5,6 +5,7 @@
                 xmlns:pages="clr-namespace:FieldReport.App.Pages"
                 xmlns:vm="clr-namespace:FieldReport.Core.ViewModels.Playground;assembly=FieldReport.Core"
                 x:Class="FieldReport.App.Pages.PlaygroundPage"
+                x:DataType="vm:CounterViewModel"
                 Title="Playground"
                 CanNavigateBack="True">
     <!-- Playground: ViewModel tworzony w XAML (tylko w piaskownicy; strony aplikacji dostają go z DI) -->
@@ -18,7 +19,7 @@
             <Border Style="{StaticResource InputFrame}">
                 <Entry x:Name="NameEntry" Placeholder="Imię" />
             </Border>
-            <Label Text="{Binding Source={x:Reference NameEntry}, Path=Text, StringFormat='Cześć {0}!'}" />
+            <Label x:DataType="Entry" Text="{Binding Source={x:Reference NameEntry}, Path=Text, StringFormat='Cześć {0}!'}" />
 
             <!-- Markup extensions i właściwości dołączone -->
             <Label Text="// markup extensions" Style="{StaticResource SectionHeader}" Margin="0,16,0,0" />
@@ -29,7 +30,7 @@
                     <Label Grid.Row="1" Text="OnIdiom" Style="{StaticResource Caption}" />
                     <Label Grid.Row="1" Grid.Column="1" Text="{OnIdiom Phone='telefon', Tablet='tablet', Default='inne'}" />
                     <Label Grid.Row="2" Text="x:Reference" Style="{StaticResource Caption}" />
-                    <Label Grid.Row="2" Grid.Column="1"
+                    <Label Grid.Row="2" Grid.Column="1" x:DataType="Entry"
                            Text="{Binding Source={x:Reference NameEntry}, Path=Text.Length, StringFormat='Liczba znaków: {0}', TargetNullValue='Liczba znaków: 0', FallbackValue='Liczba znaków: 0'}" />
                 </Grid>
             </Border>
