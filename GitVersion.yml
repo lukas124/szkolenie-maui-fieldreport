@@ -1,0 +1,16 @@
+# GitVersion: wylicza numer wersji aplikacji z historii gita (tagi + commity), bez ręcznej edycji csproj.
+#
+# Jak to działa:
+# - punktem odniesienia jest ostatni tag wersji, np. v1.2.0 (prefiks v jest opcjonalny),
+# - każdy kolejny commit na main podbija wersję o „patch” (1.2.0 → 1.2.1),
+# - słowo w opisie commita może podbić większy człon: „+semver: minor” (1.3.0) albo „+semver: major” (2.0.0).
+#
+# Wynik (np. MajorMinorPatch = 1.2.1) pipeline CD wpisuje do ApplicationDisplayVersion,
+# a ApplicationVersion (numer, który sklep wymaga zawsze rosnącego) bierze z numeru uruchomienia pipeline'u.
+workflow: GitHubFlow/v1
+# wersja startowa, dopóki w repozytorium nie ma żadnego tagu v*
+next-version: '1.0.0'
+tag-prefix: '[vV]?'
+major-version-bump-message: '\+semver:\s?(breaking|major)'
+minor-version-bump-message: '\+semver:\s?(feature|minor)'
+patch-version-bump-message: '\+semver:\s?(fix|patch)'

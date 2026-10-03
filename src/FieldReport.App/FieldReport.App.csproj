@@ -5,6 +5,8 @@
     <TargetFrameworks>net10.0-android</TargetFrameworks>
     <TargetFrameworks Condition="$([MSBuild]::IsOSPlatform('osx'))">$(TargetFrameworks);net10.0-ios</TargetFrameworks>
 
+    <!-- TODO: trzy środowiska: <Configurations>Debug;Test;Release</Configurations> (Test = TEST, release-like, dla testerów) -->
+
     <OutputType>Exe</OutputType>
     <RootNamespace>FieldReport.App</RootNamespace>
     <UseMaui>true</UseMaui>
@@ -21,6 +23,10 @@
          (np. 26.6 vs zainstalowany 26.5). W CI/produkcji usuń i trzymaj zgodne wersje. -->
     <ValidateXcodeVersion>false</ValidateXcodeVersion>
 
+    <!-- Android Release/Test: marshal methods wyłączone — stabilniejsze buildy Release/Test po zmianie zasobów.
+         Koszt: minimalnie wolniejszy start. -->
+    <AndroidEnableMarshalMethods>false</AndroidEnableMarshalMethods>
+
     <!-- Compiled bindings także dla bindingów z ustawionym Source (x:Reference, RelativeSource) -->
     <MauiEnableXamlCBindingWithSourceCompilation>true</MauiEnableXamlCBindingWithSourceCompilation>
 
@@ -32,10 +38,10 @@
     <MSBuildWarningsAsErrors>$(MSBuildWarningsAsErrors);XC0045</MSBuildWarningsAsErrors>
   </PropertyGroup>
 
-  <!-- Tożsamość aplikacji per konfiguracja
-       (DEV i PROD obok siebie na jednym telefonie).
+  <!-- Tożsamość aplikacji per konfiguracja: DEV, TEST i PROD instalowalne obok
+       siebie na jednym telefonie.
        PropertyGroup z Condition działa tylko przy budowaniu w danej konfiguracji
-       (dotnet build -c Debug|Release). -->
+       (dotnet build -c Debug|Test|Release). -->
   <!-- Debug = DEV: domyślna konfiguracja dotnet build / dotnet run,
        do pracy przy kodzie -->
   <!-- wersja dla programisty -->
@@ -46,18 +52,50 @@
     <ApplicationId>pl.szkolenie.fieldreport.dev</ApplicationId>
     <!-- ApplicationTitle: nazwa wyświetlana pod ikoną aplikacji -->
     <ApplicationTitle>FieldReport DEV</ApplicationTitle>
+    <!-- AndroidManifestPlaceholders: wartości wstawiane do AndroidManifest.xml
+         w miejsce ${nazwa}.
+         usesCleartextTraffic=true: Android pozwala na HTTP bez TLS —
+         tylko w Debug (lokalne API http://10.0.2.2:5080/) -->
+    <AndroidManifestPlaceholders>usesCleartextTraffic=true</AndroidManifestPlaceholders>
   </PropertyGroup>
+  <!-- TODO: PropertyGroup dla Test: ApplicationId pl.szkolenie.fieldreport.test, ApplicationTitle „FieldReport TEST”,
+       Optimize=true, DebugSymbols=false, AndroidManifestPlaceholders usesCleartextTraffic=false -->
   <!-- Release = PROD: wersja produkcyjna -->
   <!-- wersja do sklepu -->
   <PropertyGroup Condition="'$(Configuration)' == 'Release'">
     <!-- identyfikator bez przyrostka i nazwa bez dopisku: aplikacja produkcyjna -->
     <ApplicationId>pl.szkolenie.fieldreport</ApplicationId>
     <ApplicationTitle>FieldReport</ApplicationTitle>
+    <!-- usesCleartextTraffic=false: Android blokuje HTTP bez TLS, tylko HTTPS -->
+    <AndroidManifestPlaceholders>usesCleartextTraffic=false</AndroidManifestPlaceholders>
   </PropertyGroup>
+
+  <!-- iOS: bazowy Info.plist + różnice per konfiguracja (PartialAppManifest), entitlements per konfiguracja -->
+  <ItemGroup Condition="$(TargetFramework.Contains('-ios'))">
+    <PartialAppManifest Include="Platforms\iOS\Info.Debug.plist" Condition="'$(Configuration)' == 'Debug'" />
+  </ItemGroup>
+  <!-- produkcyjny push na iOS: capability Push Notifications + aps-environment (wymaga płatnego konta Apple Developer).
+       Debug/Test na szkoleniu celowo BEZ entitlements — symulator nie ma APNs, brak tokenu nie jest błędem. -->
+  <!-- tylko build na urządzenie (RID ios-arm64); symulator nie ma APNs, a entitlements wymusiłyby prawdziwy certyfikat -->
+  <PropertyGroup Condition="$(TargetFramework.Contains('-ios')) And '$(Configuration)' == 'Release' And $(RuntimeIdentifier.StartsWith('ios-'))">
+    <CodeSignEntitlements>Platforms\iOS\Entitlements.Release.plist</CodeSignEntitlements>
+  </PropertyGroup>
+
+  <!-- Konfiguracja aplikacji: appsettings.json + TYLKO plik bieżącej konfiguracji trafia do binarki -->
+  <ItemGroup>
+    <EmbeddedResource Include="appsettings.json" LogicalName="appsettings.json" />
+    <!-- TODO: utwórz appsettings.Test.json z {"Environment":{"Name":"TEST"}} (wzór: appsettings.Release.json) -->
+    <EmbeddedResource Include="appsettings.$(Configuration).json" LogicalName="appsettings.environment.json"
+                      Condition="Exists('appsettings.$(Configuration).json')" />
+    <None Remove="appsettings*.json" />
+  </ItemGroup>
 
   <ItemGroup>
     <!-- Ikona: tło + pierwszy plan (SVG → PNG w wielu rozdzielczościach przy buildzie) -->
-    <MauiIcon Include="Resources\AppIcon\appicon.svg" ForegroundFile="Resources\AppIcon\appiconfg.svg" Color="#C43A0E" />
+    <MauiIcon Include="Resources\AppIcon\appicon.svg" ForegroundFile="Resources\AppIcon\appiconfg.svg" Color="#C43A0E"
+              Condition="'$(Configuration)' != 'Test'" />
+    <!-- TODO: ikona TEST: drugi MauiIcon z plików Resources\AppIcon\Test\ (Color="#1F6FB2"),
+         Condition="'$(Configuration)' == 'Test'" -->
 
     <!-- Splash screen -->
     <MauiSplashScreen Include="Resources\Splash\splash.svg" Color="#C43A0E" BaseSize="128,128" />
@@ -73,6 +111,7 @@
     <PackageReference Include="Microsoft.Extensions.Logging.Console" />
     <PackageReference Include="Microsoft.Extensions.Http" />
     <PackageReference Include="Microsoft.Extensions.Http.Resilience" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Json" />
     <PackageReference Include="CommunityToolkit.Maui" />
     <PackageReference Include="Plugin.Firebase.CloudMessaging" />
   </ItemGroup>

@@ -1,0 +1,14 @@
+# Szablon kroków: wyliczenie wersji aplikacji przez GitVersion (konfiguracja w GitVersion.yml w katalogu głównym).
+# Wymaga rozszerzenia „GitTools” z Visual Studio Marketplace oraz checkout z pełną historią (fetchDepth: 0).
+steps:
+  # Instalacja narzędzia GitVersion
+  - task: gitversion-setup@4
+    displayName: Instalacja GitVersion
+    inputs:
+      versionSpec: '6.3.x'
+
+  # Wyliczenie wersji. Krok nazywa się „version”, więc inne joby czytają wynik jako
+  # outputs['version.majorMinorPatch'] (np. 1.2.1)
+  - task: gitversion-execute@4
+    displayName: Wyliczenie wersji (GitVersion)
+    name: version

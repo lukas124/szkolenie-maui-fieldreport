@@ -1,0 +1,40 @@
+# CI w Azure DevOps: build Android + testy przy każdym pushu na main i przy pull requeście.
+# (W Azure Repos wyzwalacz pull requestów ustawia się zasadą gałęzi „Build validation”; w GitHub działa sekcja pr.)
+trigger:
+  branches:
+    include: [main]
+
+pr:
+  branches:
+    include: [main]
+
+# Maszyna z Linuxem od Microsoftu (hosted agent); Android SDK i JDK są już zainstalowane
+pool:
+  vmImage: ubuntu-latest
+
+jobs:
+  # Testy jednostkowe (bez emulatora i bez workloadu MAUI)
+  - job: Test
+    displayName: Testy (dotnet test)
+    steps:
+      - template: templates/setup-dotnet.yml
+
+      # Uruchomienie testów; wyniki trafiają do zakładki „Tests” w uruchomieniu pipeline'u
+      - task: DotNetCoreCLI@2
+        displayName: dotnet test
+        inputs:
+          command: test
+          projects: tests/FieldReport.Tests/FieldReport.Tests.csproj
+          arguments: -c Release
+          publishTestResults: true
+
+  # Build aplikacji Android (Release), bez podpisu sklepowego
+  - job: BuildAndroid
+    displayName: Build Android
+    steps:
+      - template: templates/setup-dotnet.yml
+        parameters:
+          workload: android
+
+      - bash: dotnet build src/FieldReport.App/FieldReport.App.csproj -f net10.0-android -c Release
+        displayName: dotnet build (Android, Release)

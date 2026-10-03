@@ -55,9 +55,9 @@
                             Command="{Binding CopyPushTokenCommand}" IsVisible="{Binding IsDebug}" AutomationId="SettingsCopyToken" />
                 </VerticalStackLayout>
             </Border>
-            <!-- piaskownica do pokazów XAML -->
+            <!-- tylko Debug: piaskownica do pokazów XAML (w Test/Release przycisk jest ukryty) -->
             <Button Text="Playground" Style="{StaticResource SecondaryButton}" Command="{Binding OpenPlaygroundCommand}"
-                    AutomationId="SettingsPlayground" />
+                    IsVisible="{Binding IsDebug}" AutomationId="SettingsPlayground" />
 
             <Button Text="{loc:Translate Settings_SignOut}" Style="{StaticResource SecondaryButton}" Command="{Binding SignOutCommand}" />
         </VerticalStackLayout>

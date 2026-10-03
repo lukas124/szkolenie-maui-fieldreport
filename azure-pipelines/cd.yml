@@ -1,0 +1,109 @@
+# CD w Azure DevOps: ręcznie uruchamiane wydanie — wersja z GitVersion, podpisany AAB (Android) i IPA (iOS) jako artefakty.
+# Publikacja w sklepach (Google Play, App Store Connect) to osobny etap, którego tu nie ma.
+#
+# Sekrety NIE są w repozytorium:
+# - Library → Secure files: upload.keystore (Android), certificate.p12 i fieldreport.mobileprovision (iOS),
+# - Library → Variable group „FieldReport Release” (hasła oznaczone jako secret):
+#   AndroidKeystorePassword, AndroidKeyAlias, AndroidKeyPassword, AppleCertificatePassword, AppleCodesignKey.
+trigger: none   # tylko ręcznie (przycisk „Run pipeline”)
+pr: none
+
+parameters:
+  - name: configuration
+    displayName: Konfiguracja buildu
+    type: string
+    default: Release
+    values: [Release, Test]
+
+variables:
+  - group: 'FieldReport Release'
+
+stages:
+  # 1. Wersja aplikacji z historii gita
+  - stage: Version
+    displayName: Wersja
+    jobs:
+      - job: GitVersion
+        pool:
+          vmImage: ubuntu-latest
+        steps:
+          - checkout: self
+            fetchDepth: 0   # pełna historia i tagi — GitVersion liczy od ostatniego tagu v*
+          - template: templates/gitversion.yml
+
+  # 2. Build i podpis pakietów; obie platformy równolegle
+  - stage: Build
+    displayName: Build i podpis
+    dependsOn: Version
+    variables:
+      # ApplicationDisplayVersion = SemVer z GitVersion (np. 1.2.1); ApplicationVersion = rosnący numer builda
+      displayVersion: $[ stageDependencies.Version.GitVersion.outputs['version.majorMinorPatch'] ]
+    jobs:
+      - job: Android
+        displayName: Android (AAB)
+        pool:
+          vmImage: ubuntu-latest
+        steps:
+          - template: templates/setup-dotnet.yml
+            parameters:
+              workload: android
+
+          # Keystore z „Secure files” do pliku tymczasowego na agencie
+          - task: DownloadSecureFile@1
+            name: keystore
+            displayName: Pobranie keystore
+            inputs:
+              secureFile: upload.keystore
+
+          - bash: >
+              dotnet publish src/FieldReport.App/FieldReport.App.csproj -f net10.0-android -c ${{ parameters.configuration }}
+              -p:AndroidPackageFormat=aab
+              -p:AndroidKeyStore=true
+              -p:AndroidSigningKeyStore=$(keystore.secureFilePath)
+              -p:AndroidSigningKeyAlias=$(AndroidKeyAlias)
+              -p:AndroidSigningKeyPass=$(AndroidKeyPassword)
+              -p:AndroidSigningStorePass=$(AndroidKeystorePassword)
+              -p:ApplicationDisplayVersion=$(displayVersion)
+              -p:ApplicationVersion=$(Build.BuildId)
+              -o $(Build.ArtifactStagingDirectory)/android
+            displayName: dotnet publish (Android)
+
+          # Artefakt do pobrania z uruchomienia pipeline'u
+          - publish: $(Build.ArtifactStagingDirectory)/android
+            artifact: android-aab
+
+      - job: iOS
+        displayName: iOS (IPA)
+        pool:
+          vmImage: macos-15   # build iOS wymaga macOS z Xcode
+        steps:
+          - template: templates/setup-dotnet.yml
+            parameters:
+              workload: ios
+
+          # Certyfikat dystrybucyjny do pęku kluczy agenta
+          - task: InstallAppleCertificate@2
+            displayName: Instalacja certyfikatu
+            inputs:
+              certSecureFile: certificate.p12
+              certPwd: $(AppleCertificatePassword)
+
+          # Profil (provisioning profile) — ustawia zmienną APPLE_PROV_PROFILE_UUID
+          - task: InstallAppleProvisioningProfile@1
+            displayName: Instalacja profilu
+            inputs:
+              provProfileSecureFile: fieldreport.mobileprovision
+
+          - bash: >
+              dotnet publish src/FieldReport.App/FieldReport.App.csproj -f net10.0-ios -c ${{ parameters.configuration }}
+              -p:RuntimeIdentifier=ios-arm64
+              -p:ArchiveOnBuild=true
+              -p:CodesignKey="$(AppleCodesignKey)"
+              -p:CodesignProvision=$(APPLE_PROV_PROFILE_UUID)
+              -p:ApplicationDisplayVersion=$(displayVersion)
+              -p:ApplicationVersion=$(Build.BuildId)
+              -o $(Build.ArtifactStagingDirectory)/ios
+            displayName: dotnet publish (iOS)
+
+          - publish: $(Build.ArtifactStagingDirectory)/ios
+            artifact: ios-ipa

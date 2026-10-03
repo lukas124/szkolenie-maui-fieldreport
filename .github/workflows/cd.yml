@@ -1,0 +1,143 @@
+# CD (Continuous Delivery): ręcznie uruchamiane wydanie. Wylicza wersję (GitVersion), buduje podpisany pakiet
+# Androida (AAB dla Google Play) i iOS (IPA dla App Store / TestFlight) i zapisuje je jako artefakty.
+# Publikacja w sklepach to osobny, świadomy krok (np. fastlane, Google Play Console, Transporter) — tu jej nie ma.
+#
+# Sekrety (Settings → Secrets and variables → Actions) — w repozytorium są tylko ich NAZWY:
+#   ANDROID_KEYSTORE_BASE64     plik .jks/.keystore zakodowany base64 (base64 -i upload.jks)
+#   ANDROID_KEYSTORE_PASSWORD   hasło keystore
+#   ANDROID_KEY_ALIAS           alias klucza w keystore
+#   ANDROID_KEY_PASSWORD        hasło klucza
+#   IOS_CERTIFICATE_P12_BASE64  certyfikat dystrybucyjny Apple (.p12) w base64
+#   IOS_CERTIFICATE_PASSWORD    hasło do .p12
+#   IOS_PROVISIONING_PROFILE_BASE64  profil (.mobileprovision) w base64
+#   IOS_CODESIGN_KEY            nazwa certyfikatu, np. "Apple Distribution: Firma (TEAMID)"
+#   IOS_PROVISIONING_PROFILE_NAME    nazwa profilu z Apple Developer
+name: CD
+
+on:
+  workflow_dispatch:
+    inputs:
+      configuration:
+        description: 'Konfiguracja buildu (Test = TEST obok PROD, Release = produkcja)'
+        type: choice
+        options: [Release, Test]
+        default: Release
+
+jobs:
+  # 1. Wersja aplikacji z historii gita
+  version:
+    name: Wersja (GitVersion)
+    runs-on: ubuntu-latest
+    outputs:
+      displayVersion: ${{ steps.gitversion.outputs.majorMinorPatch }}   # np. 1.2.1 → ApplicationDisplayVersion
+      buildNumber: ${{ github.run_number }}                             # 1, 2, 3… → ApplicationVersion (zawsze rośnie)
+    steps:
+      # Pełna historia i tagi — GitVersion liczy wersję od ostatniego tagu v*
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      # Instalacja GitVersion (narzędzie z GitTools)
+      - uses: gittools/actions/gitversion/setup@v4.7.0
+        with:
+          versionSpec: '6.3.x'
+
+      # Wyliczenie wersji na podstawie GitVersion.yml
+      - id: gitversion
+        uses: gittools/actions/gitversion/execute@v4.7.0
+
+      - name: Wynik
+        run: echo "Wersja ${{ steps.gitversion.outputs.majorMinorPatch }} (build ${{ github.run_number }})"
+
+  # 2. Android: podpisany AAB
+  android:
+    name: Android (AAB)
+    needs: version
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-dotnet@v6
+        with:
+          global-json-file: global.json
+
+      - uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Instalacja workloadu maui-android
+        run: dotnet workload install maui-android
+
+      # Keystore z sekretu do pliku tymczasowego (nigdy nie trafia do repozytorium)
+      - name: Keystore z sekretu
+        run: echo "${{ secrets.ANDROID_KEYSTORE_BASE64 }}" | base64 --decode > "$RUNNER_TEMP/upload.keystore"
+
+      # Publikacja: AAB podpisany kluczem z keystore, wersja z joba „version”
+      - name: dotnet publish (Android)
+        run: >
+          dotnet publish src/FieldReport.App/FieldReport.App.csproj -f net10.0-android -c ${{ inputs.configuration }}
+          -p:AndroidPackageFormat=aab
+          -p:AndroidKeyStore=true
+          -p:AndroidSigningKeyStore="$RUNNER_TEMP/upload.keystore"
+          -p:AndroidSigningKeyAlias="${{ secrets.ANDROID_KEY_ALIAS }}"
+          -p:AndroidSigningKeyPass="${{ secrets.ANDROID_KEY_PASSWORD }}"
+          -p:AndroidSigningStorePass="${{ secrets.ANDROID_KEYSTORE_PASSWORD }}"
+          -p:ApplicationDisplayVersion=${{ needs.version.outputs.displayVersion }}
+          -p:ApplicationVersion=${{ needs.version.outputs.buildNumber }}
+          -o artifacts/android
+
+      # Gotowy pakiet do pobrania z podsumowania uruchomienia
+      - uses: actions/upload-artifact@v7
+        with:
+          name: android-aab
+          path: artifacts/android/*-Signed.aab
+
+  # 3. iOS: podpisany IPA (wymaga macOS z Xcode)
+  ios:
+    name: iOS (IPA)
+    needs: version
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-dotnet@v6
+        with:
+          global-json-file: global.json
+
+      - name: Instalacja workloadu maui-ios
+        run: dotnet workload install maui-ios
+
+      # Certyfikat do tymczasowego pęku kluczy (keychain) i profil do katalogu, w którym szuka go Xcode
+      - name: Certyfikat i profil z sekretów
+        env:
+          P12_BASE64: ${{ secrets.IOS_CERTIFICATE_P12_BASE64 }}
+          P12_PASSWORD: ${{ secrets.IOS_CERTIFICATE_PASSWORD }}
+          PROFILE_BASE64: ${{ secrets.IOS_PROVISIONING_PROFILE_BASE64 }}
+        run: |
+          KEYCHAIN="$RUNNER_TEMP/build.keychain-db"
+          echo "$P12_BASE64" | base64 --decode > "$RUNNER_TEMP/cert.p12"
+          security create-keychain -p "" "$KEYCHAIN"
+          security set-keychain-settings -lut 3600 "$KEYCHAIN"
+          security unlock-keychain -p "" "$KEYCHAIN"
+          security import "$RUNNER_TEMP/cert.p12" -P "$P12_PASSWORD" -A -t cert -f pkcs12 -k "$KEYCHAIN"
+          security list-keychains -d user -s "$KEYCHAIN"
+          mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles
+          echo "$PROFILE_BASE64" | base64 --decode > ~/Library/MobileDevice/Provisioning\ Profiles/fieldreport.mobileprovision
+
+      # Publikacja: archiwum IPA na urządzenia (ios-arm64), podpis certyfikatem i profilem, wersja z joba „version”
+      - name: dotnet publish (iOS)
+        run: >
+          dotnet publish src/FieldReport.App/FieldReport.App.csproj -f net10.0-ios -c ${{ inputs.configuration }}
+          -p:RuntimeIdentifier=ios-arm64
+          -p:ArchiveOnBuild=true
+          -p:CodesignKey="${{ secrets.IOS_CODESIGN_KEY }}"
+          -p:CodesignProvision="${{ secrets.IOS_PROVISIONING_PROFILE_NAME }}"
+          -p:ApplicationDisplayVersion=${{ needs.version.outputs.displayVersion }}
+          -p:ApplicationVersion=${{ needs.version.outputs.buildNumber }}
+          -o artifacts/ios
+
+      - uses: actions/upload-artifact@v7
+        with:
+          name: ios-ipa
+          path: artifacts/ios/*.ipa

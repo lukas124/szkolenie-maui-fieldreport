@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- FieldReport TEST: ta sama podkładka + pasek „TEST” (pierwszy plan ikony, bezpieczne pole w środku) -->
+<svg width="456" height="456" viewBox="0 0 456 456" version="1.1" xmlns="http://www.w3.org/2000/svg">
+  <rect x="152" y="118" width="152" height="172" rx="20" fill="none" stroke="#FFFFFF" stroke-width="16" />
+  <rect x="190" y="98" width="76" height="40" rx="12" fill="#FFFFFF" />
+  <path d="M184 214 L212 242 L272 180" fill="none" stroke="#FFFFFF" stroke-width="20" stroke-linecap="round" stroke-linejoin="round" />
+  <rect x="128" y="300" width="200" height="56" rx="12" fill="#F2C94C" />
+  <path d="M160 314 h32 M176 314 v30 M206 314 v30 M206 314 h24 M206 329 h20 M206 344 h24 M264 318 c-4 -6 -24 -6 -24 4 c0 12 26 8 26 20 c0 10 -22 10 -28 2 M280 314 h32 M296 314 v30"
+        fill="none" stroke="#1B2126" stroke-width="6" stroke-linecap="round" stroke-linejoin="round" />
+</svg>

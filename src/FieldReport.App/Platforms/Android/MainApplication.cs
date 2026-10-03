@@ -5,12 +5,8 @@ using FieldReport.Core.Services;
 
 namespace FieldReport.App;
 
-// HTTP bez TLS (lokalne API z emulatora: http://10.0.2.2:5080/) tylko w Debug. W Release zostaje domyślne „tylko HTTPS”.
-#if DEBUG
-[Application(UsesCleartextTraffic = true)]
-#else
+// HTTP bez TLS tylko w Debug: android:usesCleartextTraffic z AndroidManifestPlaceholders (csproj)
 [Application]
-#endif
 public class MainApplication : MauiApplication
 {
     /// <summary>Kanał powiadomień zgłoszeń (Android 8+). Ten sam identyfikator wysyła API (AndroidNotification.ChannelId).</summary>
