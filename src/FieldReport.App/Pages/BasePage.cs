@@ -47,7 +47,7 @@ public abstract class BasePage(IErrorHandler errors) : ContentPage
         set => SetValue(ActionCommandProperty, value);
     }
 
-    /// <summary>Obsługa błędów — także dla stron tworzonych w code-behind (new PlaygroundPage(Errors)).</summary>
+    /// <summary>Obsługa błędów — także dla stron tworzonych w code-behind (new PlaygroundPage(Errors, _repository)).</summary>
     protected IErrorHandler Errors => errors;
 
     // Szablon (styl z App.xaml) jest nakładany już w konstruktorze ContentPage, zanim wykona się kod BasePage,
@@ -64,15 +64,20 @@ public abstract class BasePage(IErrorHandler errors) : ContentPage
         else Navigation.PopAsync().FireAndForget(errors);
     }
 
+    // true = stronę przykrył dialog (DialogPage); jego otwarcie i zamknięcie nie jest dla ViewModelu wyjściem ani powrotem na stronę
+    private bool _coveredByDialog;
+
     protected override void OnAppearing()
     {
         base.OnAppearing();
+        if (_coveredByDialog) { _coveredByDialog = false; return; }
         if (BindingContext is BaseViewModel vm) vm.OnAppearingAsync().FireAndForget(errors);
     }
 
     protected override void OnDisappearing()
     {
         base.OnDisappearing();
+        if (Navigation.ModalStack.LastOrDefault() is DialogPage) { _coveredByDialog = true; return; }
         if (BindingContext is BaseViewModel vm) vm.OnDisappearingAsync().FireAndForget(errors);
     }
 

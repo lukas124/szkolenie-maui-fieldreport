@@ -1,26 +1,31 @@
 namespace FieldReport.App.Pages;
 
-/// <summary>Dialog jako strona modalna. Result kończy się, gdy użytkownik zamknie dialog.</summary>
+/// <summary>Dialog jako strona modalna. Result kończy się, gdy użytkownik wybierze przycisk (albo systemowe „wstecz” = anuluj).</summary>
 public partial class DialogPage : ContentPage
 {
     // TaskCompletionSource: zadanie, które kończymy sami — w chwili dotknięcia przycisku
     private readonly TaskCompletionSource<bool> _result = new();
     private bool _closing;
 
-    public DialogPage(string title, string message, string accept)
+    /// <param name="cancel">null = dialog z jednym przyciskiem (alert)</param>
+    public DialogPage(string title, string message, string accept, string? cancel)
     {
         InitializeComponent();
         TitleLabel.Text = title;
         MessageLabel.Text = message;
         AcceptButton.Text = accept;
+        CancelButton.Text = cancel;
+        CancelButton.IsVisible = cancel is not null;
     }
 
-    /// <summary>Kończy się po zamknięciu dialogu (true = przycisk akceptacji).</summary>
+    /// <summary>true = przycisk akceptacji, false = anuluj.</summary>
     public Task<bool> Result => _result.Task;
 
     private void OnAcceptClicked(object? sender, EventArgs e) => _ = CloseAsync(true);
 
-    // Android: systemowy przycisk „wstecz” też zamyka dialog
+    private void OnCancelClicked(object? sender, EventArgs e) => _ = CloseAsync(false);
+
+    // Android: systemowy przycisk „wstecz” zamyka dialog jak „anuluj”
     protected override bool OnBackButtonPressed()
     {
         _ = CloseAsync(false);

@@ -33,6 +33,32 @@ public class ReportServiceTests
     }
 
     [Test]
+    [Ignore("Ćwiczenie 05: usuń Ignore po uzupełnieniu TODO")]
+    public async Task Delete_SyncedReport_FailsWithAlreadySynced_AndDoesNotDelete()
+    {
+        var report = TestReports.Create(syncState: SyncState.Synced);
+        _repository.Setup(r => r.GetAsync(report.Id, It.IsAny<CancellationToken>())).ReturnsAsync(report);
+
+        var result = await _service.DeleteAsync(report.Id);
+
+        Assert.That(result.Error, Is.EqualTo(Errors.ReportAlreadySynced));
+        _repository.Verify(r => r.DeleteAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()), Times.Never);
+    }
+
+    [Test]
+    [Ignore("Ćwiczenie 05: usuń Ignore po uzupełnieniu TODO")]
+    public async Task Delete_PendingReport_Deletes()
+    {
+        var report = TestReports.Create(syncState: SyncState.Pending);
+        _repository.Setup(r => r.GetAsync(report.Id, It.IsAny<CancellationToken>())).ReturnsAsync(report);
+
+        var result = await _service.DeleteAsync(report.Id);
+
+        Assert.That(result.IsSuccess, Is.True);
+        _repository.Verify(r => r.DeleteAsync(report.Id, It.IsAny<CancellationToken>()), Times.Once);
+    }
+
+    [Test]
     public async Task GetAll_EqualUpdateDates_HaveStableOrder()
     {
         var middle = TestReports.Create(title: "Utworzone 10:00", updatedAt: TestReports.Now);
@@ -50,5 +76,14 @@ public class ReportServiceTests
 
         Assert.That(first, Is.EqualTo(new[] { "Nowsze utworzenie", "Utworzone 10:00", "AAA", "BBB" }));
         Assert.That(second, Is.EqualTo(first));
+    }
+
+    [Test]
+    [Ignore("Ćwiczenie 05: usuń Ignore po uzupełnieniu TODO")]
+    public async Task Delete_MissingReport_FailsWithNotFound()
+    {
+        var result = await _service.DeleteAsync(Guid.NewGuid());
+
+        Assert.That(result.Error, Is.EqualTo(Errors.ReportNotFound));
     }
 }

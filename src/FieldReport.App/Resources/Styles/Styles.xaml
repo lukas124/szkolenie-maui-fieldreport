@@ -170,6 +170,22 @@
         <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource AccentLight}, Dark={StaticResource AccentDark}}" />
     </Style>
 
+    <!-- Akcja przesunięcia (SwipeView) -->
+    <Style x:Key="SwipeAction" TargetType="Border">
+        <Setter Property="BackgroundColor" Value="{StaticResource DangerColor}" />
+        <Setter Property="StrokeThickness" Value="0" />
+        <Setter Property="StrokeShape" Value="RoundRectangle 12" />
+        <Setter Property="WidthRequest" Value="96" />
+        <Setter Property="Margin" Value="8,0,0,0" />
+    </Style>
+
+    <Style x:Key="SwipeActionText" TargetType="Label">
+        <Setter Property="TextColor" Value="{StaticResource White}" />
+        <Setter Property="FontFamily" Value="MonoBold" />
+        <Setter Property="FontSize" Value="13" />
+        <Setter Property="HorizontalOptions" Value="Center" />
+    </Style>
+
     <!-- Miniatura zgłoszenia -->
     <Style x:Key="Thumbnail" TargetType="Border">
         <Setter Property="BackgroundColor" Value="{AppThemeBinding Light={StaticResource SurfaceRaisedLight}, Dark={StaticResource SurfaceRaisedDark}}" />

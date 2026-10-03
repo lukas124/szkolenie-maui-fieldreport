@@ -1,4 +1,4 @@
-using FieldReport.App.Extensions;
+using FieldReport.Core.Data;
 using FieldReport.Core.Services;
 using FieldReport.Core.ViewModels;
 
@@ -6,25 +6,71 @@ namespace FieldReport.App.Pages;
 
 public partial class PlaygroundPage : BasePage
 {
-    public PlaygroundPage(IErrorHandler errors) : base(errors)
+    private readonly IReportRepository _repository; // narzędzia dewelopera: dane przykładowe
+
+    public PlaygroundPage(IErrorHandler errors, IReportRepository repository) : base(errors)
     {
         InitializeComponent();
+        _repository = repository;
     }
 
-    // Narzędzia dewelopera: lista zgłoszeń to pierwsza strona na stosie nawigacji, sięgamy do jej ViewModelu
+    // Źle — blokuje wątek UI: aplikacja „zamarza”
+    // (przy dłuższym czasie Android pokaże ANR)
+    private void OnBlockingClicked(object? sender, EventArgs e)
+    {
+        // ten tekst nawet się nie narysuje — wątek UI śpi
+        UiThreadStatus.Text = "Zamrożone…";
+        Thread.Sleep(3000);
+        UiThreadStatus.Text = "Thread.Sleep: UI było zablokowane przez 3 s.";
+    }
+
+    // Dobrze — await oddaje wątek UI: animacje i przewijanie działają
+    private async void OnAwaitClicked(object? sender, EventArgs e)
+    {
+        try
+        {
+            UiThreadStatus.Text = "Czekam… (UI działa, możesz przewijać)";
+            await Task.Delay(3000);
+            UiThreadStatus.Text = "await: UI przez cały czas reagowało.";
+        }
+        catch (Exception ex)
+        {
+            // async void tylko w handlerach i zawsze z try/catch
+            System.Diagnostics.Debug.WriteLine(ex);
+        }
+    }
+
+    // Narzędzia dewelopera. Lista zgłoszeń to pierwsza strona na stosie nawigacji. Jej ViewModel wczytuje dane raz,
+    // więc po zmianie danych wczytujemy listę ponownie.
     private ReportsViewModel ReportsList => (ReportsViewModel)Navigation.NavigationStack[0].BindingContext;
 
-    // „Wyczyść listę”: opróżnia listę na ekranie, żeby zobaczyć pusty stan (dane przykładowe zostają bez zmian)
-    private void OnClearReportsClicked(object? sender, EventArgs e)
+    // „Wyczyść listę”: usuwa z repozytorium wszystkie zgłoszenia, także wysłane (narzędzie, nie akcja użytkownika)
+    private async void OnClearReportsClicked(object? sender, EventArgs e)
     {
-        ReportsList.Reports.Clear();
-        SampleDataStatus.Text = "Lista wyczyszczona – wróć na listę.";
+        try
+        {
+            await SampleReports.RemoveAllAsync(_repository);
+            await ReportsList.OnNavigatedToAsync(null);
+            SampleDataStatus.Text = "Lista wyczyszczona – wróć na listę.";
+        }
+        catch (Exception ex)
+        {
+            Errors.Handle(ex); // async void tylko w handlerach i zawsze z try/catch
+        }
     }
 
-    // „Przywróć przykłady”: wczytuje listę od nowa z usługi (6 zgłoszeń przykładowych)
-    private void OnRestoreSamplesClicked(object? sender, EventArgs e)
+    // „Przywróć przykłady”: wraca do startowego zestawu 6 zgłoszeń przykładowych
+    private async void OnRestoreSamplesClicked(object? sender, EventArgs e)
     {
-        ReportsList.OnNavigatedToAsync(null).FireAndForget(Errors);
-        SampleDataStatus.Text = "Przywrócono przykłady – wróć na listę.";
+        try
+        {
+            await SampleReports.RestoreAsync(_repository, DateTimeOffset.Now);
+            await ReportsList.OnNavigatedToAsync(null);
+            SampleDataStatus.Text = "Przywrócono przykłady – wróć na listę.";
+        }
+        catch (Exception ex)
+        {
+            Errors.Handle(ex);
+        }
     }
 }
