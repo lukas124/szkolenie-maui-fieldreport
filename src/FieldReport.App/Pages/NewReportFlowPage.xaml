@@ -60,13 +60,23 @@
             </VerticalStackLayout>
         </DataTemplate>
 
-        <!-- Krok 2: Zdjęcie (opcjonalne) -->
+        <!-- Krok 2: Zdjęcie (opcjonalne): podgląd + zrób / wybierz / usuń -->
         <DataTemplate x:Key="PhotoStepTemplate" x:DataType="steps:PhotoStepViewModel">
-            <VerticalStackLayout Spacing="16" Padding="0,24,0,0">
-                <Border Style="{StaticResource Thumbnail}" WidthRequest="-1" HeightRequest="200">
-                    <Image Source="report_placeholder.png" WidthRequest="96" HeightRequest="96" />
+            <VerticalStackLayout Spacing="12">
+                <Label Text="{loc:Translate NewReport_PhotoHint}" Style="{StaticResource Body}" />
+                <Border Style="{StaticResource Thumbnail}" WidthRequest="-1" HeightRequest="260">
+                    <Grid>
+                        <Image Source="report_placeholder.png" WidthRequest="96" HeightRequest="96"
+                               IsVisible="{Binding HasPhoto, Converter={StaticResource InvertedBoolConverter}}" />
+                        <Image Source="{Binding PhotoPath}" Aspect="AspectFill" IsVisible="{Binding HasPhoto}"
+                               AutomationId="NewReportPhotoPreview" />
+                    </Grid>
                 </Border>
-                <Label Text="{loc:Translate NewReport_PhotoPlaceholder}" Style="{StaticResource Body}" HorizontalTextAlignment="Center" />
+                <Button Text="{loc:Translate NewReport_TakePhoto}" Command="{Binding CapturePhotoCommand}" AutomationId="NewReportTakePhoto" />
+                <Button Text="{loc:Translate NewReport_PickPhoto}" Style="{StaticResource SecondaryButton}"
+                        Command="{Binding PickPhotoCommand}" AutomationId="NewReportPickPhoto" />
+                <Button Text="{loc:Translate NewReport_RemovePhoto}" Style="{StaticResource SecondaryButton}"
+                        Command="{Binding RemovePhotoCommand}" IsVisible="{Binding HasPhoto}" AutomationId="NewReportRemovePhoto" />
             </VerticalStackLayout>
         </DataTemplate>
 

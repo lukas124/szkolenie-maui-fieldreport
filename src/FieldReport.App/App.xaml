@@ -22,6 +22,8 @@
 
             <!-- Konwertery ogólne z CommunityToolkit.Maui (klucz = nazwa klasy) -->
             <toolkit:IsNotNullConverter x:Key="IsNotNullConverter" />       <!-- jest wartość? → true -->
+            <toolkit:IsNullConverter x:Key="IsNullConverter" />             <!-- brak wartości? → true -->
+            <toolkit:InvertedBoolConverter x:Key="InvertedBoolConverter" /> <!-- true ↔ false -->
 
             <Style TargetType="pages:BasePage" ApplyToDerivedTypes="True" BasedOn="{StaticResource PageStyle}">
                 <Setter Property="ControlTemplate" Value="{StaticResource PageTemplate}" />

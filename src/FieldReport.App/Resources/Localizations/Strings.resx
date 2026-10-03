@@ -64,7 +64,6 @@
   <data name="NewReport_DescriptionLabel" xml:space="preserve"><value>Opis (opcjonalnie)</value></data>
   <data name="NewReport_DescriptionPlaceholder" xml:space="preserve"><value>Co się stało, gdzie, co już sprawdzono…</value></data>
   <data name="NewReport_PriorityLabel" xml:space="preserve"><value>Priorytet</value></data>
-  <data name="NewReport_PhotoPlaceholder" xml:space="preserve"><value>Zdjęcie usterki jest opcjonalne. Przejdź dalej.</value></data>
   <data name="NewReport_Next" xml:space="preserve"><value>Dalej</value></data>
   <data name="NewReport_Save" xml:space="preserve"><value>Zapisz</value></data>
   <data name="NewReport_Back" xml:space="preserve"><value>Wstecz</value></data>
@@ -77,4 +76,16 @@
   <data name="Settings_SignOut" xml:space="preserve"><value>Wyloguj</value></data>
   <data name="Settings_SignOutTitle" xml:space="preserve"><value>Wylogować?</value></data>
   <data name="Settings_SignOutMessage" xml:space="preserve"><value>Po wylogowaniu trzeba będzie zalogować się ponownie.</value></data>
+  <data name="Error_permission_denied" xml:space="preserve"><value>Aplikacja nie ma dostępu do aparatu. Zezwól na dostęp, aby zrobić zdjęcie usterki.</value></data>
+  <data name="Error_permission_denied_permanently" xml:space="preserve"><value>Dostęp do aparatu jest zablokowany. Możesz go włączyć w ustawieniach systemu.</value></data>
+  <data name="Error_media_not_supported" xml:space="preserve"><value>To urządzenie nie ma aparatu. Wybierz zdjęcie z galerii.</value></data>
+  <data name="Error_media_failed" xml:space="preserve"><value>Nie udało się zapisać zdjęcia. Spróbuj ponownie.</value></data>
+  <data name="Error_media_cancelled" xml:space="preserve"><value>Anulowano.</value></data>
+  <data name="Permission_CameraTitle" xml:space="preserve"><value>Brak dostępu do aparatu</value></data>
+  <data name="Permission_CameraSettingsMessage" xml:space="preserve"><value>Dostęp do aparatu został zablokowany. Aby zrobić zdjęcie usterki, włącz uprawnienie „Aparat” w ustawieniach aplikacji.</value></data>
+  <data name="Permission_OpenSettings" xml:space="preserve"><value>Otwórz ustawienia</value></data>
+  <data name="NewReport_TakePhoto" xml:space="preserve"><value>Zrób zdjęcie</value></data>
+  <data name="NewReport_PickPhoto" xml:space="preserve"><value>Wybierz z galerii</value></data>
+  <data name="NewReport_RemovePhoto" xml:space="preserve"><value>Usuń</value></data>
+  <data name="NewReport_PhotoHint" xml:space="preserve"><value>Zdjęcie usterki jest opcjonalne. Zrób nowe albo wybierz z galerii.</value></data>
 </root>
