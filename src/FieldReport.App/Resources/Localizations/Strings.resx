@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Teksty UI aplikacji FieldReport — język domyślny (polski). Konwencja kluczy: Obszar_Nazwa; błędy: Error_{kod}. -->
+<root>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <data name="Common_ErrorTitle" xml:space="preserve"><value>Błąd</value></data>
+  <data name="Common_Ok" xml:space="preserve"><value>OK</value></data>
+  <data name="Reports_Title" xml:space="preserve"><value>Zgłoszenia</value></data>
+  <data name="Settings_Title" xml:space="preserve"><value>Ustawienia</value></data>
+  <data name="Reports_Empty" xml:space="preserve"><value>Brak zgłoszeń.</value></data>
+  <data name="Reports_PriorityLabel" xml:space="preserve"><value>priorytet</value></data>
+  <data name="Reports_PendingSync" xml:space="preserve"><value>Oczekuje na wysłanie</value></data>
+  <data name="ReportStatus_New" xml:space="preserve"><value>Nowe</value></data>
+  <data name="ReportStatus_InProgress" xml:space="preserve"><value>W trakcie</value></data>
+  <data name="ReportStatus_Done" xml:space="preserve"><value>Zakończone</value></data>
+  <data name="ReportPriority_Low" xml:space="preserve"><value>Niski</value></data>
+  <data name="ReportPriority_Normal" xml:space="preserve"><value>Normalny</value></data>
+  <data name="ReportPriority_High" xml:space="preserve"><value>Wysoki</value></data>
+  <data name="Error_unknown" xml:space="preserve"><value>Wystąpił nieoczekiwany błąd. Spróbuj ponownie.</value></data>
+  <data name="Error_network" xml:space="preserve"><value>Brak połączenia z internetem. Dane zostały zapisane w telefonie.</value></data>
+  <data name="Error_invalid_title" xml:space="preserve"><value>Tytuł musi mieć od 3 do 80 znaków.</value></data>
+</root>

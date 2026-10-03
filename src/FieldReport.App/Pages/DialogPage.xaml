@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!--
+  Dialog jako przezroczysta strona modalna: przyciemnione tło + karta z tytułem, treścią i przyciskiem.
+  Wygląd identyczny na Androidzie i iOS. Otwiera go i czeka na wynik MauiDialogService.
+  iOS: OverFullScreen = strona pod spodem zostaje widoczna przez przyciemnione tło.
+-->
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:ios="clr-namespace:Microsoft.Maui.Controls.PlatformConfiguration.iOSSpecific;assembly=Microsoft.Maui.Controls"
+             x:Class="FieldReport.App.Pages.DialogPage"
+             ios:Page.ModalPresentationStyle="OverFullScreen"
+             BackgroundColor="{AppThemeBinding Light=#80000000, Dark=#CC000000}">
+    <Border Style="{StaticResource Card}" Padding="24,20" WidthRequest="320" HorizontalOptions="Center" VerticalOptions="Center"
+            StrokeShape="RoundRectangle 16"
+            BackgroundColor="{AppThemeBinding Light={StaticResource SurfaceLight}, Dark={StaticResource SurfaceRaisedDark}}">
+        <VerticalStackLayout Spacing="12">
+            <Label x:Name="TitleLabel" Style="{StaticResource Title}" />
+            <Label x:Name="MessageLabel" Style="{StaticResource Body}" LineBreakMode="WordWrap" />
+            <!-- Przyciski jeden pod drugim, na całą szerokość karty: zmieści się każdy tekst, np. „Otwórz ustawienia” -->
+            <VerticalStackLayout Spacing="8" Margin="0,12,0,0">
+                <Button x:Name="AcceptButton" Clicked="OnAcceptClicked" AutomationId="DialogAccept" />
+            </VerticalStackLayout>
+        </VerticalStackLayout>
+    </Border>
+</ContentPage>

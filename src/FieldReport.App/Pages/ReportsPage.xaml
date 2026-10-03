@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<pages:BasePage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+                xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+                xmlns:pages="clr-namespace:FieldReport.App.Pages"
+                xmlns:loc="clr-namespace:FieldReport.App.MarkupExtensions"
+                x:Class="FieldReport.App.Pages.ReportsPage"
+                Title="{loc:Translate Reports_Title}"
+                ActionIcon="{AppThemeBinding Light=icon_settings_dark.png, Dark=icon_settings_light.png}">
+
+    <!-- Lista zgłoszeń: prosty szablon elementu (tytuł, data, status, priorytet, znacznik „Oczekuje na wysłanie”) -->
+    <CollectionView ItemsSource="{Binding Reports}" SelectionMode="None">
+        <!-- Pusty stan: CollectionView pokazuje EmptyView, gdy lista nie ma elementów -->
+        <CollectionView.EmptyView>
+            <Label Text="{loc:Translate Reports_Empty}" Style="{StaticResource Body}" HorizontalTextAlignment="Center" Margin="40,60" />
+        </CollectionView.EmptyView>
+        <CollectionView.ItemTemplate>
+            <DataTemplate>
+                <VerticalStackLayout Padding="20,14" Spacing="4">
+                    <Label Text="{Binding Title}" Style="{StaticResource CardTitle}" />
+                    <Label Style="{StaticResource Caption}">
+                        <Label.FormattedText>
+                            <FormattedString>
+                                <Span Text="{Binding CreatedAtText}" />
+                                <Span Text="  ·  " />
+                                <Span Text="{Binding StatusText}" />
+                                <Span Text="  ·  " />
+                                <Span Text="{loc:Translate Reports_PriorityLabel}" />
+                                <Span Text=": " />
+                                <Span Text="{Binding PriorityText}" />
+                            </FormattedString>
+                        </Label.FormattedText>
+                    </Label>
+                    <!-- tekst z zasobów: „Oczekuje na wysłanie” -->
+                    <Label Text="{loc:Translate Reports_PendingSync}" IsVisible="{Binding IsPendingSync}"
+                           Style="{StaticResource SectionHeader}" FontSize="12" />
+                    <BoxView HeightRequest="1" Margin="0,10,0,0" />
+                </VerticalStackLayout>
+            </DataTemplate>
+        </CollectionView.ItemTemplate>
+    </CollectionView>
+</pages:BasePage>

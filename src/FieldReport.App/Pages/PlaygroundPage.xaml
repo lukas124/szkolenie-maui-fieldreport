@@ -3,9 +3,15 @@
 <pages:BasePage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
                 xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
                 xmlns:pages="clr-namespace:FieldReport.App.Pages"
+                xmlns:vm="clr-namespace:FieldReport.Core.ViewModels.Playground;assembly=FieldReport.Core"
                 x:Class="FieldReport.App.Pages.PlaygroundPage"
                 Title="Playground"
                 CanNavigateBack="True">
+    <!-- Playground: ViewModel tworzony w XAML (tylko w piaskownicy; strony aplikacji dostają go z DI) -->
+    <pages:BasePage.BindingContext>
+        <vm:CounterViewModel />
+    </pages:BasePage.BindingContext>
+
     <ScrollView>
         <VerticalStackLayout Padding="16" Spacing="8">
             <Label Text="Witaj w MAUI" Style="{StaticResource Headline}" />
@@ -26,6 +32,15 @@
                     <Label Grid.Row="2" Grid.Column="1"
                            Text="{Binding Source={x:Reference NameEntry}, Path=Text.Length, StringFormat='Liczba znaków: {0}', TargetNullValue='Liczba znaków: 0', FallbackValue='Liczba znaków: 0'}" />
                 </Grid>
+            </Border>
+
+            <!-- MVVM: [ObservableProperty] + [RelayCommand] z CommunityToolkit.Mvvm -->
+            <Label Text="// MVVM: CounterViewModel" Style="{StaticResource SectionHeader}" Margin="0,16,0,0" />
+            <Border Style="{StaticResource Card}">
+                <VerticalStackLayout Spacing="12">
+                    <Label Text="{Binding CountText}" Style="{StaticResource Title}" />
+                    <Button Text="Kliknij" Command="{Binding IncrementCommand}" />
+                </VerticalStackLayout>
             </Border>
         </VerticalStackLayout>
     </ScrollView>
