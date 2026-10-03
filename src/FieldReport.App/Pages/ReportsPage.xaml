@@ -12,7 +12,15 @@
                 ActionIcon="{AppThemeBinding Light=icon_settings_dark.png, Dark=icon_settings_light.png}"
                 ActionCommand="{Binding OpenSettingsCommand}">
 
-    <Grid>
+    <Grid RowDefinitions="Auto,*">
+    <!-- Brak połączenia z serwerem: dyskretny pasek nad listą (na liście tylko zgłoszenia czekające w telefonie) -->
+    <Border Style="{StaticResource PendingBadge}" StrokeShape="Rectangle" Padding="16,10" IsVisible="{Binding IsOffline}"
+            AutomationId="ReportsOffline">
+        <Label Text="{loc:Translate Reports_Offline}" Style="{StaticResource PendingBadgeText}" />
+    </Border>
+
+    <!-- Lista zgłoszeń i synchronizacja: pull-to-refresh = wysłanie zgłoszeń czekających w telefonie + ponowne pobranie listy -->
+    <RefreshView Grid.Row="1" IsRefreshing="{Binding IsRefreshing}" Command="{Binding RefreshCommand}" AutomationId="ReportsRefresh">
     <!-- Nigdy CollectionView w ScrollView: lista sama się przewija i wirtualizuje elementy -->
     <CollectionView ItemsSource="{Binding Reports}" SelectionMode="None">
         <CollectionView.ItemsLayout>
@@ -31,7 +39,14 @@
             <VerticalStackLayout Padding="40,0,40,60" Spacing="16" VerticalOptions="Center">
                 <Image Source="empty_reports.png" WidthRequest="120" HeightRequest="120" HorizontalOptions="Center" />
                 <Label Text="{loc:Translate Reports_Empty}" Style="{StaticResource Body}"
-                       HorizontalTextAlignment="Center" FontSize="16" />
+                       HorizontalTextAlignment="Center" FontSize="16">
+                    <!-- Offline lista pokazuje tylko zgłoszenia czekające w telefonie — pusta lista nie znaczy „brak zgłoszeń” -->
+                    <Label.Triggers>
+                        <DataTrigger TargetType="Label" Binding="{Binding IsOffline, Source={RelativeSource AncestorType={x:Type vm:ReportsViewModel}}}" Value="True">
+                            <Setter Property="Text" Value="{loc:Translate Reports_EmptyOffline}" />
+                        </DataTrigger>
+                    </Label.Triggers>
+                </Label>
             </VerticalStackLayout>
         </CollectionView.EmptyView>
 
@@ -69,7 +84,7 @@
                         <!-- miniatura w kolumnie 0, przez 3 wiersze -->
                         <Border Grid.RowSpan="3" Style="{StaticResource Thumbnail}" VerticalOptions="Start">
                             <!-- brak zdjęcia (null) → obrazek zastępczy -->
-                            <Image Source="{Binding ThumbnailPath, TargetNullValue='report_placeholder.png'}" Aspect="AspectFill" />
+                            <Image Source="{Binding ThumbnailSource, TargetNullValue='report_placeholder.png'}" Aspect="AspectFill" />
                         </Border>
 
                         <!-- kolumna 1, wiersz 0: tytuł zgłoszenia -->
@@ -95,10 +110,11 @@
             </DataTemplate>
         </CollectionView.ItemTemplate>
     </CollectionView>
+    </RefreshView>
 
     <!-- Lista zgłoszeń: „+” otwiera kreator nowego zgłoszenia (modal). Znak „+” to ikona SVG, więc jest dokładnie na środku
          (znak tekstowy przesuwa się zależnie od metryk czcionki). -->
-    <ImageButton Source="icon_add.png" Command="{Binding NewReportCommand}" AutomationId="ReportsAdd"
+    <ImageButton Grid.Row="1" Source="icon_add.png" Command="{Binding NewReportCommand}" AutomationId="ReportsAdd"
                  Padding="16" WidthRequest="60" HeightRequest="60" CornerRadius="30"
                  BackgroundColor="{AppThemeBinding Light={StaticResource AccentLight}, Dark={StaticResource AccentDark}}"
                  HorizontalOptions="End" VerticalOptions="End" Margin="0,0,20,28"

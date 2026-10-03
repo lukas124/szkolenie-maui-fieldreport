@@ -104,4 +104,29 @@ public class ReportTests
     [Test]
     public void NewLocalReport_CanBeDeleted() =>
         Assert.That(Report.CreateNew(Guid.NewGuid(), ReportTitle.Create("Awaria").Value!, null, ReportPriority.Low, TestReports.Now).CanDelete, Is.True);
+
+    // ----- klucz idempotencji (nagłówek Idempotency-Key przy wysyłce nowego zgłoszenia) -----
+
+    [Test]
+    public void CreateNew_GetsIdempotencyKey_OncePerReport()
+    {
+        var first = Report.CreateNew(Guid.NewGuid(), ReportTitle.Create("Awaria").Value!, null, ReportPriority.Normal, TestReports.Now);
+        var second = Report.CreateNew(Guid.NewGuid(), ReportTitle.Create("Awaria").Value!, null, ReportPriority.Normal, TestReports.Now);
+
+        Assert.That(first.IdempotencyKey, Is.Not.Null.And.Not.EqualTo(Guid.Empty));
+        Assert.That(second.IdempotencyKey, Is.Not.EqualTo(first.IdempotencyKey));
+    }
+
+    [Test]
+    public void MarkOnServer_TakesIdFromServer_AndCannotBeDeleted()
+    {
+        var report = Report.CreateNew(Guid.NewGuid(), ReportTitle.Create("Awaria").Value!, null, ReportPriority.Normal, TestReports.Now);
+        var serverId = Guid.NewGuid();
+
+        report.MarkOnServer(serverId);
+
+        Assert.That(report.Id, Is.EqualTo(serverId));
+        Assert.That(report.IsOnServer, Is.True);
+        Assert.That(report.CanDelete, Is.False);
+    }
 }

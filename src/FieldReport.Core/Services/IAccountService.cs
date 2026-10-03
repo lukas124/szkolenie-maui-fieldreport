@@ -7,6 +7,9 @@ public interface IAccountService
 {
     Task<Session?> GetSessionAsync(CancellationToken ct = default);
 
-    /// <summary>Wyrejestrowanie urządzenia (push) → usunięcie sesji. Brak sieci nie blokuje wylogowania.</summary>
+    /// <summary>Liczba zgłoszeń „Oczekuje na wysłanie” — przed wylogowaniem ostrzegamy, że zostaną usunięte z telefonu.</summary>
+    Task<int> CountPendingAsync(CancellationToken ct = default);
+
+    /// <summary>Wyrejestrowanie urządzenia (push) → usunięcie sesji → usunięcie niewysłanych zgłoszeń i ich zdjęć. Brak sieci nie blokuje wylogowania.</summary>
     Task SignOutAsync(CancellationToken ct = default);
 }

@@ -40,7 +40,7 @@ public class AuthHeaderHandlerTests
 
             var token = request.Headers.Authorization?.Parameter;
             SeenTokens.Add(token);
-            lock (_gate) return token == ValidAccess ? Json("{}") : new HttpResponseMessage(HttpStatusCode.Unauthorized);
+            lock (_gate) return token == ValidAccess ? Json("[]") : new HttpResponseMessage(HttpStatusCode.Unauthorized);
         }
 
         private static HttpResponseMessage Json(string json) =>
@@ -81,7 +81,7 @@ public class AuthHeaderHandlerTests
         _server.Dispose();
     }
 
-    private Task<Result> CallAsync() => new DevicesApiClient(_client).RegisterAsync("tok:1", "android");
+    private Task<Result<IReadOnlyList<ReportDto>>> CallAsync() => new ReportsApiClient(_client).GetReportsAsync(default);
 
     [Test]
     public async Task ValidToken_IsSentAsBearer_WithoutRefresh()

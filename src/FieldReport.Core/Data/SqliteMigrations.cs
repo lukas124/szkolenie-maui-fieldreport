@@ -14,6 +14,18 @@ public static class SqliteMigrations
     [
         // 1: tabela zgłoszeń
         db => db.CreateTableAsync<ReportRow>(),
+
+        // 2: kolumna IsOnServer (CreateTableAsync dopisuje brakujące kolumny). Istniejące wiersze dostają false —
+        //    to prawda, bo wcześniej żadne zgłoszenie nie było wysyłane do API
+        db => db.CreateTableAsync<ReportRow>(),
+
+        // 3: kolumna IdempotencyKey (klucz nagłówka Idempotency-Key dla POST). Niewysłane nowe zgłoszenia zapisane
+        //    przed tą wersją dostają klucz od razu: randomblob(16) = 16 losowych bajtów, hex = Guid bez kresek
+        async db =>
+        {
+            await db.CreateTableAsync<ReportRow>();
+            await db.ExecuteAsync("UPDATE reports SET IdempotencyKey = lower(hex(randomblob(16))) WHERE IsOnServer = 0");
+        },
     ];
 
     public static int LatestVersion => Steps.Length;

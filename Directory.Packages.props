@@ -17,6 +17,10 @@
     <PackageVersion Include="Plugin.Firebase.CloudMessaging" Version="4.0.1" />
     <!-- App: IHttpClientFactory, typed clients -->
     <PackageVersion Include="Microsoft.Extensions.Http" Version="10.0.12" />
+    <!-- App: odporność HttpClient (retry tylko bezpiecznych metod, timeouty, circuit breaker) -->
+    <PackageVersion Include="Microsoft.Extensions.Http.Resilience" Version="10.10.0" />
+    <!-- Core: typy wyjątków Polly (TimeoutRejectedException, BrokenCircuitException) w HttpResultExtensions -->
+    <PackageVersion Include="Polly.Core" Version="8.6.6" />
     <!-- Core: lokalna baza (praca offline). bundle_green = natywny SQLite dla Androida (e_sqlite3) i systemowy na iOS -->
     <PackageVersion Include="sqlite-net-pcl" Version="1.9.172" />
     <PackageVersion Include="SQLitePCLRaw.bundle_green" Version="2.1.11" />
