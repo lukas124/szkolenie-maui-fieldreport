@@ -1,0 +1,21 @@
+# Szablon kroków (template): przygotowanie maszyny do buildu .NET MAUI.
+# Używany w ci.yml i cd.yml, żeby nie powtarzać tych samych kroków w każdym jobie.
+parameters:
+  # Który workload MAUI zainstalować: none (same testy), android albo ios
+  - name: workload
+    type: string
+    default: none
+    values: [none, android, ios]
+
+steps:
+  # .NET SDK w wersji z global.json (ta sama wersja co na komputerach uczestników)
+  - task: UseDotNet@2
+    displayName: Use .NET SDK z global.json
+    inputs:
+      packageType: sdk
+      useGlobalJson: true
+
+  # Workload MAUI tylko dla potrzebnej platformy (instalacja obu niepotrzebnie wydłuża build)
+  - ${{ if ne(parameters.workload, 'none') }}:
+    - bash: dotnet workload install maui-${{ parameters.workload }}
+      displayName: Instalacja workloadu maui-${{ parameters.workload }}

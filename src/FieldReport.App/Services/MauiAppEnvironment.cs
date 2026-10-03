@@ -1,15 +1,21 @@
 using FieldReport.Core.Services;
+using Microsoft.Extensions.Options;
 
 namespace FieldReport.App.Services;
 
-/// <summary>Środowisko i wersja z buildu (AppInfo = ApplicationDisplayVersion + ApplicationVersion z csproj).</summary>
-public sealed class MauiAppEnvironment : IAppEnvironment
+/// <summary>Sekcja „Environment” z appsettings.{Configuration}.json.</summary>
+public sealed class AppEnvironmentSettings
 {
-#if DEBUG
-    public string EnvironmentName => "DEV";
-#else
-    public string EnvironmentName => "PROD";
-#endif
+    public string Name { get; set; } = "PROD";
+}
+
+/// <summary>
+/// Środowisko z konfiguracji (DEV / TEST / PROD), wersja z buildu: AppInfo = ApplicationDisplayVersion (1.0.0)
+/// + ApplicationVersion (42) z csproj.
+/// </summary>
+public sealed class MauiAppEnvironment(IOptions<AppEnvironmentSettings> settings) : IAppEnvironment
+{
+    public string EnvironmentName => settings.Value.Name;
 
     public string VersionText => $"{AppInfo.Current.VersionString} ({AppInfo.Current.BuildString})";
 
