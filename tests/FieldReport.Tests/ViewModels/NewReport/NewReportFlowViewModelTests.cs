@@ -24,7 +24,7 @@ public class NewReportFlowViewModelTests
         _feedback = new Mock<IUserFeedback>();
         _details = new DetailsStepViewModel(Mock.Of<IErrorMessageProvider>(), Mock.Of<ILocalizer>());
         _vm = new NewReportFlowViewModel(_navigation.Object, _reports.Object, _feedback.Object,
-            _details, new PhotoStepViewModel(Mock.Of<ILocalizer>()),
+            _details, new PhotoStepViewModel(Mock.Of<IMediaService>(), Mock.Of<IPermissionService>(), Mock.Of<IUserFeedback>(), Mock.Of<ILocalizer>()),
             new SummaryStepViewModel(Mock.Of<IReportFormatter>(), Mock.Of<ILocalizer>()));
     }
 

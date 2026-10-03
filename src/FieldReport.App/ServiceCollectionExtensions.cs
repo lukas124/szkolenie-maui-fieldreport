@@ -43,6 +43,9 @@ public static class ServiceCollectionExtensions
         services.AddSingleton<ILocalizer, Localizer>();
         services.AddSingleton<ISessionStore, SecureSessionStore>();
         services.AddSingleton<IAppEnvironment, MauiAppEnvironment>();
+        services.AddSingleton<IPermissionService, MauiPermissionService>();
+        services.AddSingleton<IPhotoStorage, PhotoStorage>();
+        services.AddSingleton<IMediaService, MauiMediaService>();
         return services;
     }
 
