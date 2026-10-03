@@ -4,4 +4,5 @@ namespace FieldReport.Core.Services;
 public interface IDialogService
 {
     Task AlertAsync(string title, string message, string cancel);
+    Task<bool> ConfirmAsync(string title, string message, string accept, string cancel);
 }

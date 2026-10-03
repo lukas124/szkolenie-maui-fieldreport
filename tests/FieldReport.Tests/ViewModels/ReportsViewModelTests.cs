@@ -61,4 +61,66 @@ public class ReportsViewModelTests
         _feedback.Verify(f => f.ShowErrorAsync(Errors.Network), Times.Once);      // Assert: komunikat raz
         Assert.That(_vm.Reports, Is.Empty);                                        // … i pusta lista
     }
+
+    // ----- usuwanie -----
+
+    private async Task<ReportItem> LoadOnePendingAsync()
+    {
+        _reports.Setup(r => r.GetAllAsync(It.IsAny<CancellationToken>()))
+                .ReturnsAsync(Result<IReadOnlyList<Report>>.Success([TestReports.Create(syncState: SyncState.Pending)]));
+        await _vm.OnNavigatedToAsync(null);
+        return _vm.Reports.Single();
+    }
+
+    [Test]
+    [Ignore("Ćwiczenie 05: usuń Ignore po uzupełnieniu TODO")]
+    public async Task DeleteReport_NotConfirmed_DoesNotCallService()
+    {
+        var item = await LoadOnePendingAsync();
+        _feedback.Setup(f => f.ConfirmAsync(It.IsAny<string>(), It.IsAny<string>())).ReturnsAsync(false);
+
+        await _vm.DeleteReportCommand.ExecuteAsync(item);
+
+        _reports.Verify(r => r.DeleteAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()), Times.Never);
+        Assert.That(_vm.Reports, Has.Count.EqualTo(1));
+    }
+
+    [Test]
+    [Ignore("Ćwiczenie 05: usuń Ignore po uzupełnieniu TODO")]
+    public async Task DeleteReport_ServiceFails_ShowsError_AndItemStays()
+    {
+        var item = await LoadOnePendingAsync();
+        _feedback.Setup(f => f.ConfirmAsync(It.IsAny<string>(), It.IsAny<string>())).ReturnsAsync(true);
+        _reports.Setup(r => r.DeleteAsync(item.Id, It.IsAny<CancellationToken>()))
+                .ReturnsAsync(Result.Failure(Errors.ReportAlreadySynced));
+
+        await _vm.DeleteReportCommand.ExecuteAsync(item);
+
+        _feedback.Verify(f => f.ShowErrorAsync(Errors.ReportAlreadySynced), Times.Once);
+        Assert.That(_vm.Reports, Does.Contain(item));
+    }
+
+    [Test]
+    [Ignore("Ćwiczenie 05: usuń Ignore po uzupełnieniu TODO")]
+    public async Task DeleteReport_Confirmed_RemovesItem()
+    {
+        var item = await LoadOnePendingAsync();
+        _feedback.Setup(f => f.ConfirmAsync("Reports_DeleteTitle", "Reports_DeleteMessage")).ReturnsAsync(true);
+        _reports.Setup(r => r.DeleteAsync(item.Id, It.IsAny<CancellationToken>())).ReturnsAsync(Result.Success());
+
+        await _vm.DeleteReportCommand.ExecuteAsync(item);
+
+        Assert.That(_vm.Reports, Is.Empty);
+        Assert.That(_vm.Reports, Is.Empty);
+    }
+
+    [Test]
+    public async Task DeleteReport_CanExecute_OnlyForNotSentReports()
+    {
+        var pending = await LoadOnePendingAsync();
+        var synced = pending with { IsPendingSync = false };
+
+        Assert.That(_vm.DeleteReportCommand.CanExecute(pending), Is.True);
+        Assert.That(_vm.DeleteReportCommand.CanExecute(synced), Is.False);
+    }
 }

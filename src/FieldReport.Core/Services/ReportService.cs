@@ -14,4 +14,8 @@ public sealed class ReportService(IReportRepository repository) : IReportService
             .ThenBy(r => r.Id).ToList();
         return Result<IReadOnlyList<Report>>.Success(sorted);
     }
+
+    // TODO: brak zgłoszenia → Errors.ReportNotFound; wysłane (SyncState != Pending) → Errors.ReportAlreadySynced;
+    // w przeciwnym razie repository.DeleteAsync i Result.Success()
+    public Task<Result> DeleteAsync(Guid id, CancellationToken ct = default) => throw new NotImplementedException();
 }

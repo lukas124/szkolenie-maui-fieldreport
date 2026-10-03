@@ -21,4 +21,11 @@
   <data name="Error_unknown" xml:space="preserve"><value>An unexpected error occurred. Please try again.</value></data>
   <data name="Error_network" xml:space="preserve"><value>No internet connection. Check your network and try again.</value></data>
   <data name="Error_invalid_title" xml:space="preserve"><value>The title must be between 3 and 80 characters long.</value></data>
+  <data name="Common_Yes" xml:space="preserve"><value>Yes</value></data>
+  <data name="Common_No" xml:space="preserve"><value>No</value></data>
+  <data name="Reports_Delete" xml:space="preserve"><value>Delete</value></data>
+  <data name="Reports_DeleteTitle" xml:space="preserve"><value>Delete the report?</value></data>
+  <data name="Reports_DeleteMessage" xml:space="preserve"><value>The report has not been sent yet. This cannot be undone.</value></data>
+  <data name="Error_report_not_found" xml:space="preserve"><value>Report not found. It may have been deleted.</value></data>
+  <data name="Error_report_already_synced" xml:space="preserve"><value>A report that has been sent cannot be deleted.</value></data>
 </root>
