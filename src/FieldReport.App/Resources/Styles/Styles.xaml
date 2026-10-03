@@ -145,6 +145,40 @@
         <Setter Property="Padding" Value="16" />
     </Style>
 
+    <!-- Odznaki (StatusBadge, PriorityBadge) i znacznik „Oczekuje na wysłanie” -->
+    <Style x:Key="Badge" TargetType="Border">
+        <Setter Property="BackgroundColor" Value="{AppThemeBinding Light={StaticResource SurfaceRaisedLight}, Dark={StaticResource SurfaceRaisedDark}}" />
+        <Setter Property="StrokeThickness" Value="0" />
+        <Setter Property="StrokeShape" Value="RoundRectangle 12" />
+        <Setter Property="Padding" Value="10,4" />
+    </Style>
+
+    <Style x:Key="BadgeText" TargetType="Label">
+        <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource TextSecondaryLight}, Dark={StaticResource TextSecondaryDark}}" />
+        <Setter Property="FontFamily" Value="PlexSemiBold" />
+        <Setter Property="FontSize" Value="13" />
+        <Setter Property="VerticalOptions" Value="Center" />
+    </Style>
+
+    <!-- dziedziczenie: znacznik „Oczekuje na wysłanie” = odznaka w kolorze akcentu -->
+    <Style x:Key="PendingBadge" TargetType="Border" BasedOn="{StaticResource Badge}">
+        <Setter Property="BackgroundColor"
+                Value="{AppThemeBinding Light={StaticResource AccentTintLight}, Dark={StaticResource AccentTintDark}}" />
+    </Style>
+
+    <Style x:Key="PendingBadgeText" TargetType="Label" BasedOn="{StaticResource BadgeText}">
+        <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource AccentLight}, Dark={StaticResource AccentDark}}" />
+    </Style>
+
+    <!-- Miniatura zgłoszenia -->
+    <Style x:Key="Thumbnail" TargetType="Border">
+        <Setter Property="BackgroundColor" Value="{AppThemeBinding Light={StaticResource SurfaceRaisedLight}, Dark={StaticResource SurfaceRaisedDark}}" />
+        <Setter Property="StrokeThickness" Value="0" />
+        <Setter Property="StrokeShape" Value="RoundRectangle 10" />
+        <Setter Property="WidthRequest" Value="64" />
+        <Setter Property="HeightRequest" Value="64" />
+    </Style>
+
     <!-- Wypełnienie pola tekstowego (Entry w ramce) -->
     <Style x:Key="InputFrame" TargetType="Border">
         <Setter Property="BackgroundColor" Value="{AppThemeBinding Light={StaticResource SurfaceLight}, Dark={StaticResource SurfaceRaisedDark}}" />
