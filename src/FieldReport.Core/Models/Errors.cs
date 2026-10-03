@@ -6,7 +6,9 @@ public static class Errors
     public static readonly Error Unknown = new("unknown");
     public static readonly Error Network = new("network");
     public static readonly Error InvalidTitle = new("invalid_title");
+    public static readonly Error InvalidDescription = new("invalid_description");
     public static readonly Error ReportNotFound = new("report_not_found");
     public static readonly Error ReportAlreadySynced = new("report_already_synced");
     public static readonly Error InvalidStatusTransition = new("invalid_status_transition");
+    public static readonly Error InvalidCredentials = new("invalid_credentials");
 }

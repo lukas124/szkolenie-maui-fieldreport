@@ -131,3 +131,69 @@ public class ReportServiceTests
         Assert.That(result.Error, Is.EqualTo(Errors.ReportNotFound));
     }
 }
+
+[TestFixture]
+public class ReportServiceCreateTests
+{
+    private Mock<IReportRepository> _repository = null!;
+    private ReportService _service = null!;
+
+    [SetUp]
+    public void SetUp()
+    {
+        _repository = new Mock<IReportRepository>();
+        _service = new ReportService(_repository.Object, Mock.Of<IClock>(c => c.Now == TestReports.Now));
+    }
+
+    [Test]
+    public async Task Create_SavesNewPendingReport_WithAppGeneratedId()
+    {
+        Report? saved = null;
+        _repository.Setup(r => r.SaveAsync(It.IsAny<Report>(), It.IsAny<CancellationToken>()))
+                   .Callback<Report, CancellationToken>((r, _) => saved = r);
+        var draft = new NewReportDraft
+        {
+            Title = ReportTitle.Create("Awaria pompy").Value, Description = "  Buczy  ", Priority = ReportPriority.High, PhotoPath = "/p.jpg"
+        };
+
+        var result = await _service.CreateAsync(draft);
+
+        Assert.That(result.IsSuccess, Is.True);
+        Assert.Multiple(() =>
+        {
+            Assert.That(saved!.Id, Is.EqualTo(result.Value).And.Not.EqualTo(Guid.Empty));
+            Assert.That(saved.Status, Is.EqualTo(ReportStatus.New));
+            Assert.That(saved.SyncState, Is.EqualTo(SyncState.Pending));
+            Assert.That(saved.Description, Is.EqualTo("Buczy"));
+            Assert.That(saved.Priority, Is.EqualTo(ReportPriority.High));
+            Assert.That(saved.PhotoPath, Is.EqualTo("/p.jpg"));
+            Assert.That(saved.CreatedAt, Is.EqualTo(TestReports.Now));
+        });
+    }
+
+    [Test]
+    public async Task Create_WithoutTitle_FailsWithoutSaving()
+    {
+        var result = await _service.CreateAsync(new NewReportDraft());
+
+        Assert.That(result.Error, Is.EqualTo(Errors.InvalidTitle));
+        _repository.Verify(r => r.SaveAsync(It.IsAny<Report>(), It.IsAny<CancellationToken>()), Times.Never);
+    }
+
+    [Test]
+    public async Task Create_TooLongDescription_Fails()
+    {
+        var draft = new NewReportDraft { Title = ReportTitle.Create("Awaria").Value, Description = new string('x', 501) };
+        Assert.That((await _service.CreateAsync(draft)).Error, Is.EqualTo(Errors.InvalidDescription));
+    }
+
+    [Test]
+    public async Task Create_BlankDescription_IsStoredAsNull()
+    {
+        Report? saved = null;
+        _repository.Setup(r => r.SaveAsync(It.IsAny<Report>(), It.IsAny<CancellationToken>()))
+                   .Callback<Report, CancellationToken>((r, _) => saved = r);
+        await _service.CreateAsync(new NewReportDraft { Title = ReportTitle.Create("Awaria").Value, Description = "   " });
+        Assert.That(saved!.Description, Is.Null);
+    }
+}

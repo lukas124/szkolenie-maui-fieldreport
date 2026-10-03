@@ -7,6 +7,7 @@ using FieldReport.Core.Navigation;
 using FieldReport.Core.Presentation;
 using FieldReport.Core.Services;
 using FieldReport.Core.ViewModels;
+using FieldReport.Core.ViewModels.NewReport;
 using FieldReport.Core.ViewModels.Playground;
 
 namespace FieldReport.App;
@@ -21,6 +22,10 @@ public static class ServiceCollectionExtensions
     {
         services.AddSingleton<IReportRepository, InMemoryReportRepository>();
         services.AddSingleton<IReportService, ReportService>();
+        services.AddSingleton<IAuthService, FakeAuthService>(); // logowanie „na niby”: PIN 1234
+        services.AddSingleton<ICredentialsValidator, CredentialsValidator>();
+        services.AddSingleton<IDeepLinkRouter, DeepLinkRouter>();
+
         services.AddSingleton<IReportFormatter, ReportFormatter>();
         services.AddSingleton<IReportItemFactory, ReportItemFactory>();
         services.AddSingleton<IReportDetailsFactory, ReportDetailsFactory>();
@@ -36,17 +41,28 @@ public static class ServiceCollectionExtensions
         services.AddSingleton<IClock, SystemClock>();
         services.AddSingleton<IErrorHandler, LoggingErrorHandler>();
         services.AddSingleton<ILocalizer, Localizer>();
+        services.AddSingleton<ISessionStore, SecureSessionStore>();
+        services.AddSingleton<IAppEnvironment, MauiAppEnvironment>();
         return services;
     }
 
     // ViewModele stron i komponentów: transient, nowa instancja przy każdym wejściu na stronę
     public static IServiceCollection AddViewModels(this IServiceCollection services)
     {
-        services.AddTransient<ReportsViewModel>(); // kontener sam przekaże zależności do konstruktora
+        services.AddTransient<StartupViewModel>(); // kontener sam przekaże zależności do konstruktora
+        services.AddTransient<StartupErrorViewModel>();
+        services.AddTransient<LoginViewModel>();
+        services.AddTransient<ReportsViewModel>();
         services.AddTransient<ReportDetailsViewModel>();
+        services.AddTransient<NewReportFlowViewModel>();
         services.AddTransient<SettingsViewModel>();
         services.AddTransient<PlaygroundViewModel>();
         services.AddTransient<CounterViewModel>();
+
+        // kroki kreatora nowego zgłoszenia: ViewModele komponentów, nowe dla każdego kreatora
+        services.AddTransient<DetailsStepViewModel>();
+        services.AddTransient<PhotoStepViewModel>();
+        services.AddTransient<SummaryStepViewModel>();
         return services;
     }
 
@@ -55,8 +71,12 @@ public static class ServiceCollectionExtensions
     {
         services.AddSingleton<INavigationService, NavigationService>();
         services.AddTransient<RootPage>(); // nowy korzeń dla każdego okna
+        services.AddTransient<StartupPage>();
+        services.AddTransient<StartupErrorPage>();
+        services.AddTransient<LoginPage>();
         services.AddTransient<ReportsPage>();
         services.AddTransient<ReportDetailsPage>();
+        services.AddTransient<NewReportFlowPage>();
         services.AddTransient<SettingsPage>();
         services.AddTransient<PlaygroundPage>();
         return services;

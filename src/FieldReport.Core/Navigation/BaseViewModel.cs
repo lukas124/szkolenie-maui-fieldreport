@@ -30,4 +30,7 @@ public abstract partial class BaseViewModel : ObservableObject
 
     /// <summary>Systemowy przycisk „wstecz”. Domyślnie: powrót do poprzedniej strony.</summary>
     public virtual Task OnBackRequestedAsync() => Navigation.GoBackAsync(); // „wstecz”
+
+    /// <summary>„X” w nagłówku strony (ShowCloseButton). Domyślnie: zamknięcie strony.</summary>
+    public virtual Task OnCloseRequestedAsync() => Navigation.GoBackAsync();
 }

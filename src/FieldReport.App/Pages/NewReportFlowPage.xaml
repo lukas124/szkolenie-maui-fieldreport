@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!--
+  Kreator nowego zgłoszenia na jednej stronie (modal). Bieżący krok = jednoelementowa kolekcja CurrentStepHost,
+  widok kroku wybiera NewReportStepSelector. Nagłówek z „X” (porzuć zgłoszenie) i stopka; systemowy „wstecz” = poprzedni krok.
+-->
+<pages:BasePage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+                xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+                xmlns:ios="clr-namespace:Microsoft.Maui.Controls.PlatformConfiguration.iOSSpecific;assembly=Microsoft.Maui.Controls"
+                xmlns:pages="clr-namespace:FieldReport.App.Pages"
+                xmlns:selectors="clr-namespace:FieldReport.App.Selectors"
+                xmlns:behaviors="clr-namespace:FieldReport.App.Behaviors"
+                xmlns:vo="clr-namespace:FieldReport.Core.ValueObjects;assembly=FieldReport.Core"
+                xmlns:loc="clr-namespace:FieldReport.App.MarkupExtensions"
+                xmlns:steps="clr-namespace:FieldReport.Core.ViewModels.NewReport;assembly=FieldReport.Core"
+                x:Class="FieldReport.App.Pages.NewReportFlowPage"
+                x:DataType="steps:NewReportFlowViewModel"
+                ios:Page.ModalPresentationStyle="FullScreen"
+                ShowCloseButton="True">
+
+    <!-- Tytuł w nagłówku: „Nowe zgłoszenie · 1 / 3” -->
+    <pages:BasePage.Title>
+        <MultiBinding StringFormat="{}{0} · {1} / {2}">
+            <loc:Translate Key="Reports_New" />
+            <Binding Path="StepNumber" />
+            <Binding Path="StepCount" />
+        </MultiBinding>
+    </pages:BasePage.Title>
+
+    <pages:BasePage.Resources>
+        <!-- Krok 1: Dane -->
+        <DataTemplate x:Key="DetailsStepTemplate" x:DataType="steps:DetailsStepViewModel">
+            <VerticalStackLayout Spacing="8">
+                <Label Text="{loc:Translate NewReport_TitleLabel}" Style="{StaticResource SectionHeader}" />
+                <Border x:Name="TitleFrame" Style="{StaticResource InputFrame}">
+                    <Entry Text="{Binding TitleInput}" Placeholder="{loc:Translate NewReport_TitlePlaceholder}"
+                           MaxLength="{Binding TitleMaxLength}" AutomationId="NewReportTitle">
+                        <!-- TODO: Entry.Behaviors → behaviors:TextLengthValidationBehavior: MinLength/MaxLength z vo:ReportTitle,
+                             TargetBorder="{x:Reference TitleFrame}", InvalidStrokeColor="{StaticResource DangerColor}" -->
+                    </Entry>
+                </Border>
+                <Label Text="{Binding TitleError}" TextColor="{StaticResource DangerColor}" FontSize="13"
+                       IsVisible="{Binding TitleError, Converter={StaticResource IsNotNullConverter}}" AutomationId="NewReportTitleError" />
+
+                <Label Text="{loc:Translate NewReport_DescriptionLabel}" Style="{StaticResource SectionHeader}" Margin="0,12,0,0" />
+                <Border Style="{StaticResource InputFrame}" Padding="8,4">
+                    <Editor Text="{Binding DescriptionInput}" Placeholder="{loc:Translate NewReport_DescriptionPlaceholder}"
+                            MaxLength="{Binding DescriptionMaxLength}" AutoSize="TextChanges" MinimumHeightRequest="110"
+                            AutomationId="NewReportDescription" />
+                </Border>
+
+                <Label Text="{loc:Translate NewReport_PriorityLabel}" Style="{StaticResource SectionHeader}" Margin="0,12,0,0" />
+                <Border Style="{StaticResource InputFrame}">
+                    <Picker ItemsSource="{Binding Priorities}" SelectedItem="{Binding SelectedPriority}" AutomationId="NewReportPriority" />
+                </Border>
+            </VerticalStackLayout>
+        </DataTemplate>
+
+        <!-- Krok 2: Zdjęcie (opcjonalne) -->
+        <DataTemplate x:Key="PhotoStepTemplate" x:DataType="steps:PhotoStepViewModel">
+            <VerticalStackLayout Spacing="16" Padding="0,24,0,0">
+                <Border Style="{StaticResource Thumbnail}" WidthRequest="-1" HeightRequest="200">
+                    <Image Source="report_placeholder.png" WidthRequest="96" HeightRequest="96" />
+                </Border>
+                <Label Text="{loc:Translate NewReport_PhotoPlaceholder}" Style="{StaticResource Body}" HorizontalTextAlignment="Center" />
+            </VerticalStackLayout>
+        </DataTemplate>
+
+        <!-- Krok 3: Podsumowanie -->
+        <DataTemplate x:Key="SummaryStepTemplate" x:DataType="steps:SummaryStepViewModel">
+            <VerticalStackLayout Spacing="12">
+                <Border Style="{StaticResource Card}">
+                    <Grid ColumnDefinitions="72,*" ColumnSpacing="14" RowDefinitions="Auto,Auto">
+                        <Border Grid.RowSpan="2" Style="{StaticResource Thumbnail}" WidthRequest="72" HeightRequest="72" VerticalOptions="Start">
+                            <Image Source="{Binding PhotoPath, TargetNullValue='report_placeholder.png'}" Aspect="AspectFill" />
+                        </Border>
+                        <Label Grid.Column="1" Text="{Binding ReportTitle}" Style="{StaticResource CardTitle}" />
+                        <Label Grid.Column="1" Grid.Row="1" Text="{Binding PriorityText}" Style="{StaticResource Caption}" />
+                    </Grid>
+                </Border>
+                <Border Style="{StaticResource Card}">
+                    <VerticalStackLayout Spacing="8">
+                        <Label Text="{loc:Translate Details_Description}" Style="{StaticResource SectionHeader}" />
+                        <Label Text="{Binding DescriptionText}" Style="{StaticResource Body}" />
+                    </VerticalStackLayout>
+                </Border>
+            </VerticalStackLayout>
+        </DataTemplate>
+
+        <selectors:NewReportStepSelector x:Key="NewReportStepSelector"
+                                         Details="{StaticResource DetailsStepTemplate}"
+                                         Photo="{StaticResource PhotoStepTemplate}"
+                                         Summary="{StaticResource SummaryStepTemplate}" />
+    </pages:BasePage.Resources>
+
+    <Grid RowDefinitions="Auto,*,Auto">
+        <!-- Tytuł kroku + postęp -->
+        <VerticalStackLayout Padding="16,16,16,12" Spacing="8">
+            <Label Text="{Binding Title}" Style="{StaticResource Title}" />
+            <ProgressBar Progress="{Binding Progress}"
+                         ProgressColor="{AppThemeBinding Light={StaticResource AccentLight}, Dark={StaticResource AccentDark}}" />
+        </VerticalStackLayout>
+
+        <ScrollView Grid.Row="1">
+            <VerticalStackLayout Padding="16" BindableLayout.ItemsSource="{Binding CurrentStepHost}"
+                                 BindableLayout.ItemTemplateSelector="{StaticResource NewReportStepSelector}" />
+        </ScrollView>
+
+        <!-- Stopka: wstecz / dalej (na ostatnim kroku „Zapisz”) -->
+        <Grid Grid.Row="2" ColumnDefinitions="*,*" ColumnSpacing="12" Padding="16,12,16,20"
+              BackgroundColor="{AppThemeBinding Light={StaticResource SurfaceLight}, Dark={StaticResource SurfaceDark}}">
+            <Button Text="{loc:Translate NewReport_Back}" Style="{StaticResource SecondaryButton}" Command="{Binding BackCommand}"
+                    AutomationId="NewReportBack">
+                <Button.Triggers>
+                    <DataTrigger TargetType="Button" Binding="{Binding IsFirstStep}" Value="True">
+                        <Setter Property="Text" Value="{loc:Translate Common_Cancel}" />
+                    </DataTrigger>
+                </Button.Triggers>
+            </Button>
+            <Button Grid.Column="1" Text="{loc:Translate NewReport_Next}" Command="{Binding NextCommand}" AutomationId="NewReportNext">
+                <Button.Triggers>
+                    <DataTrigger TargetType="Button" Binding="{Binding IsLastStep}" Value="True">
+                        <Setter Property="Text" Value="{loc:Translate NewReport_Save}" />
+                    </DataTrigger>
+                </Button.Triggers>
+            </Button>
+        </Grid>
+    </Grid>
+</pages:BasePage>

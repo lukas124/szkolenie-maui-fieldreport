@@ -41,4 +41,40 @@
   <data name="StatusAction_InProgress" xml:space="preserve"><value>Start</value></data>
   <data name="StatusAction_Done" xml:space="preserve"><value>Finish</value></data>
   <data name="Error_invalid_status_transition" xml:space="preserve"><value>The report status cannot be changed this way.</value></data>
+  <data name="Common_Cancel" xml:space="preserve"><value>Cancel</value></data>
+  <data name="Error_invalid_credentials" xml:space="preserve"><value>Invalid e-mail or PIN.</value></data>
+  <data name="Error_invalid_description" xml:space="preserve"><value>The description can be at most 500 characters long.</value></data>
+  <data name="Startup_Loading" xml:space="preserve"><value>Starting…</value></data>
+  <data name="StartupError_Title" xml:space="preserve"><value>The app could not start</value></data>
+  <data name="StartupError_Message" xml:space="preserve"><value>Something went wrong during startup. Your data is safe on the phone.</value></data>
+  <data name="StartupError_Retry" xml:space="preserve"><value>Try again</value></data>
+  <data name="Login_Subtitle" xml:space="preserve"><value>Sign in to see your reports.</value></data>
+  <data name="Login_Email" xml:space="preserve"><value>E-mail</value></data>
+  <data name="Login_EmailPlaceholder" xml:space="preserve"><value>e.g. john.smith@company.com</value></data>
+  <data name="Login_Pin" xml:space="preserve"><value>PIN</value></data>
+  <data name="Login_PinPlaceholder" xml:space="preserve"><value>4–6 digits</value></data>
+  <data name="Login_SignIn" xml:space="preserve"><value>Sign in</value></data>
+  <data name="Login_TrainingHint" xml:space="preserve"><value>Training: any valid e-mail, PIN 1234.</value></data>
+  <data name="Reports_New" xml:space="preserve"><value>New report</value></data>
+  <data name="NewReport_DetailsTitle" xml:space="preserve"><value>Details</value></data>
+  <data name="NewReport_PhotoTitle" xml:space="preserve"><value>Photo</value></data>
+  <data name="NewReport_SummaryTitle" xml:space="preserve"><value>Summary</value></data>
+  <data name="NewReport_TitleLabel" xml:space="preserve"><value>Title</value></data>
+  <data name="NewReport_TitlePlaceholder" xml:space="preserve"><value>e.g. Circulation pump failure</value></data>
+  <data name="NewReport_DescriptionLabel" xml:space="preserve"><value>Description (optional)</value></data>
+  <data name="NewReport_DescriptionPlaceholder" xml:space="preserve"><value>What happened, where, what has already been checked…</value></data>
+  <data name="NewReport_PriorityLabel" xml:space="preserve"><value>Priority</value></data>
+  <data name="NewReport_PhotoPlaceholder" xml:space="preserve"><value>A photo of the fault is optional. Continue.</value></data>
+  <data name="NewReport_Next" xml:space="preserve"><value>Next</value></data>
+  <data name="NewReport_Save" xml:space="preserve"><value>Save</value></data>
+  <data name="NewReport_Back" xml:space="preserve"><value>Back</value></data>
+  <data name="NewReport_ExitTitle" xml:space="preserve"><value>Discard the report?</value></data>
+  <data name="NewReport_ExitMessage" xml:space="preserve"><value>The data you entered will not be saved.</value></data>
+  <data name="Settings_Technician" xml:space="preserve"><value>Technician</value></data>
+  <data name="Settings_Environment" xml:space="preserve"><value>Environment</value></data>
+  <data name="Settings_Version" xml:space="preserve"><value>Version</value></data>
+  <data name="Settings_Language" xml:space="preserve"><value>Language</value></data>
+  <data name="Settings_SignOut" xml:space="preserve"><value>Sign out</value></data>
+  <data name="Settings_SignOutTitle" xml:space="preserve"><value>Sign out?</value></data>
+  <data name="Settings_SignOutMessage" xml:space="preserve"><value>After signing out you will need to sign in again.</value></data>
 </root>

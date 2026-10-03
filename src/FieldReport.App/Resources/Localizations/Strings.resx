@@ -41,4 +41,40 @@
   <data name="StatusAction_InProgress" xml:space="preserve"><value>Rozpocznij</value></data>
   <data name="StatusAction_Done" xml:space="preserve"><value>Zakończ</value></data>
   <data name="Error_invalid_status_transition" xml:space="preserve"><value>Nie można zmienić statusu zgłoszenia w ten sposób.</value></data>
+  <data name="Common_Cancel" xml:space="preserve"><value>Anuluj</value></data>
+  <data name="Error_invalid_credentials" xml:space="preserve"><value>Nieprawidłowy e-mail lub PIN.</value></data>
+  <data name="Error_invalid_description" xml:space="preserve"><value>Opis może mieć maksymalnie 500 znaków.</value></data>
+  <data name="Startup_Loading" xml:space="preserve"><value>Uruchamianie…</value></data>
+  <data name="StartupError_Title" xml:space="preserve"><value>Nie udało się uruchomić aplikacji</value></data>
+  <data name="StartupError_Message" xml:space="preserve"><value>Coś poszło nie tak podczas startu. Twoje dane są bezpieczne w telefonie.</value></data>
+  <data name="StartupError_Retry" xml:space="preserve"><value>Spróbuj ponownie</value></data>
+  <data name="Login_Subtitle" xml:space="preserve"><value>Zaloguj się, aby zobaczyć swoje zgłoszenia.</value></data>
+  <data name="Login_Email" xml:space="preserve"><value>E-mail</value></data>
+  <data name="Login_EmailPlaceholder" xml:space="preserve"><value>np. jan.kowalski@firma.pl</value></data>
+  <data name="Login_Pin" xml:space="preserve"><value>PIN</value></data>
+  <data name="Login_PinPlaceholder" xml:space="preserve"><value>4–6 cyfr</value></data>
+  <data name="Login_SignIn" xml:space="preserve"><value>Zaloguj</value></data>
+  <data name="Login_TrainingHint" xml:space="preserve"><value>Szkolenie: dowolny poprawny e-mail, PIN 1234.</value></data>
+  <data name="Reports_New" xml:space="preserve"><value>Nowe zgłoszenie</value></data>
+  <data name="NewReport_DetailsTitle" xml:space="preserve"><value>Dane</value></data>
+  <data name="NewReport_PhotoTitle" xml:space="preserve"><value>Zdjęcie</value></data>
+  <data name="NewReport_SummaryTitle" xml:space="preserve"><value>Podsumowanie</value></data>
+  <data name="NewReport_TitleLabel" xml:space="preserve"><value>Tytuł</value></data>
+  <data name="NewReport_TitlePlaceholder" xml:space="preserve"><value>np. Awaria pompy obiegowej</value></data>
+  <data name="NewReport_DescriptionLabel" xml:space="preserve"><value>Opis (opcjonalnie)</value></data>
+  <data name="NewReport_DescriptionPlaceholder" xml:space="preserve"><value>Co się stało, gdzie, co już sprawdzono…</value></data>
+  <data name="NewReport_PriorityLabel" xml:space="preserve"><value>Priorytet</value></data>
+  <data name="NewReport_PhotoPlaceholder" xml:space="preserve"><value>Zdjęcie usterki jest opcjonalne. Przejdź dalej.</value></data>
+  <data name="NewReport_Next" xml:space="preserve"><value>Dalej</value></data>
+  <data name="NewReport_Save" xml:space="preserve"><value>Zapisz</value></data>
+  <data name="NewReport_Back" xml:space="preserve"><value>Wstecz</value></data>
+  <data name="NewReport_ExitTitle" xml:space="preserve"><value>Porzucić zgłoszenie?</value></data>
+  <data name="NewReport_ExitMessage" xml:space="preserve"><value>Wprowadzone dane nie zostaną zapisane.</value></data>
+  <data name="Settings_Technician" xml:space="preserve"><value>Technik</value></data>
+  <data name="Settings_Environment" xml:space="preserve"><value>Środowisko</value></data>
+  <data name="Settings_Version" xml:space="preserve"><value>Wersja</value></data>
+  <data name="Settings_Language" xml:space="preserve"><value>Język</value></data>
+  <data name="Settings_SignOut" xml:space="preserve"><value>Wyloguj</value></data>
+  <data name="Settings_SignOutTitle" xml:space="preserve"><value>Wylogować?</value></data>
+  <data name="Settings_SignOutMessage" xml:space="preserve"><value>Po wylogowaniu trzeba będzie zalogować się ponownie.</value></data>
 </root>

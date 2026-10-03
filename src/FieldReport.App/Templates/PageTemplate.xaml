@@ -12,15 +12,21 @@
       (widoczny, gdy ViewModel ma IsBusy = true). Każda BasePage dostaje go ze stylu w App.xaml.
       Nagłówek rysuje MAUI, więc wygląda tak samo na Androidzie i iOS (systemowy pasek nawigacji jest ukryty — Styles.xaml).
       Binding z Source={RelativeSource TemplatedParent} czyta właściwości strony, która używa szablonu (Title, CanNavigateBack…).
+      Z lewej strzałka „wstecz” (CanNavigateBack) albo „X” (ShowCloseButton), z prawej ikona akcji (ActionIcon).
     -->
     <ControlTemplate x:Key="PageTemplate">
         <Grid RowDefinitions="Auto,*" x:DataType="pages:BasePage"
               BindingContext="{Binding BindingContext, Source={RelativeSource TemplatedParent}}">
-            <Grid ColumnDefinitions="56,*,56" HeightRequest="56">
+            <Grid ColumnDefinitions="56,*,56" HeightRequest="56"
+                  IsVisible="{Binding IsHeaderVisible, Source={RelativeSource TemplatedParent}}">
                 <ImageButton Source="{AppThemeBinding Light=icon_back_dark.png, Dark=icon_back_light.png}" Padding="16"
                              Command="{Binding BackButtonCommand, Source={RelativeSource TemplatedParent}}"
                              IsVisible="{Binding CanNavigateBack, Source={RelativeSource TemplatedParent}}"
                              AutomationId="HeaderBack" />
+                <ImageButton Source="{AppThemeBinding Light=icon_close_dark.png, Dark=icon_close_light.png}" Padding="16"
+                             Command="{Binding CloseButtonCommand, Source={RelativeSource TemplatedParent}}"
+                             IsVisible="{Binding ShowCloseButton, Source={RelativeSource TemplatedParent}}"
+                             AutomationId="HeaderClose" />
                 <Label Grid.Column="1" Text="{Binding Title, Source={RelativeSource TemplatedParent}}" Style="{StaticResource HeaderTitle}" />
                 <ImageButton Grid.Column="2" Source="{Binding ActionIcon, Source={RelativeSource TemplatedParent}}" Padding="16"
                              Command="{Binding ActionCommand, Source={RelativeSource TemplatedParent}}"
