@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!-- Start aplikacji: splash pokazuje się natychmiast (bez danych), routing startowy dzieje się w StartupViewModel. -->
+<pages:BasePage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+                xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+                xmlns:pages="clr-namespace:FieldReport.App.Pages"
+                xmlns:loc="clr-namespace:FieldReport.App.MarkupExtensions"
+                xmlns:vm="clr-namespace:FieldReport.Core.ViewModels;assembly=FieldReport.Core"
+                x:Class="FieldReport.App.Pages.StartupPage"
+                x:DataType="vm:StartupViewModel"
+                ControlTemplate="{x:Null}"
+                BackgroundColor="{StaticResource AccentLight}">
+    <VerticalStackLayout VerticalOptions="Center" HorizontalOptions="Center" Spacing="24">
+        <Image Source="logo_mark.png" WidthRequest="128" HeightRequest="128" />
+        <ActivityIndicator IsRunning="{Binding IsBusy}" Color="{StaticResource OnAccentLight}" WidthRequest="32" HeightRequest="32" />
+        <Label Text="{loc:Translate Startup_Loading}" TextColor="{StaticResource OnAccentLight}" HorizontalTextAlignment="Center" />
+    </VerticalStackLayout>
+</pages:BasePage>

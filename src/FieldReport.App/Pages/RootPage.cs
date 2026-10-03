@@ -4,17 +4,18 @@ namespace FieldReport.App.Pages;
 
 /// <summary>
 /// Korzeń okna: NavigationPage, czyli stos stron (systemowy pasek ukryty — nagłówek rysuje PageTemplate z Templates/PageTemplate.xaml).
-/// Pierwsza strona to lista zgłoszeń.
-/// Rejestracja transient: każde nowe okno dostaje własny korzeń.
+/// Rejestracja transient: każde okno ma własny korzeń.
+/// Pierwsza strona to StartupPage (splash przy starcie aplikacji). StartupViewModel zastępuje ją (ResetToAsync) logowaniem albo listą,
+/// więc strona startowa nie zostaje na stosie.
 /// </summary>
 public sealed class RootPage : NavigationPage
 {
-    private readonly ReportsViewModel _startViewModel;
+    private readonly StartupViewModel _startup;
 
-    public RootPage(ReportsPage startPage, ReportsViewModel startViewModel) : base(startPage)
+    public RootPage(StartupPage startPage, StartupViewModel startup) : base(startPage)
     {
-        _startViewModel = startViewModel;
-        startPage.BindingContext = startViewModel;
+        _startup = startup;
+        startPage.BindingContext = startup;
     }
 
 #if IOS
@@ -30,17 +31,17 @@ public sealed class RootPage : NavigationPage
     }
 #endif
 
-    /// <summary>Jednorazowe ładowanie pierwszej strony (dla kolejnych stron robi to NavigationService). Wołane z Window.Created.</summary>
+    /// <summary>Start aplikacji: uruchamia decyzję startową (StartupViewModel.OnNavigatedToAsync). Wołane z Window.Created.</summary>
     public async Task InitializeAsync()
     {
-        _startViewModel.IsBusy = true;
+        _startup.IsBusy = true;
         try
         {
-            await _startViewModel.OnNavigatedToAsync(null);
+            await _startup.OnNavigatedToAsync(null);
         }
         finally
         {
-            _startViewModel.IsBusy = false;
+            _startup.IsBusy = false;
         }
     }
 }

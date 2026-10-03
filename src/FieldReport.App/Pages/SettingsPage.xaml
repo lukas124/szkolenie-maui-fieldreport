@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" ?>
-<!-- Ustawienia. Na razie tylko narzędzia dewelopera; kolejne sekcje dochodzą w następnych blokach. -->
+<!-- Ustawienia: technik, środowisko, wersja, język aplikacji, Playground, wylogowanie. -->
 <pages:BasePage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
                 xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
                 xmlns:pages="clr-namespace:FieldReport.App.Pages"
@@ -11,9 +11,36 @@
                 CanNavigateBack="True">
     <ScrollView>
         <VerticalStackLayout Padding="16,16,16,32" Spacing="16">
+            <Border Style="{StaticResource Card}">
+                <VerticalStackLayout Spacing="4">
+                    <Label Text="{loc:Translate Settings_Technician}" Style="{StaticResource SectionHeader}" />
+                    <Label Text="{Binding TechnicianName}" Style="{StaticResource CardTitle}" />
+                    <Label Text="{Binding Email}" Style="{StaticResource Caption}" />
+                </VerticalStackLayout>
+            </Border>
+
+            <Border Style="{StaticResource Card}">
+                <Grid ColumnDefinitions="Auto,*" RowDefinitions="Auto,Auto" ColumnSpacing="16" RowSpacing="10">
+                    <Label Text="{loc:Translate Settings_Environment}" Style="{StaticResource Caption}" VerticalOptions="Center" />
+                    <Label Grid.Column="1" Text="{Binding EnvironmentName}" FontFamily="MonoBold" HorizontalOptions="End" />
+                    <Label Grid.Row="1" Text="{loc:Translate Settings_Version}" Style="{StaticResource Caption}" VerticalOptions="Center" />
+                    <Label Grid.Row="1" Grid.Column="1" Text="{Binding VersionText}" FontFamily="MonoRegular" HorizontalOptions="End" />
+                </Grid>
+            </Border>
+
+            <!-- Język: Picker z listą języków; zmiana przełącza teksty w locie (Localizer.SetLocale) -->
+            <Border Style="{StaticResource Card}">
+                <VerticalStackLayout Spacing="8">
+                    <Label Text="{loc:Translate Settings_Language}" Style="{StaticResource SectionHeader}" />
+                    <Picker ItemsSource="{Binding Languages}" SelectedItem="{Binding SelectedLanguage}" AutomationId="SettingsLanguage" />
+                </VerticalStackLayout>
+            </Border>
+
             <!-- piaskownica do pokazów XAML -->
             <Button Text="Playground" Style="{StaticResource SecondaryButton}" Command="{Binding OpenPlaygroundCommand}"
                     AutomationId="SettingsPlayground" />
+
+            <Button Text="{loc:Translate Settings_SignOut}" Style="{StaticResource SecondaryButton}" Command="{Binding SignOutCommand}" />
         </VerticalStackLayout>
     </ScrollView>
 </pages:BasePage>

@@ -12,6 +12,7 @@
                 ActionIcon="{AppThemeBinding Light=icon_settings_dark.png, Dark=icon_settings_light.png}"
                 ActionCommand="{Binding OpenSettingsCommand}">
 
+    <Grid>
     <!-- Nigdy CollectionView w ScrollView: lista sama się przewija i wirtualizuje elementy -->
     <CollectionView ItemsSource="{Binding Reports}" SelectionMode="None">
         <CollectionView.ItemsLayout>
@@ -22,7 +23,7 @@
             <BoxView HeightRequest="12" Color="Transparent" />
         </CollectionView.Header>
         <CollectionView.Footer>
-            <BoxView HeightRequest="24" Color="Transparent" />
+            <BoxView HeightRequest="104" Color="Transparent" />
         </CollectionView.Footer>
 
         <!-- Pusty stan listy zgłoszeń -->
@@ -94,4 +95,13 @@
             </DataTemplate>
         </CollectionView.ItemTemplate>
     </CollectionView>
+
+    <!-- Lista zgłoszeń: „+” otwiera kreator nowego zgłoszenia (modal). Znak „+” to ikona SVG, więc jest dokładnie na środku
+         (znak tekstowy przesuwa się zależnie od metryk czcionki). -->
+    <ImageButton Source="icon_add.png" Command="{Binding NewReportCommand}" AutomationId="ReportsAdd"
+                 Padding="16" WidthRequest="60" HeightRequest="60" CornerRadius="30"
+                 BackgroundColor="{AppThemeBinding Light={StaticResource AccentLight}, Dark={StaticResource AccentDark}}"
+                 HorizontalOptions="End" VerticalOptions="End" Margin="0,0,20,28"
+                 SemanticProperties.Description="{loc:Translate Reports_New}" />
+    </Grid>
 </pages:BasePage>
