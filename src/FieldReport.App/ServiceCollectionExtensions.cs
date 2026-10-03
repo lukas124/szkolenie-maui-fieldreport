@@ -7,6 +7,7 @@ using FieldReport.Core.Navigation;
 using FieldReport.Core.Presentation;
 using FieldReport.Core.Services;
 using FieldReport.Core.ViewModels;
+using FieldReport.Core.ViewModels.Playground;
 
 namespace FieldReport.App;
 
@@ -22,6 +23,7 @@ public static class ServiceCollectionExtensions
         services.AddSingleton<IReportService, ReportService>();
         services.AddSingleton<IReportFormatter, ReportFormatter>();
         services.AddSingleton<IReportItemFactory, ReportItemFactory>();
+        services.AddSingleton<IReportDetailsFactory, ReportDetailsFactory>();
         services.AddSingleton<IErrorMessageProvider, ErrorMessageProvider>();
         services.AddSingleton<IUserFeedback, UserFeedback>();
         return services;
@@ -37,17 +39,26 @@ public static class ServiceCollectionExtensions
         return services;
     }
 
+    // ViewModele stron i komponentów: transient, nowa instancja przy każdym wejściu na stronę
     public static IServiceCollection AddViewModels(this IServiceCollection services)
     {
         services.AddTransient<ReportsViewModel>(); // kontener sam przekaże zależności do konstruktora
+        // TODO: zarejestruj ReportDetailsViewModel (Transient)
+        services.AddTransient<SettingsViewModel>();
+        services.AddTransient<PlaygroundViewModel>();
+        services.AddTransient<CounterViewModel>();
         return services;
     }
 
-    // Strony i nawigacja
+    // Strony i nawigacja. Która strona należy do którego ViewModelu — mapa PageRoutes w MauiProgram.
     public static IServiceCollection AddPages(this IServiceCollection services)
     {
         services.AddSingleton<INavigationService, NavigationService>();
+        services.AddTransient<RootPage>(); // nowy korzeń dla każdego okna
         services.AddTransient<ReportsPage>();
+        // TODO: zarejestruj ReportDetailsPage (Transient)
+        services.AddTransient<SettingsPage>();
+        services.AddTransient<PlaygroundPage>();
         return services;
     }
 }

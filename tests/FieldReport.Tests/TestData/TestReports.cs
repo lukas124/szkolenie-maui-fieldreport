@@ -16,5 +16,5 @@ internal static class TestReports
         DateTimeOffset? updatedAt = null,
         Guid? id = null) =>
         new(id ?? Guid.NewGuid(), ReportTitle.Create(title).Value!, "Opis", priority, status, syncState,
-            photoPath: null, createdAt: Now, updatedAt: updatedAt ?? Now);
+            photoPath: null, createdAt: Now, updatedAt: updatedAt ?? Now, isOnServer: syncState == SyncState.Synced);
 }

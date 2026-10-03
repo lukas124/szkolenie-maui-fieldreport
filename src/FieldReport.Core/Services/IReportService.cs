@@ -8,6 +8,11 @@ public interface IReportService
     /// <summary>Wszystkie zgłoszenia, od najnowszej aktualizacji.</summary>
     Task<Result<IReadOnlyList<Report>>> GetAllAsync(CancellationToken ct = default);
 
-    /// <summary>Usuwa zgłoszenie. Reguła: tylko niewysłane (<see cref="SyncState.Pending"/>).</summary>
+    Task<Result<Report>> GetAsync(Guid id, CancellationToken ct = default);
+
+    /// <summary>Zmienia status (reguła w <see cref="Report.ChangeStatus"/>) i zapisuje lokalnie.</summary>
+    Task<Result<Report>> ChangeStatusAsync(Guid id, ReportStatus next, CancellationToken ct = default);
+
+    /// <summary>Usuwa zgłoszenie. Reguła: tylko nigdy niewysłane (<see cref="Report.CanDelete"/>).</summary>
     Task<Result> DeleteAsync(Guid id, CancellationToken ct = default);
 }
