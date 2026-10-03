@@ -1,6 +1,7 @@
 using FieldReport.App.Navigation;
 using FieldReport.App.Pages;
 using FieldReport.App.Services;
+using FieldReport.Core.Data;
 using FieldReport.Core.Presentation;
 using FieldReport.Core.Services;
 using FieldReport.Core.ViewModels;
@@ -26,12 +27,14 @@ public partial class App : Application
     // nie wykona się drugi raz, a CreateWindow — tak. Dlatego kod startowy podpinamy do zdarzeń okna.
     protected override Window CreateWindow(IActivationState? activationState)
     {
+        // TODO: zamiast składać obiekty ręcznie, pobierz z kontenera DI stronę i ViewModel
+        // (konstruktor App(IServiceProvider services, …), services.GetRequiredService<ReportsPage>() / <ReportsViewModel>())
         // Obiekty aplikacji tworzymy ręcznie, w jednym miejscu: usługi → ViewModel → strona.
         // ViewModel dostaje usługi w konstruktorze i nie wie, skąd pochodzą.
         var dialogs = new MauiDialogService();
         var errors = new LoggingErrorHandler(_logger);
         var navigation = new NavigationService();
-        var reports = new SampleReportService();
+        var reports = new ReportService(new InMemoryReportRepository(new SystemClock()));
         var items = new ReportItemFactory(new ReportFormatter(_localizer));
         var feedback = new UserFeedback(dialogs, new ErrorMessageProvider(_localizer), _localizer);
         var viewModel = new ReportsViewModel(navigation, reports, items, feedback);

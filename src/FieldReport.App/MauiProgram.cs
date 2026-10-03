@@ -1,5 +1,3 @@
-using FieldReport.App.Services.Localization;
-using FieldReport.Core.Services;
 using Microsoft.Extensions.Logging;
 
 namespace FieldReport.App;
@@ -23,9 +21,12 @@ public static class MauiProgram
 
         ConfigureHandlers(); // mapper Entry/Editor (Android)
 
-        // Kontener DI istnieje w MAUI zawsze. Trzymamy w nim tylko to, czego potrzebuje XAML: ILocalizer
-        // dla {loc:Translate}. Pozostałe obiekty tworzy App.CreateWindow.
-        builder.Services.AddSingleton<ILocalizer, Localizer>();
+        // Kontener DI: rejestracje pogrupowane w metodach rozszerzających (ServiceCollectionExtensions)
+        builder.Services
+            .AddCoreServices()
+            .AddPlatformServices()
+            .AddViewModels()
+            .AddPages();
 
 #if DEBUG
         builder.Logging.AddDebug(); // okno Output w IDE (z debuggerem)
