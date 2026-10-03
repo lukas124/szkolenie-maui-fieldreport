@@ -39,17 +39,13 @@ public class SyncServiceTests
         Report.CreateNew(Guid.NewGuid(), ReportTitle.Create(title).Value!, "Opis", ReportPriority.High, TestReports.Now, photo);
 
     [Test]
+    [Ignore("Ćwiczenie 13: usuń Ignore po uzupełnieniu TODO")]
     public async Task Offline_ReturnsNetwork_AndReportStaysOnPhone()
     {
-        var pending = NewReport();
-        await _local.SaveAsync(pending);
-        _connectivity.SetupGet(c => c.IsOnline).Returns(false);
-
-        var result = await _sync.SyncAsync();
-
-        Assert.That(result.Error, Is.EqualTo(Errors.Network));
-        _api.VerifyNoOtherCalls();                              // offline: zero wywołań API
-        Assert.That(await _local.GetAsync(pending.Id), Is.Not.Null); // nadal w telefonie
+        // TODO: zapisz NewReport() w _local, ustaw _connectivity IsOnline = false, wywołaj _sync.SyncAsync()
+        // → Errors.Network, API niewołane (_api.VerifyNoOtherCalls()), zgłoszenie nadal w _local
+        await Task.CompletedTask;
+        Assert.Fail("TODO");
     }
 
     [Test]
