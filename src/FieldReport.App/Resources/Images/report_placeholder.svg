@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Miniatura zastępcza zgłoszenia bez zdjęcia (średni szary: czytelny w obu motywach) -->
+<svg width="64" height="64" viewBox="0 0 64 64" version="1.1" xmlns="http://www.w3.org/2000/svg">
+  <rect x="19" y="15" width="26" height="34" rx="4" fill="none" stroke="#8C97A0" stroke-width="3" />
+  <rect x="25" y="11" width="14" height="7" rx="2.5" fill="#8C97A0" />
+  <path d="M25 33 L30 38 L39 28" fill="none" stroke="#8C97A0" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" />
+</svg>
