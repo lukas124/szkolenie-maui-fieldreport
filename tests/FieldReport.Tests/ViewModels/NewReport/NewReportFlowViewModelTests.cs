@@ -37,11 +37,11 @@ public class NewReportFlowViewModelTests
     }
 
     [Test]
+    [Ignore("Ćwiczenie 13: usuń Ignore po uzupełnieniu TODO")]
     public void Next_IsDisabled_UntilDetailsAreValid()
     {
-        Assert.That(_vm.NextCommand.CanExecute(null), Is.False);
-        _details.TitleInput = "Awaria pompy";
-        Assert.That(_vm.NextCommand.CanExecute(null), Is.True);
+        // TODO: na starcie NextCommand.CanExecute(null) == false; po _details.TitleInput = "Awaria pompy" → true
+        Assert.Fail("TODO");
     }
 
     [Test]
@@ -52,18 +52,13 @@ public class NewReportFlowViewModelTests
     }
 
     [Test]
+    [Ignore("Ćwiczenie 13: usuń Ignore po uzupełnieniu TODO")]
     public async Task Next_OnLastStep_SavesAndResetsToList()
     {
-        _reports.Setup(r => r.CreateAsync(It.IsAny<NewReportDraft>(), It.IsAny<CancellationToken>()))
-                .ReturnsAsync(Result<Guid>.Success(Guid.NewGuid()));
-        _details.TitleInput = "Awaria pompy";
-        await _vm.NextCommand.ExecuteAsync(null); // → Zdjęcie
-        await _vm.NextCommand.ExecuteAsync(null); // → Podsumowanie
-
-        await _vm.NextCommand.ExecuteAsync(null); // Zapisz
-
-        _reports.Verify(r => r.CreateAsync(It.Is<NewReportDraft>(d => d.Title!.Value == "Awaria pompy"), It.IsAny<CancellationToken>()), Times.Once);
-        _navigation.Verify(n => n.ResetToAsync<ReportsViewModel>(), Times.Once);
+        // TODO: CreateAsync zwraca Result<Guid>.Success; poprawny tytuł; 3 × NextCommand.ExecuteAsync(null)
+        // → CreateAsync wywołane raz (z tytułem z kroku 1), ResetToAsync<ReportsViewModel>() raz
+        await Task.CompletedTask;
+        Assert.Fail("TODO");
     }
 
     [Test]
