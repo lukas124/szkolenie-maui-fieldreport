@@ -9,7 +9,8 @@
                 x:Class="FieldReport.App.Pages.ReportsPage"
                 x:DataType="vm:ReportsViewModel"
                 Title="{loc:Translate Reports_Title}"
-                ActionIcon="{AppThemeBinding Light=icon_settings_dark.png, Dark=icon_settings_light.png}">
+                ActionIcon="{AppThemeBinding Light=icon_settings_dark.png, Dark=icon_settings_light.png}"
+                ActionCommand="{Binding OpenSettingsCommand}">
 
     <!-- Nigdy CollectionView w ScrollView: lista sama się przewija i wirtualizuje elementy -->
     <CollectionView ItemsSource="{Binding Reports}" SelectionMode="None">
@@ -42,8 +43,8 @@
                 <SwipeView Margin="16,0" BackgroundColor="Transparent">
                     <SwipeView.RightItems>
                         <SwipeItems Mode="Reveal">
-                            <!-- akcja widoczna tylko dla niewysłanych -->
-                            <SwipeItemView IsVisible="{Binding IsPendingSync}"
+                            <!-- akcja widoczna tylko dla zgłoszeń, które można usunąć (CanDelete: nigdy niewysłane) -->
+                            <SwipeItemView IsVisible="{Binding CanDelete}"
                                            Command="{Binding DeleteReportCommand, Source={RelativeSource AncestorType={x:Type vm:ReportsViewModel}}}"
                                            CommandParameter="{Binding .}">
                                 <Border Style="{StaticResource SwipeAction}">
@@ -58,6 +59,8 @@
 
                 <!-- ramka karty: zaokrąglone tło ze stylu Card -->
                 <Border Style="{StaticResource Card}" Padding="12">
+                    <!-- TODO: tapnięcie karty: Border.GestureRecognizers → TapGestureRecognizer z OpenReportCommand
+                         (Source={RelativeSource AncestorType={x:Type vm:ReportsViewModel}}), CommandParameter="{Binding .}" -->
                     <!-- 2 kolumny: miniatura 64 px | reszta; 3 wiersze: tytuł, data, odznaki -->
                     <Grid ColumnDefinitions="64,*" RowDefinitions="Auto,Auto,Auto" ColumnSpacing="14" RowSpacing="4">
                         <!-- miniatura w kolumnie 0, przez 3 wiersze -->

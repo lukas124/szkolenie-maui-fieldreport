@@ -28,4 +28,17 @@
   <data name="Reports_DeleteMessage" xml:space="preserve"><value>The report has not been sent yet. This cannot be undone.</value></data>
   <data name="Error_report_not_found" xml:space="preserve"><value>Report not found. It may have been deleted.</value></data>
   <data name="Error_report_already_synced" xml:space="preserve"><value>A report that has been sent cannot be deleted.</value></data>
+  <data name="Details_Title" xml:space="preserve"><value>Report details</value></data>
+  <data name="Details_Description" xml:space="preserve"><value>Description</value></data>
+  <data name="Details_NoDescription" xml:space="preserve"><value>No description.</value></data>
+  <data name="Details_CreatedAt" xml:space="preserve"><value>Created</value></data>
+  <data name="Details_UpdatedAt" xml:space="preserve"><value>Updated</value></data>
+  <data name="Details_SyncState" xml:space="preserve"><value>Synchronization</value></data>
+  <data name="Details_ActionsHeader" xml:space="preserve"><value>// actions</value></data>
+  <data name="Details_NoActions" xml:space="preserve"><value>The report is done. No actions available.</value></data>
+  <data name="SyncState_Pending" xml:space="preserve"><value>Waiting to be sent</value></data>
+  <data name="SyncState_Synced" xml:space="preserve"><value>Sent</value></data>
+  <data name="StatusAction_InProgress" xml:space="preserve"><value>Start</value></data>
+  <data name="StatusAction_Done" xml:space="preserve"><value>Finish</value></data>
+  <data name="Error_invalid_status_transition" xml:space="preserve"><value>The report status cannot be changed this way.</value></data>
 </root>

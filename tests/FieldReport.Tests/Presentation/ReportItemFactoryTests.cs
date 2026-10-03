@@ -37,6 +37,31 @@ public class ReportItemFactoryTests
     }
 
     [Test]
+    public void Create_ShowsCreationDate_NotLastUpdate() // lista zgłoszeń: karta pokazuje datę UTWORZENIA
+    {
+        var formatter = new Mock<IReportFormatter>();
+        formatter.Setup(f => f.FormatDate(It.IsAny<DateTimeOffset>())).Returns((DateTimeOffset d) => d.ToString("yyyy-MM-dd HH:mm"));
+        var created = new DateTimeOffset(2026, 9, 20, 8, 0, 0, TimeSpan.Zero);
+        var report = new Report(Guid.NewGuid(), ReportTitle.Create("Awaria").Value!, null, ReportPriority.Low, ReportStatus.InProgress,
+            SyncState.Synced, null, created, created.AddDays(5), isOnServer: true);
+
+        var item = new ReportItemFactory(formatter.Object).Create(report);
+
+        Assert.That(item.CreatedAtText, Is.EqualTo("2026-09-20 08:00"));
+    }
+
+    [Test]
+    public void Create_CanDelete_FollowsModelRule()
+    {
+        var sent = TestReports.Create(status: ReportStatus.New, syncState: SyncState.Synced);
+        sent.ChangeStatus(ReportStatus.InProgress, TestReports.Now);
+
+        Assert.That(_factory.Create(sent).CanDelete, Is.False);
+        Assert.That(_factory.Create(sent).IsPendingSync, Is.True);
+        Assert.That(_factory.Create(TestReports.Create(syncState: SyncState.Pending)).CanDelete, Is.True);
+    }
+
+    [Test]
     public void Create_UsesFormatterForTexts()
     {
         var item = _factory.Create(TestReports.Create(title: "Wyciek z instalacji", status: ReportStatus.InProgress, priority: ReportPriority.High));
@@ -49,19 +74,5 @@ public class ReportItemFactoryTests
             Assert.That(item.PriorityText, Is.EqualTo("priority:High"));
             Assert.That(item.Priority, Is.EqualTo(ReportPriority.High));
         });
-    }
-
-    [Test]
-    public void Create_ShowsCreationDate_NotLastUpdate() // lista zgłoszeń: karta pokazuje datę UTWORZENIA
-    {
-        var formatter = new Mock<IReportFormatter>();
-        formatter.Setup(f => f.FormatDate(It.IsAny<DateTimeOffset>())).Returns((DateTimeOffset d) => d.ToString("yyyy-MM-dd HH:mm"));
-        var created = new DateTimeOffset(2026, 9, 20, 8, 0, 0, TimeSpan.Zero);
-        var report = new Report(Guid.NewGuid(), ReportTitle.Create("Awaria").Value!, null, ReportPriority.Low, ReportStatus.InProgress,
-            SyncState.Synced, null, created, created.AddDays(5));
-
-        var item = new ReportItemFactory(formatter.Object).Create(report);
-
-        Assert.That(item.CreatedAtText, Is.EqualTo("2026-09-20 08:00"));
     }
 }

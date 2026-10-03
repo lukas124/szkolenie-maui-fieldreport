@@ -47,7 +47,7 @@ public abstract class BasePage(IErrorHandler errors) : ContentPage
         set => SetValue(ActionCommandProperty, value);
     }
 
-    /// <summary>Obsługa błędów — także dla stron tworzonych w code-behind (new PlaygroundPage(Errors, _repository)).</summary>
+    /// <summary>Obsługa błędów — także dla stron tworzonych w code-behind (new PlaygroundPage(Errors)).</summary>
     protected IErrorHandler Errors => errors;
 
     // Szablon (styl z App.xaml) jest nakładany już w konstruktorze ContentPage, zanim wykona się kod BasePage,
